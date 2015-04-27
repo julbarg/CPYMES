@@ -1,0 +1,11 @@
+com.claro.cpymes.dao
+com.claro.cpymes.dto
+com.claro.cpymes.ejb
+com.claro.cpymes.ejb.remote
+com.claro.cpymes.entity
+com.claro.cpymes.enums
+com.claro.cpymes.listener
+com.claro.cpymes.rule
+com.claro.cpymes.util
+com.claro.cpymes.view
+test
