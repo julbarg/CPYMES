@@ -61,7 +61,9 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private Correlacion correlacion;
 
-   private int procesadas;
+   private ArrayList<LogEntity> listAlarms;
+
+   private ArrayList<LogDTO> listLog;
 
    @PostConstruct
    private void initialize() {
@@ -105,31 +107,28 @@ public class ProcessEJB implements ProcessEJBRemote {
     */
    public void procesar() {
       try {
-         procesarCli();
+         LOGGER.info("INICIO PROCESO PRINCIPAL");
+         getListAlarmsEntity();
+         mapearListLogDTO();
+         filtrar();
+         saveAlarmFilter();
+         // saveAlarm(listLogDTOs);
+         // cleanMemory();
+         // correlate(listLogDTOs);
+         // saveOrUpdateCEP();
+         LOGGER.info("FIN");
+         LOGGER.info("-----------------------------------------------");
       } catch (Exception e) {
          LOGGER.error("Error Procesando Alarmas", e);
       }
 
    }
 
-   private void procesarCli() {
-      LOGGER.info("INICIO PROCESO PRINCIPAL");
-      ArrayList<LogEntity> listAlarms = getListAlarmsEntity();
-      ArrayList<LogDTO> listLogDTOs = mapearListLogDTO(listAlarms);
-      listLogDTOs = filtrar(listLogDTOs);
+   private void saveAlarmFilter() {
 
-      saveAlarmCatalog(listLogDTOs);
-      /* saveAlarm(listLogDTOs);
-       * cleanMemory();
-       * correlate(listLogDTOs); */
-      LOGGER.info("FIN");
-      LOGGER.info("-----------------------------------------------");
-   }
-
-   private void saveAlarmCatalog(ArrayList<LogDTO> listLogDTOs) {
       ArrayList<AlarmPymesEntity> listAlarmCreate = new ArrayList<AlarmPymesEntity>();
-      listLogDTOs = alarmPymesDAORemote.validateSimilar(listLogDTOs);
-      for (LogDTO logDTO : listLogDTOs) {
+      listLog = alarmPymesDAORemote.validateSimilar(listLog);
+      for (LogDTO logDTO : listLog) {
 
          if (logDTO.getSeverity() != null && logDTO.isRelevant()) {
             try {
@@ -146,7 +145,6 @@ public class ProcessEJB implements ProcessEJBRemote {
                if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
                   || SeverityEnum.PAS.getValue().equals(severity)) {
                   alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
-                  LOGGER.info("FIND IN CATALOG:" + logDTO.getNameEvent() + " " + logDTO.getSeverity());
                } else {
                   alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
                }
@@ -165,7 +163,7 @@ public class ProcessEJB implements ProcessEJBRemote {
 
       }
       alarmPymesDAORemote.createList(listAlarmCreate);
-      LOGGER.info("CORRELACION - Alarmas Procesadas: " + procesadas);
+      LOGGER.info("FILTRADO - Alarmas Filtradas: " + listAlarmCreate.size());
 
    }
 
@@ -174,15 +172,14 @@ public class ProcessEJB implements ProcessEJBRemote {
     * KOU
     * @return ArrayList<LogEntity> Lista de logs obtenidas
     */
-   private ArrayList<LogEntity> getListAlarmsEntity() {
-      ArrayList<LogEntity> listAlarms = new ArrayList<LogEntity>();
+   private void getListAlarmsEntity() {
+      listAlarms = new ArrayList<LogEntity>();
       try {
          listAlarms = logsDAORemote.findByEstado(ProcessEnum.NO_PROCESADO.getValue());
-         LOGGER.info("FIND BY ESTADO - Alarmas Encontradas KOU: " + listAlarms.size());
+         LOGGER.info("KOU - Alarmas Encontradas: " + listAlarms.size());
       } catch (Exception e) {
          LOGGER.error("Obtenido Registro de Logs: ", e);
       }
-      return listAlarms;
    }
 
    /**
@@ -193,13 +190,13 @@ public class ProcessEJB implements ProcessEJBRemote {
     * @param listAlarms Lista de logs a procesar
     * @return ArrayList<LogEntity> Mapeados
     */
-   private ArrayList<LogDTO> mapearListLogDTO(ArrayList<LogEntity> listAlarms) {
+   private void mapearListLogDTO() {
       int mapeadas = 0;
-      ArrayList<LogDTO> listLogDTOs = new ArrayList<LogDTO>();
+      listLog = new ArrayList<LogDTO>();
       String procesados = ProcessEnum.PROCESADO.getValue();
       for (LogEntity logEntity : listAlarms) {
-         LogDTO logDTO = LogUtil.mapearLogEntity(logEntity);
-         listLogDTOs.add(logDTO);
+         LogDTO logDTO = LogUtil.mapearLog(logEntity);
+         listLog.add(logDTO);
          logEntity.setProcesados(procesados);
          if (logDTO.isMapeado()) {
             mapeadas++;
@@ -207,7 +204,6 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
       logsDAORemote.updateList(listAlarms);
       LOGGER.info("MAPEADAS - Alarmas Mapeadas: " + mapeadas);
-      return listLogDTOs;
    }
 
    /**
@@ -215,67 +211,19 @@ public class ProcessEJB implements ProcessEJBRemote {
     * de filtrado, ejecutando uno a uno
     * Son analizadas regla por regla y cambiando el estado en el 
     * campo relevant y messageDrl del objeto LogDTO
-    * @param listLogDTOs Lista de logs a ejecutar filtros
+    * @param listLog Lista de logs a ejecutar filtros
     * @return ArrayList<LogDTO> con la informacion modificada resultado del filtrado
     */
-   private ArrayList<LogDTO> filtrar(ArrayList<LogDTO> listLogDTOs) {
+   private void filtrar() {
       try {
-         procesadas = 0;
-         for (LogDTO log : listLogDTOs) {
+         for (LogDTO log : listLog) {
             if (log.isMapeado()) {
                log = filtrado.filtrar(log);
-               procesadas++;
             }
          }
-
-         return listLogDTOs;
       } catch (Exception e) {
          LOGGER.error("Error Filtrando", e);
-         return listLogDTOs;
       }
-
-   }
-
-   /**
-    * Guarda la informacion de las alarmas que han cambiado
-    * su estado a relevante, una vez ejecutada todas las 
-    * reglas de filtrado
-    * @param listLogDTOs Lista de logs modificados
-    */
-   @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-   private void saveAlarm(ArrayList<LogDTO> listLogDTOs) {
-      int relevantes = 0;
-      ArrayList<AlarmPymesEntity> listAlarmCreate = new ArrayList<AlarmPymesEntity>();
-
-      listLogDTOs = alarmPymesDAORemote.validateSimilar(listLogDTOs);
-      for (LogDTO logDTO : listLogDTOs) {
-         if (logDTO.isRelevant()) {
-            try {
-               AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
-               alarmEntity.setIp(logDTO.getIp());
-               alarmEntity.setOid(logDTO.getOID());
-               alarmEntity.setName(logDTO.getName());
-               alarmEntity.setNodo(logDTO.getNodo());
-               alarmEntity.setEventName(logDTO.getNameEvent());
-               alarmEntity.setPriority(logDTO.getPriority());
-               alarmEntity.setMessage(logDTO.getMessageDRL());
-               alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
-               Date today = new Date();
-               alarmEntity.setDate(today);
-
-               listAlarmCreate.add(alarmEntity);
-               relevantes++;
-
-            } catch (Exception e) {
-               LOGGER.error("Error guardando Alarma", e);
-            }
-
-         }
-
-      }
-      alarmPymesDAORemote.createList(listAlarmCreate);
-      LOGGER.info("FILTRADO - Alarmas Procesadas: " + procesadas);
-      LOGGER.info("FILTRADO - Alarmas Relevantes: " + relevantes);
 
    }
 
@@ -286,8 +234,8 @@ public class ProcessEJB implements ProcessEJBRemote {
     * de filtrado
     * @param listLogDTOs Lista de logs a ejecutar
     */
-   private void correlate(ArrayList<LogDTO> listLogDTOs) {
-      for (LogDTO logCEP : listLogDTOs) {
+   private void correlate() {
+      for (LogDTO logCEP : listLog) {
          if (logCEP.isCorrelation() && logCEP.isRelevant()) {
             // Si fueron marcados con correlacion y son relevantes
             // se almacenan en MemoryEntryPoint para tener en cuenta
@@ -296,7 +244,6 @@ public class ProcessEJB implements ProcessEJBRemote {
             correlacion.insertToEntryPoint(logCEP);
          }
       }
-      processAlarmsCEP(correlacion.getListLogsCorrelation());
 
    }
 
@@ -307,7 +254,8 @@ public class ProcessEJB implements ProcessEJBRemote {
    private void cleanMemory() {
       Date endDate = new Date();
       Date startDate = Util.restarFecha(endDate, Constant.TIME_RECOGNIZE_CORRELATION);
-      ArrayList<AlarmPymesEntity> listAlarmsReconocidas = alarmPymesDAORemote.findSimiliarCEPReconocidas(startDate, endDate);
+      ArrayList<AlarmPymesEntity> listAlarmsReconocidas = alarmPymesDAORemote.findSimiliarCEPReconocidas(startDate,
+         endDate);
       for (AlarmPymesEntity alarmEntity : listAlarmsReconocidas) {
          correlacion.retract(alarmEntity.getNodo(), alarmEntity.getNameCorrelation());
       }
@@ -318,10 +266,11 @@ public class ProcessEJB implements ProcessEJBRemote {
     * Una vez ejecutadas las reglas de filtrado son procesadas las
     * reglas correlacionadas que tengan mayor o igual de numero de alarmas correlacionadas
     * configuradas en el sistema
-    * @param listLogDTOs
+    * @param listLog
     */
    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-   private void processAlarmsCEP(ArrayList<LogDTO> listLogDTOs) {
+   private void saveOrUpdateCEP() {
+      ArrayList<LogDTO> listLogDTOs = correlacion.getListLogsCorrelation();
       int news = 0;
       int update = 0;
       for (LogDTO logDTO : listLogDTOs) {

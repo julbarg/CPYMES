@@ -42,7 +42,8 @@ public class Correlacion {
 
    public void initialize() throws Exception {
       kbase = Correlacion.readKnowledgeBase(Constant.PATH_DRL_FILE_CEP);
-      ksession = kbase.newStatefulKnowledgeSession();workingLogCorrelation = ksession.getWorkingMemoryEntryPoint(ENTRY_POINT_CORRELATION);
+      ksession = kbase.newStatefulKnowledgeSession();
+      workingLogCorrelation = ksession.getWorkingMemoryEntryPoint(ENTRY_POINT_CORRELATION);
       ksession.fireAllRules();
    }
 

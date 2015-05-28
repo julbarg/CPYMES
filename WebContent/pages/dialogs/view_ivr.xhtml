@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<p:dialog id="dialog_view" widgetVar="viewIVR" modal="true" draggable="false" resizable="false"
+		closable="false" header="Servicios IVR" closeOnEscape="true">
+		<h:form id="form_view">
+			<p:panel styleClass="div_view">
+				<p:dataTable id="data_alarm" var="service" value="#{ivr.listCodigosServicio}"
+					widgetVar="dataAlarmIVR" paginatorPosition="bottom" rows="5" paginator="true"
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+					<p:column id="column_code" headerText="Codigo de Servicio">
+						<h:outputText id="text_code" value="#{service.codigoServicio}" styleClass="td-table-list" />
+					</p:column>
+					<p:column id="column_ip" headerText="NIT">
+						<h:outputText id="text_nit" value="#{service.nit}" styleClass="td-table-list" />
+					</p:column>
+				</p:dataTable>
+				<div class="center">
+					<p:commandButton value="Cerrar" oncomplete="PF('viewIVR').hide();"
+						style="width: 350px; height: 40px;" />
+				</div>
+			</p:panel>
+
+
+		</h:form>
+	</p:dialog>
+</ui:composition>

@@ -8,10 +8,12 @@ import java.util.Properties;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.claro.cpymes.dto.UserDTO;
 import com.claro.cpymes.listener.Connection;
 
 
@@ -30,6 +32,17 @@ public class Util {
     */
    public static void addMessageFatal(String fatalMsg) {
       FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_FATAL, fatalMsg, null);
+      FacesContext.getCurrentInstance().addMessage(null, message);
+   }
+
+   public static void addMessageFatalKeep(String fatalMsg) {
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_FATAL, fatalMsg, null);
+      FacesContext.getCurrentInstance().addMessage(null, message);
+      FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+   }
+
+   public static void addMessageInfo(String mensaje) {
+      FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, mensaje, null);
       FacesContext.getCurrentInstance().addMessage(null, message);
    }
 
@@ -105,6 +118,40 @@ public class Util {
       Date newFecha = new Date(newFechaL);
 
       return newFecha;
+   }
+
+   public static HttpSession getSession() {
+      return (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+   }
+
+   public static void iniciarSesion(UserDTO userName) {
+      Util.getSession().setAttribute(Constant.USER_NAME, userName.getUserName());
+   }
+
+   public static String getUserName() throws Exception {
+      HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+      return session.getAttribute(Constant.USER_NAME).toString();
+   }
+
+   public static boolean validateSesion() {
+      try {
+         Util.getUserName();
+         return true;
+      } catch (Exception e) {
+         LOGGER.error("Error de Sesion", e);
+         Util.addMessageFatal("No ha iniciado sesion");
+         return false;
+
+      }
+   }
+
+   public static void redirect(String url) throws IOException {
+      FacesContext.getCurrentInstance().getExternalContext().redirect(url);
+   }
+
+   public static void logout() {
+      HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+      session.invalidate();
    }
 
 }

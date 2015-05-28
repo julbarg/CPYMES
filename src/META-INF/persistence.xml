@@ -5,6 +5,7 @@
 	<persistence-unit name="CPyMESPU" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<non-jta-data-source>NoJTACPyMES</non-jta-data-source>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<class>com.claro.cpymes.entity.AlarmPymesEntity</class>
 		<class>com.claro.cpymes.entity.AlarmCatalogEntity</class>
 		<properties>
@@ -14,9 +15,21 @@
 	<persistence-unit name="LogsPU" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<non-jta-data-source>NoJTALogsDS</non-jta-data-source>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<class>com.claro.cpymes.entity.LogEntity</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+		</properties>
+	</persistence-unit>
+	<persistence-unit name="IVRPU" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<non-jta-data-source>IVRDS</non-jta-data-source>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<class>com.claro.cpymes.entity.AlarmaPymeIVREntity</class>
+		<class>com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity</class>
+		<class>com.claro.cpymes.entity.AlarmaPymesView</class>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
 		</properties>
 	</persistence-unit>
 </persistence>

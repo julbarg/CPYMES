@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<script type="text/javascript">
+	function start() {
+		window['progress'] = setInterval(function() {
+			var pbClient = PF('pbClient');
+			pbClient.setValue(pbClient.getValue() + (100 / 30));
+			if (pbClient.getValue() > 100) {
+				pbClient.setValue(0);
+			}
+		}, 1000);
+		document.getElementById("icon_clock").className = "play";
+	}
+
+	window.onload = start;
+
+	function cancel() {
+		clearInterval(window['progress']);
+		PF('pbClient').setValue(0);
+		document.getElementById("icon_clock").className = "pause";
+	}
+</script>
+<h:head>
+	<title>CPYMES - IVR</title>
+	<h:outputStylesheet library="css" name="style.css" />
+	<h:outputScript library="primefaces" name="jquery/jquery.js" />
+</h:head>
+<h:body id="body">
+	<ui:include src="dialogs/search_ivr.xhtml" />
+	<ui:include src="dialogs/edit_ivr.xhtml" />
+	<ui:include src="dialogs/view_ivr.xhtml" />
+	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
+		resizable="false" showHeader="false">
+		<p:graphicImage library="image" name="loading.gif" />
+	</p:dialog>
+	<div id="icon_clock" class="play" />
+	<h:form id="form">
+		<p:poll listener="#{ivr.load}" interval="#{ivr.interval}" update="form" />
+		<p:growl id="growl_ivr" />
+		<p:panel styleClass="panel_session">
+			<p:commandButton action="#{loginView.closeSession}"
+				value="#{loginView.user.userName}&#160;&#160;&#160;(X)" icon="ui-icon-person"
+				title="Cerrar Sesión" />
+		</p:panel>
+		<p:panel styleClass="panel_transparent">
+			<p:progressBar widgetVar="pbClient" />
+			<h:panelGrid columns="4" styleClass="panel_button">
+				<p:clock pattern="HH:mm:ss" />
+				<p:commandButton value="Buscar" icon="ui-icon-search" onclick="PF('findIVR').show();"
+					ajax="true" update="form" immediate="true" style="margin-left: 5px;" />
+				<p:commandButton value="Reanudar" icon="ui-icon-play" actionListener="#{ivr.play}"
+					onclick="start()" ajax="true" update="form" rendered="#{ivr.viewPlay}" />
+				<p:commandButton value="Pausar" icon="ui-icon-pause" actionListener="#{ivr.pause}"
+					onclick="cancel()" ajax="true" update="form" rendered="#{ivr.viewPause}" />
+				<p:commandButton action="#{ivr.goCpymes}" value="CPYMES" icon="ui-icon-arrowrefresh-1-w" />
+			</h:panelGrid>
+		</p:panel>
+
+		<p:panel styleClass="panel_transparent">
+			<p:dataTable id="data_alarm" var="alarmIVR" value="#{ivr.listAlarmaPymesIVR}"
+				widgetVar="dataAlarmIVR" paginatorPosition="bottom" rows="50" paginator="true"
+				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+				<p:column id="column_ticket" headerText="Ticket">
+					<h:outputText id="text_ticket" value="#{alarmIVR.ticketOnix}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_ip" headerText="IP">
+					<h:outputText id="text_ip" value="#{alarmIVR.ip}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_clase_equipo" headerText="Clase de Equipo">
+					<h:outputText id="text_clase_equipo" value="#{alarmIVR.claseEquipo}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_descripcion" headerText="Descripcion">
+					<h:outputText id="text_descripcion" value="#{alarmIVR.descripcionAlarma}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_tipoEvento" headerText="Tipo Evento">
+					<h:outputText id="text_tipo_evento" value="#{alarmIVR.tipoEvento}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_ciudad" headerText="Ciudad">
+					<h:outputText id="text_ciudad" value="#{alarmIVR.ciudad}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_division" headerText="Division">
+					<h:outputText id="text_division" value="#{alarmIVR.division}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_fechaInicio" headerText="Fecha Inicio">
+					<h:outputText id="text_fecha_inicio" value="#{alarmIVR.fechaInicio}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_fechaFin" headerText="Fecha Fin">
+					<h:outputText id="text_fecha_fin" value="#{alarmIVR.fechaFin}" styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_fechaEsperanza" headerText="Fecha Esperanza">
+					<h:outputText id="text_fechaEsperanza" value="#{alarmIVR.fechaEsperanza}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_tiempoTotalFalla" headerText="Tiempo Total Falla">
+					<h:outputText id="text_tiempoTotalFalla" value="#{alarmIVR.tiempoTotalFalla}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_fechaModificacion" headerText="Fecha Modificacion">
+					<h:outputText id="text_fechaModificacion" value="#{alarmIVR.fechaModificacion}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_usuarioModificacion" headerText="Usuario Modificacion">
+					<h:outputText id="text_usuarioModificacion" value="#{alarmIVR.usuarioModificacion}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_codigoAudioIvr" headerText="Codigo Audio IVR">
+					<h:outputText id="text_codigoAudioIvr" value="#{alarmIVR.codigoAudioIvr}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column id="column_estadoAlarma" headerText="Estado Alarma">
+					<h:outputText id="text_estadoAlarma" value="#{alarmIVR.estadoAlarma}"
+						styleClass="td-table-list" />
+				</p:column>
+				<p:column width="70" exportable="false">
+					<p:commandButton update=":form_edit" oncomplete="PF('editIVR').show()" icon="ui-icon-pencil"
+						title="Editar">
+						<f:setPropertyActionListener value="#{alarmIVR}" target="#{ivr.alarmEdit}" />
+					</p:commandButton>
+					<p:commandButton update=":form_view" oncomplete="PF('viewIVR').show();"
+						icon="ui-icon-triangle-1-e" title="Ver Codigos de Servicio" action="#{ivr.view}">
+						<f:setPropertyActionListener value="#{alarmIVR}" target="#{ivr.alarmEdit}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</p:panel>
+	</h:form>
+</h:body>
+</html>

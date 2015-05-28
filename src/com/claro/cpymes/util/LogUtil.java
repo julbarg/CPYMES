@@ -20,21 +20,33 @@ public class LogUtil {
 
    private static Logger LOGGER = LogManager.getLogger(LogUtil.class.getName());
 
-   public static LogDTO mapearLogEntity(LogEntity logEntity) {
-      String mensaje = logEntity.getMsg();
-      StringTokenizer token = new StringTokenizer(mensaje, Constant.DELIMETER_SNMPTT);
+   private static StringTokenizer tokenMain;
 
-      LogDTO logDTO = mapearLogDTO(token, mensaje);
-      logDTO.setSeq(logEntity.getSeq());
-      logDTO.setPriority(logEntity.getPriority());
-      if (logDTO.getKey() != null) {
-         String priority = logEntity.getPriority();
-         if (PriorityEnum.CRITIC.getValue().equals(priority))
-            priority = PriorityEnum.CRITICAL.getValue();
-         logDTO.getKey().setCriticality(priority);
+   private static StringTokenizer tokenCodeServiceIp;
+
+   private static LogDTO logDTO;
+
+   public static LogDTO mapearLog(LogEntity logEntity) {
+      logDTO = new LogDTO();
+      try {
+         getTokenMain(logEntity);
+         mapearLogDTO();
+         adicionarInformacionLogDTO(logEntity);
+
+      } catch (FormatLogException e) {
+         LOGGER.info(e.getMessage());
       }
 
       return logDTO;
+
+   }
+
+   public static void getTokenMain(LogEntity logEntity) throws FormatLogException {
+      String mensaje = logEntity.getMsg();
+      tokenMain = new StringTokenizer(mensaje, Constant.DELIMETER_SNMPTT);
+      if (tokenMain.countTokens() < 6) {
+         throw new FormatLogException("FormatLogException: " + mensaje);
+      }
 
    }
 
@@ -50,39 +62,32 @@ public class LogUtil {
     * Obtiene la IP, NameDevice, NameEvent, OID, Nodo
     * @param token
     * @return LogDTO mapeado
+    * @throws FormatLogException 
     */
-   private static LogDTO mapearLogDTO(StringTokenizer token, String mensaje) {
-      int count = token.countTokens();
+   private static LogDTO mapearLogDTO() {
+      String codeServiceIp = validateNextTokenMain();
+      tokenCodeServiceIp = new StringTokenizer(codeServiceIp, Constant.DELIMETER_IP);
 
-      if (count < 6) {
-         LOGGER.error("TranslatedLine no cumple el formato");
-         LOGGER.error("MESSAGE: " + mensaje);
-         return new LogDTO();
-      }
-
-      String codeServiceIp = validateSplit(token);
-      StringTokenizer token2 = new StringTokenizer(codeServiceIp, Constant.DELIMETER_IP);
-
-      validateSplit(token2).trim(); // codeService
-      String ip = validateSplit(token2).trim();
+      validateNextTokenCodeServiceIp().trim(); // codeService
+      String ip = validateNextTokenCodeServiceIp().trim();
       if (ip.length() > 30) {
          ip = ip.substring(0, 29);
       }
 
-      String name = validateSplit(token).trim();
-      String translatedLine = validateSplit(token); // translatedLine
+      String name = validateNextTokenMain().trim();
+      String translatedLine = validateNextTokenMain(); // translatedLine
 
-      if (count > 6) {
-         validateSplit(token); // marca
+      if (tokenMain.countTokens() > 6) {
+         validateNextTokenMain(); // marca
       }
 
-      validateSplit(token);
-      LogDTO logDTO = procesarTranslatedLine(translatedLine);
+      validateNextTokenMain();
+      procesarTranslatedLine(logDTO, translatedLine);
 
       logDTO.setTranslatedLine(translatedLine);
 
-      String OID = validateSplit(token).trim();
-      String nameEvent = validateSplit(token).trim();
+      String OID = validateNextTokenMain().trim();
+      String nameEvent = validateNextTokenMain().trim();
 
       logDTO.setIp(ip);
       logDTO.setName(name);
@@ -96,6 +101,19 @@ public class LogUtil {
       logDTO.setMapeado(true);
 
       return logDTO;
+   }
+
+   private static void adicionarInformacionLogDTO(LogEntity logEntity) {
+      logDTO.setSeq(logEntity.getSeq());
+      String priority = logEntity.getPriority();
+      if (PriorityEnum.CRITIC.getValue().equals(priority)) {
+         priority = PriorityEnum.CRITICAL.getValue();
+      }
+      logDTO.setPriority(priority);
+      if (logDTO.getKey() != null) {
+         logDTO.getKey().setCriticality(priority);
+      }
+
    }
 
    /**
@@ -118,22 +136,27 @@ public class LogUtil {
       return nodo;
    }
 
-   private static LogDTO procesarTranslatedLine(String translatedLine) {
-      LogDTO logDTO = new LogDTO();
+   private static LogDTO procesarTranslatedLine(LogDTO logDTO, String translatedLine) {
       logDTO.setInterFace(getInterface(translatedLine));
       logDTO.setDescriptionAlarm(getDescripcionAlarma(translatedLine));
 
       return logDTO;
    }
 
-   /**
-    * Valida si existe un proximo token
-    * @param token
-    * @return Validacion
-    */
-   private static String validateSplit(StringTokenizer token) {
+   private static String validateNextTokenMain() {
       try {
-         String value = token.nextToken();
+         String value = tokenMain.nextToken();
+         return value != null ? value : "";
+      } catch (Exception e) {
+         LOGGER.error("Validando Tokenizer: " + e);
+         return "";
+      }
+
+   }
+
+   private static String validateNextTokenCodeServiceIp() {
+      try {
+         String value = tokenCodeServiceIp.nextToken();
          return value != null ? value : "";
       } catch (Exception e) {
          LOGGER.error("Validando Tokenizer: " + e);
@@ -190,16 +213,18 @@ public class LogUtil {
       try {
          descripcionAlarma = translatedLine.replaceAll(Constant.REGEX_INTERFACE, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_LOWECASE, "");
-         descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_UPPERCASECASE_ALONE, "");
+         descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_UPPERCASECASE_ALONE, " ");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_UPPERCASECASE_ALONE_2, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_GUION, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_WHITESPACE_INIT, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_WHITESPACE, " ");
+         descripcionAlarma = descripcionAlarma.replaceAll(Constant.CHARACTER_ESPECIAL, " ");
+
+         descripcionAlarma = descripcionAlarma.trim();
 
          return descripcionAlarma;
       } catch (Exception e) {
          return descripcionAlarma;
       }
    }
-
 }

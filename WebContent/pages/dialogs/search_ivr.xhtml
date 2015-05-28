@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	<p:dialog id="dialog_search" widgetVar="findIVR" modal="true" draggable="false" resizable="false"
+		closable="false" header="Consultar IVR" closeOnEscape="true">
+		<h:form id="form_search">
+			<p:panel styleClass="div_search">
+				<h:panelGrid cellspacing="3" styleClass="panel_grid_find">
+					<p:inputText id="ticket" value="#{ivr.alarmFilter.ticketOnix}" styleClass="input_find" />
+					<p:watermark value="Ticket Onix" for="ticket" />
+					<p:inputText id="ip" value="#{ivr.alarmFilter.ip}" styleClass="input_find" />
+					<p:watermark value="IP" for="ip" />
+					<p:inputText id="claseEquipo" value="#{ivr.alarmFilter.claseEquipo}" styleClass="input_find" />
+					<p:watermark value="ClaseEquipo" for="claseEquipo" />
+					<p:inputText id="descripcion" value="#{ivr.alarmFilter.descripcionAlarma}"
+						styleClass="input_find" />
+					<p:watermark value="Descripcion Alarma" for="descripcion" />
+					<p:inputText id="tipoEvento" value="#{ivr.alarmFilter.tipoEvento}" styleClass="input_find" />
+					<p:watermark value="Tipo de Evento" for="tipoEvento" />
+					<p:inputText id="ciudad" value="#{ivr.alarmFilter.ciudad}" styleClass="input_find" />
+					<p:watermark value="Ciudad" for="ciudad" />
+					<p:inputText id="division" value="#{ivr.alarmFilter.division}" styleClass="input_find" />
+					<p:watermark value="Division" for="division" />
+					<p:inputText id="fechaInicio" value="#{ivr.alarmFilter.fechaInicio}" styleClass="input_find" />
+					<p:watermark value="Fecha Inicio" for="fechaInicio" />
+					<hr style="height: 20px; visibility: hidden;" />
+					<f:facet name="footer">
+						<p:commandButton value="Consultar" action="#{ivr.find}" oncomplete="PF('findIVR').hide();"
+							style="width: 350px; height: 40px;" update=":form" />
+					</f:facet>
+				</h:panelGrid>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

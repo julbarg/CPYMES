@@ -13,6 +13,6 @@ import com.claro.cpymes.dto.UserDTO;
 @Remote
 public interface LoginEJBRemote {
 
-   public boolean authenticate(UserDTO user);
+   public boolean authenticate(UserDTO user) throws Exception;
 
 }

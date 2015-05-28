@@ -25,7 +25,6 @@
 <h:head>
 	<title>CPYMES</title>
 	<h:outputStylesheet library="css" name="style.css" />
-	<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css' />
 	<h:outputScript library="primefaces" name="jquery/jquery.js" />
 </h:head>
 <h:body id="body">
@@ -39,9 +38,10 @@
 		<p:poll listener="#{cpymes.load}" interval="#{cpymes.interval}" update="form"
 			oncomplete="PF('dataAlarm').clearFilters()" />
 		<p:growl id="growl" />
+
 		<p:panel styleClass="panel_transparent">
 			<p:progressBar widgetVar="pbClient" />
-			<h:panelGrid columns="6" styleClass="panel_button">
+			<h:panelGrid columns="7" styleClass="panel_button">
 				<p:clock pattern="HH:mm:ss" />
 				<p:commandButton value="Recargar" icon="ui-icon-arrowrefresh-1-e" style="margin-left: 5px;"
 					actionListener="#{cpymes.load}" ajax="true" update="form" immediate="true"
@@ -56,6 +56,10 @@
 					onclick="cancel()" ajax="true" update="form" rendered="#{cpymes.viewPause}" />
 				<p:commandButton value="Limpiar" icon="ui-icon-trash" actionListener="#{cpymes.clean}"
 					ajax="true" update="form" oncomplete="PF('dataAlarm').clearFilters()" />
+				<p:commandButton action="#{cpymes.goIvr}" value="IVR" icon="ui-icon-volume-on" />
+
+
+
 			</h:panelGrid>
 		</p:panel>
 
@@ -101,15 +105,9 @@
 				paginator="true" selection="#{cpymes.listAlarmSelect}" filterEvent="enter"
 				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
 				<p:column id="column_select" selectionMode="multiple" style="width:16px;text-align:center" />
-				<p:column headerText="Priority" filterStyle="width:70px;" filterBy="#{alarm.priority}"
-					sortBy="#{alarm.priority}" width="80" filterMatchMode="exact">
-					<f:facet name="filter">
-						<p:selectOneMenu id="select_priority" onchange="PF('dataAlarm').filter()" immediate="true">
-							<f:selectItem itemLabel="Priority" itemValue="" noSelectionOption="true" />
-							<f:selectItems value="#{cpymes.prioritys}" />
-						</p:selectOneMenu>
-					</f:facet>
-					<h:outputText id="text_priority" value="#{alarm.priority}" styleClass="td-table-list" />
+				<p:column id="column_severity" headerText="Severity" filterBy="#{alarm.severity}"
+					filterStyle="width:70px;" filterEvent="enter" sortBy="#{alarm.severity}" width="80">
+					<h:outputText id="text_severity" value="#{alarm.severity}" styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_name" headerText="Name Device" filterMatchMode="contains"
 					filterBy="#{alarm.name}" sortBy="#{alarm.name}" width="150">
@@ -123,11 +121,17 @@
 					filterBy="#{alarm.message}" filterMatchMode="contains" filterStyle="width:350px;">
 					<h:outputText id="text_message" value="#{alarm.message}" styleClass="td-table-list"
 						escape="false" />
-				</p:column>				
-				<p:column id="column_severity" headerText="Severity" filterBy="#{alarm.severity}"
-					filterEvent="enter" sortBy="#{alarm.severity}" width="120">
-					<h:outputText id="text_severity" value="#{alarm.severity}" styleClass="td-table-list" />
-				</p:column>				
+				</p:column>
+				<p:column headerText="Priority" filterStyle="width:70px;" filterBy="#{alarm.priority}"
+					sortBy="#{alarm.priority}" width="80" filterMatchMode="exact">
+					<f:facet name="filter">
+						<p:selectOneMenu id="select_priority" onchange="PF('dataAlarm').filter()" immediate="true">
+							<f:selectItem itemLabel="Priority" itemValue="" noSelectionOption="true" />
+							<f:selectItems value="#{cpymes.prioritys}" />
+						</p:selectOneMenu>
+					</f:facet>
+					<h:outputText id="text_priority" value="#{alarm.priority}" styleClass="td-table-list" />
+				</p:column>
 				<p:column id="column_date" headerText="Date" sortBy="#{alarm.date}" width="120">
 					<h:outputText id="text_date" value="#{alarm.date}" styleClass="td-table-list" />
 				</p:column>

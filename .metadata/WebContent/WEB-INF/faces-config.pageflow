@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pageflow:Pageflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pageflow="http://www.sybase.com/suade/pageflow" id="pf14241998662350" configfile="/CPYMES/WebContent/WEB-INF/faces-config.xml">
-  <nodes xsi:type="pageflow:PFPage" name="login.xhtml" x="84" y="60" id="pf14242000795971" referenceLink="//@navigationRule.0/@fromViewId|" outlinks="pf14242000795972" path="/login.xhtml"/>
-  <nodes xsi:type="pageflow:PFPage" name="pages/cpymes.xhtml" x="288" y="48" id="pf14242000795973" referenceLink="//@navigationRule.0/@navigationCase.0/@toViewId|" inlinks="pf14242000795972" path="/pages/cpymes.xhtml"/>
-  <links id="pf14242000795972" target="pf14242000795973" source="pf14242000795971" outcome="true" fromaction="#{loginView.authenticate}"/>
+  <nodes xsi:type="pageflow:PFPage" name="login.xhtml" x="122" y="178" id="pf14242000795971" referenceLink="//@navigationRule.0/@fromViewId|" path="/login.xhtml"/>
+  <nodes xsi:type="pageflow:PFPage" name="login.xhtml" x="338" y="360" id="pf14321494924721" referenceLink="//@navigationRule.4/@navigationCase.0/@toViewId|" outlinks="pf14321494924722" inlinks="pf14321495084484 pf14322175407123" path="/pages/login.xhtml"/>
+  <nodes xsi:type="pageflow:PFPage" name="ivr.xhtml" x="554" y="562" id="pf14321494924723" referenceLink="//@navigationRule.4/@fromViewId|" outlinks="pf14322171430900 pf14322175407123" inlinks="pf14321494924722 pf14322174261632" path="/pages/ivr.xhtml"/>
+  <nodes xsi:type="pageflow:PFPage" name="cpymes.xhtml" x="122" y="562" id="pf14321495084485" referenceLink="//@navigationRule.4/@navigationCase.0/@toViewId|" outlinks="pf14321495084484 pf14322174261632" inlinks="pf14322171430900" path="/pages/cpymes.xhtml"/>
+  <links id="pf14321494924722" target="pf14321494924723" source="pf14321494924721" outcome="true" redirect="true" fromaction="#{loginView.authenticate}"/>
+  <links id="pf14321495084484" target="pf14321494924721" source="pf14321495084485" outcome="logIn" redirect="true" fromaction="#{cpymes.goIvr}"/>
+  <links id="pf14322171430900" target="pf14321495084485" source="pf14321494924723" outcome="true" redirect="true" fromaction="#{ivr.goCpymes}"/>
+  <links id="pf14322174261632" target="pf14321494924723" source="pf14321495084485" outcome="ivr" redirect="true" fromaction="#{cpymes.goIvr}"/>
+  <links id="pf14322175407123" target="pf14321494924721" source="pf14321494924723" outcome="true" redirect="true" fromaction="#{ivr.gogoLogIn}"/>
 </pageflow:Pageflow>

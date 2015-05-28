@@ -151,6 +151,15 @@ public class CPYMESView {
 
    }
 
+   public String goIvr() {
+      if (validateSesion()) {
+         return "ivr";
+      } else {
+         return "logIn";
+      }
+
+   }
+
    /**
     * Filtra las alarmas por prioridad
     */
@@ -228,6 +237,18 @@ public class CPYMESView {
       viewPlay = false;
       viewPause = true;
       interval = INTERVAL;
+   }
+
+   public boolean validateSesion() {
+      try {
+         Util.getUserName();
+         return true;
+      } catch (Exception e) {
+         LOGGER.error("Error de Sesion", e);
+         Util.addMessageFatal("No ha iniciado sesion");
+         return false;
+
+      }
    }
 
    public void filterPriority() {

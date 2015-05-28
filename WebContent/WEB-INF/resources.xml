@@ -14,6 +14,13 @@
 		jdbcUrl=jdbc:mysql://172.22.208.5:3306/syslog_alcatel_pymes_cli
 		jtaManaged=false
 	</Resource>
+	<Resource id="IVRDS" type="javax.sql.DataSource">
+		jdbcDriver=oracle.jdbc.OracleDriver
+		userName=SYSTEM
+		password=claro
+		jdbcUrl=jdbc:oracle:thin:@localhost:1521:xe
+		jtaManaged=false
+	</Resource>
 </resources>
 
 

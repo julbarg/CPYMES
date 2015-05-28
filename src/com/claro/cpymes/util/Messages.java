@@ -11,4 +11,6 @@ public class Messages {
 
    public static final String RELOAD_ERROR = "Ha ocurrido un error al cargar alarmas";
 
+   public static final String AUTHENTICATION_NO = "El Usuario y/o Contraseña son erroneas";
+
 }

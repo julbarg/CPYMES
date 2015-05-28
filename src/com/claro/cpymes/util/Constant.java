@@ -68,4 +68,8 @@ public class Constant {
 
    public static final String TRUNK = "TRUNK";
 
+   public static final String USER_NAME = "userName";
+
+   public static final String CHARACTER_ESPECIAL = "Ã±";
+
 }
