@@ -8,6 +8,7 @@
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<class>com.claro.cpymes.entity.AlarmPymesEntity</class>
 		<class>com.claro.cpymes.entity.AlarmCatalogEntity</class>
+		<class>com.claro.cpymes.entity.NitOnixEntity</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 		</properties>
