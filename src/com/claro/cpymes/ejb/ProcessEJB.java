@@ -3,6 +3,7 @@ package com.claro.cpymes.ejb;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -17,12 +18,14 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
+import com.claro.cpymes.dao.NitOnixDAORemote;
 import com.claro.cpymes.dto.KeyCatalogDTO;
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.ejb.remote.ProcessEJBRemote;
 import com.claro.cpymes.entity.AlarmCatalogEntity;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.entity.LogEntity;
+import com.claro.cpymes.entity.NitOnixEntity;
 import com.claro.cpymes.enums.FilterCatalogEnum;
 import com.claro.cpymes.enums.ProcessEnum;
 import com.claro.cpymes.enums.SeverityEnum;
@@ -55,7 +58,12 @@ public class ProcessEJB implements ProcessEJBRemote {
    @EJB
    private AlarmCatalogDAORemote alarmCatalogDAO;
 
+   @EJB
+   private NitOnixDAORemote nitOnixDAO;
+
    private HashMap<KeyCatalogDTO, AlarmCatalogEntity> catalog;
+
+   private HashMap<String, Long> nitOnixs;
 
    private Filtrado filtrado;
 
@@ -69,6 +77,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    private void initialize() {
 
       try {
+         loadNitOnix();
          createCatalog();
          filtrado = new Filtrado();
          filtrado.initialize(catalog);
@@ -88,6 +97,24 @@ public class ProcessEJB implements ProcessEJBRemote {
             catalog.put(key, alarmCatalog);
          }
       }
+   }
+
+   private void loadNitOnix() throws Exception {
+      ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findByEstado(Constant.ACTIVADO);
+      nitOnixs = new HashMap<String, Long>();
+      for (NitOnixEntity nitOnix : listNitOnix) {
+         String codeService = nitOnix.getIdEnlace();
+         Long nit = nitOnix.getNit();
+         if (validateInfoNit(codeService, nit)) {
+            nitOnixs.put(codeService, nit);
+         }
+
+      }
+   }
+
+   private boolean validateInfoNit(String codeService, Long nit) {
+      return (codeService != null && nit != null && !codeService.isEmpty());
+
    }
 
    private KeyCatalogDTO getKey(AlarmCatalogEntity alarmCatalog) {
@@ -116,6 +143,7 @@ public class ProcessEJB implements ProcessEJBRemote {
          // cleanMemory();
          // correlate(listLogDTOs);
          // saveOrUpdateCEP();
+         validateNitOnix();
          LOGGER.info("FIN");
          LOGGER.info("-----------------------------------------------");
       } catch (Exception e) {
@@ -349,6 +377,28 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmEntity.setDate(logDTO.getDate());
 
       alarmPymesDAORemote.create(alarmEntity);
+   }
+
+   private void validateNitOnix() {
+      String descripcionAlarm;
+      StringTokenizer tokenDescripcionAlarm;
+      String codeService;
+      Long nit;
+      for (LogDTO log : listLog) {
+         descripcionAlarm = log.getDescriptionAlarm();
+         if (descripcionAlarm != null && log.isRelevant()) {
+            tokenDescripcionAlarm = new StringTokenizer(descripcionAlarm);
+            while (tokenDescripcionAlarm.hasMoreTokens()) {
+               codeService = tokenDescripcionAlarm.nextToken();
+               if (nitOnixs.containsKey(codeService)) {
+                  nit = nitOnixs.get(codeService);
+                  LOGGER.info(codeService + " - " + nit);
+               }
+            }
+         }
+
+      }
+
    }
 
 }

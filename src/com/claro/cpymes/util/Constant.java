@@ -39,12 +39,16 @@ public class Constant {
 
    public static final String REGEX_GUION = "-";
 
+   public static final String REGEX_GUION_NUMBER = "([-]{1}[0-9]{1})";
+
+   public static final String REGEX_POINT_NUMBER = "([.]{1}[0-9]{1})";
+
    public static final String REGEX_WHITESPACE_INIT = "^([\\s]+)";
 
    public static final String REGEX_WHITESPACE = "[\\s]+";
 
-   public static final int TIMER_DAEMON = Util.getPropertiesInt("timer_daeomon") != 0 ? Util.getPropertiesInt("timer_daeomon")
-      : 30000;
+   public static final int TIMER_DAEMON = Util.getPropertiesInt("timer_daeomon") != 0 ? Util
+      .getPropertiesInt("timer_daeomon") : 30000;
 
    public static final int NUMBER_ALARMS_CORRELATE = Util.getPropertiesInt("number_alarms_correlate");
 
@@ -71,5 +75,25 @@ public class Constant {
    public static final String USER_NAME = "userName";
 
    public static final String CHARACTER_ESPECIAL = "Ã±";
+
+   public static final String SERVER_FTP = Util.getProperties("server_ftp");
+
+   public static final int PORT_FTP = Util.getPropertiesInt("port_ftp");
+
+   public static final String USER_NAME_FTP = Util.getProperties("user_name_ftp");
+
+   public static final String PASSWORD_FTP = Util.getProperties("password_ftp");
+
+   public static final String FTP_WORKING_DIR = Util.getProperties("ftp_working_dir");
+
+   public static final String SERVER_WORKING_DIR = Util.getProperties("server_working_dir");
+
+   public static final String NAME_FILE_NITS = Util.getProperties("name_file_nits");
+
+   public static final String PROTOCOL_FTP = Util.getProperties("protocol_ftp");
+
+   public static final String ACTIVADO = "Activado";
+
+   public static final int TIMER_LOAD_NITS = Util.getPropertiesInt("timer_load_nits");
 
 }

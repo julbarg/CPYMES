@@ -9,8 +9,8 @@ import com.jcraft.jsch.SftpException;
 
 
 @Remote
-public interface SFTRemote {
-   
-   public void upLoad(String fileNamePath) throws JSchException, SftpException, FileNotFoundException;
-   
+public interface SFTPRemote {
+
+   public void download() throws JSchException, SftpException, FileNotFoundException;
+
 }

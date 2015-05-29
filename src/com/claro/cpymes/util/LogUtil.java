@@ -34,7 +34,7 @@ public class LogUtil {
          adicionarInformacionLogDTO(logEntity);
 
       } catch (FormatLogException e) {
-         LOGGER.info(e.getMessage());
+
       }
 
       return logDTO;
@@ -215,6 +215,8 @@ public class LogUtil {
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_LOWECASE, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_UPPERCASECASE_ALONE, " ");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_UPPERCASECASE_ALONE_2, "");
+         descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_GUION_NUMBER, " ");
+         descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_POINT_NUMBER, " ");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_GUION, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_WHITESPACE_INIT, "");
          descripcionAlarma = descripcionAlarma.replaceAll(Constant.REGEX_WHITESPACE, " ");

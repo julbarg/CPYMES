@@ -333,5 +333,13 @@ public class Test {
       System.out.println(descripcionA);
       System.out.println(LogUtil.getDescripcionAlarma(descripcionA));
 
+      int g = 0;
+      if (g++ > 0)
+         System.out.println("Exito");
+
+      String codeService = "BCDCO01-2";
+      System.out.println(codeService.replaceAll(Constant.REGEX_POINT_NUMBER, " "));
+      System.out.println(codeService.replaceAll(Constant.REGEX_GUION_NUMBER, " "));
+
    }
 }

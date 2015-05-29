@@ -48,6 +48,7 @@ public class ListenerMySQLEJB implements ListenerMySQLEJBRemote {
 
    @PostConstruct
    public void inicializar() {
+
       operacionesAEscuchar.add(SQLOperator.INSERT.getOperation());
       inicializarListener();
    }
