@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -341,5 +342,25 @@ public class Test {
       System.out.println(codeService.replaceAll(Constant.REGEX_POINT_NUMBER, " "));
       System.out.println(codeService.replaceAll(Constant.REGEX_GUION_NUMBER, " "));
 
+      int numberRegistersPrevious = 1000;
+      int numberRegistersNew = 1010;
+      double difference = Math.abs(numberRegistersPrevious - numberRegistersNew);
+      double percentageDifference = (difference / numberRegistersPrevious) * 100;
+      System.out.println(percentageDifference);
+
+      String dateString = "29/05/15";
+      Date dateLoadNits = Util.getDateStringToDate(dateString);
+      today = new Date();
+      long hours = 0;
+      if (dateLoadNits != null)
+         hours = Util.getHoursBetweenTwoDates(dateLoadNits, today);
+
+      System.out.println(hours);
+      
+      today = new Date();
+      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+      dateString = dateFormat.format(today);
+      
+      System.out.println(dateString);
    }
 }

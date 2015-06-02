@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
@@ -19,9 +21,12 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.claro.cpymes.dao.NitOnixDAORemote;
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.ejb.remote.ProcessNitsRemote;
 import com.claro.cpymes.ejb.remote.SFTPRemote;
 import com.claro.cpymes.entity.NitOnixEntity;
+import com.claro.cpymes.exceptions.FileNitEmptyException;
+import com.claro.cpymes.exceptions.PercentageDifferenceException;
 import com.claro.cpymes.util.Constant;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -38,6 +43,9 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    @EJB
    private NitOnixDAORemote nitOnixDAO;
+
+   @EJB
+   private ParameterDAORemote parameterDAO;
 
    private ArrayList<NitOnixEntity> listNitOnix;
 
@@ -57,8 +65,10 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
          listNitOnix = new ArrayList<NitOnixEntity>();
          getFileNitsCopyServe();
          processFile();
+         validateNumberRegisters();
          deleteTableNits();
          createRegistersNits();
+         updateLastDateLoad();
       } catch (Exception e) {
          LOGGER.error("Ha ocurrido un error al obtener el archivo de Nits", e);
 
@@ -71,7 +81,7 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
    }
 
    @SuppressWarnings("resource")
-   private void processFile() throws IOException {
+   private void processFile() throws IOException, FileNitEmptyException {
       File pathFile = new File(getPathFile());
       FileInputStream file = new FileInputStream(pathFile);
       XSSFWorkbook myWorkBook = new XSSFWorkbook(file);
@@ -85,6 +95,20 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
                listNitOnix.add(nitOnix);
             }
          }
+      }
+      if (listNitOnix.isEmpty()) {
+         throw new FileNitEmptyException("No se encontraron registros dentro del archivo");
+      }
+
+   }
+
+   private void validateNumberRegisters() throws Exception {
+      int numberRegistersPrevious = nitOnixDAO.findAllCount();
+      int numberRegistersNew = listNitOnix.size();
+      double difference = Math.abs(numberRegistersPrevious - numberRegistersNew);
+      double percentageDifference = (difference / numberRegistersPrevious) * 100;
+      if (percentageDifference > Constant.PERCENTAGE_DIFFERENCE_NITS) {
+         throw new PercentageDifferenceException("La diferncia porcentual de Numero de Registros de Nits es anormal");
       }
 
    }
@@ -124,6 +148,17 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
    private void createRegistersNits() throws Exception {
       nitOnixDAO.createList(listNitOnix);
 
+   }
+
+   private void updateLastDateLoad() {
+      try {
+         Date today = new Date();
+         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+         String dateString = dateFormat.format(today);
+         parameterDAO.updateParameter(Constant.FECHA_ULTIMO_CARGUE_NITS, dateString);
+      } catch (Exception e) {
+         LOGGER.info("Error al actualizar fecha de ultimo cargue");
+      }
    }
 
 }

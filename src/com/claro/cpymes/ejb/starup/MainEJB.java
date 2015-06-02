@@ -57,7 +57,6 @@ public class MainEJB {
             + Constant.METHOD);
          LOGGER.info("Valores permitidos: " + Constant.METHOD_DAEMON + ", " + Constant.METHOD_LISTENER);
       }
-
    }
 
 }

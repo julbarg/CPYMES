@@ -19,7 +19,6 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
    @Override
    public ArrayList<NitOnixEntity> findByEstado(String estado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
       TypedQuery<NitOnixEntity> query = entityManager.createNamedQuery("NitOnixEntity.findByEstado",
          NitOnixEntity.class);
       query.setParameter("estado", estado);
@@ -52,6 +51,13 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
       entityTransaction.commit();
       entityManager.close();
 
+   }
+
+   public int findAllCount() throws Exception {
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      int count = ((Number) entityManager.createNamedQuery("NitOnixEntity.findAllCount").getSingleResult()).intValue();
+      entityManager.close();
+      return count;
    }
 
 }

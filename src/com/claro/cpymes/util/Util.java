@@ -3,6 +3,9 @@ package com.claro.cpymes.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -152,6 +155,24 @@ public class Util {
    public static void logout() {
       HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
       session.invalidate();
+   }
+
+   public static Date getDateStringToDate(String dateString) {
+      DateFormat format = new SimpleDateFormat("dd/MM/yy");
+      Date date;
+      try {
+         date = format.parse(dateString);
+      } catch (ParseException e) {
+         return null;
+      }
+      return date;
+
+   }
+
+   public static long getHoursBetweenTwoDates(Date startDate, Date endDate) {
+      long difference = (endDate.getTime() - startDate.getTime()) / 1000;
+      long hours = difference / 3600;
+      return hours;
    }
 
 }

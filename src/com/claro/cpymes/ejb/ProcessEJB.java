@@ -77,7 +77,6 @@ public class ProcessEJB implements ProcessEJBRemote {
    private void initialize() {
 
       try {
-         loadNitOnix();
          createCatalog();
          filtrado = new Filtrado();
          filtrado.initialize(catalog);
@@ -96,19 +95,6 @@ public class ProcessEJB implements ProcessEJBRemote {
          if ((key = getKey(alarmCatalog)) != null) {
             catalog.put(key, alarmCatalog);
          }
-      }
-   }
-
-   private void loadNitOnix() throws Exception {
-      ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findByEstado(Constant.ACTIVADO);
-      nitOnixs = new HashMap<String, Long>();
-      for (NitOnixEntity nitOnix : listNitOnix) {
-         String codeService = nitOnix.getIdEnlace();
-         Long nit = nitOnix.getNit();
-         if (validateInfoNit(codeService, nit)) {
-            nitOnixs.put(codeService, nit);
-         }
-
       }
    }
 
@@ -135,6 +121,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    public void procesar() {
       try {
          LOGGER.info("INICIO PROCESO PRINCIPAL");
+         loadNitOnix();
          getListAlarmsEntity();
          mapearListLogDTO();
          filtrar();
@@ -152,47 +139,17 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
-   private void saveAlarmFilter() {
-
-      ArrayList<AlarmPymesEntity> listAlarmCreate = new ArrayList<AlarmPymesEntity>();
-      listLog = alarmPymesDAORemote.validateSimilar(listLog);
-      for (LogDTO logDTO : listLog) {
-
-         if (logDTO.getSeverity() != null && logDTO.isRelevant()) {
-            try {
-               AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
-               alarmEntity.setIp(logDTO.getIp());
-               alarmEntity.setOid(logDTO.getOID());
-               alarmEntity.setName(logDTO.getName());
-               alarmEntity.setNodo(logDTO.getNodo());
-               alarmEntity.setEventName(logDTO.getNameEvent());
-               alarmEntity.setPriority(logDTO.getPriority());
-               alarmEntity.setMessage(logDTO.getMessageDRL());
-               // TODO
-               String severity = logDTO.getSeverity();
-               if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
-                  || SeverityEnum.PAS.getValue().equals(severity)) {
-                  alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
-               } else {
-                  alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
-               }
-
-               alarmEntity.setSeverity(severity);
-               Date today = new Date();
-               alarmEntity.setDate(today);
-
-               listAlarmCreate.add(alarmEntity);
-
-            } catch (Exception e) {
-               LOGGER.error("Error guardando Alarma", e);
-            }
-
+   private void loadNitOnix() throws Exception {
+      ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findByEstado(Constant.ACTIVADO);
+      nitOnixs = new HashMap<String, Long>();
+      for (NitOnixEntity nitOnix : listNitOnix) {
+         String codeService = nitOnix.getIdEnlace();
+         Long nit = nitOnix.getNit();
+         if (validateInfoNit(codeService, nit)) {
+            nitOnixs.put(codeService, nit);
          }
 
       }
-      alarmPymesDAORemote.createList(listAlarmCreate);
-      LOGGER.info("FILTRADO - Alarmas Filtradas: " + listAlarmCreate.size());
-
    }
 
    /**
@@ -252,6 +209,49 @@ public class ProcessEJB implements ProcessEJBRemote {
       } catch (Exception e) {
          LOGGER.error("Error Filtrando", e);
       }
+
+   }
+
+   private void saveAlarmFilter() {
+
+      ArrayList<AlarmPymesEntity> listAlarmCreate = new ArrayList<AlarmPymesEntity>();
+      listLog = alarmPymesDAORemote.validateSimilar(listLog);
+      for (LogDTO logDTO : listLog) {
+
+         if (logDTO.getSeverity() != null && logDTO.isRelevant()) {
+            try {
+               AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
+               alarmEntity.setIp(logDTO.getIp());
+               alarmEntity.setOid(logDTO.getOID());
+               alarmEntity.setName(logDTO.getName());
+               alarmEntity.setNodo(logDTO.getNodo());
+               alarmEntity.setEventName(logDTO.getNameEvent());
+               alarmEntity.setPriority(logDTO.getPriority());
+               alarmEntity.setMessage(logDTO.getMessageDRL());
+               // TODO
+               String severity = logDTO.getSeverity();
+               if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
+                  || SeverityEnum.PAS.getValue().equals(severity)) {
+                  alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
+               } else {
+                  alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
+               }
+
+               alarmEntity.setSeverity(severity);
+               Date today = new Date();
+               alarmEntity.setDate(today);
+
+               listAlarmCreate.add(alarmEntity);
+
+            } catch (Exception e) {
+               LOGGER.error("Error guardando Alarma", e);
+            }
+
+         }
+
+      }
+      alarmPymesDAORemote.createList(listAlarmCreate);
+      LOGGER.info("FILTRADO - Alarmas Filtradas: " + listAlarmCreate.size());
 
    }
 

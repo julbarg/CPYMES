@@ -322,3 +322,9 @@ CREATE TABLE cpymes.nit_onix (
   id_cliente BIGINT NOT NULL,
   estado_servicio VARCHAR(20) NOT NULL,
   PRIMARY KEY (id));
+  
+  
+CREATE TABLE cpymes.parametro (
+  name VARCHAR(45) NOT NULL,
+  value VARCHAR(255) NOT NULL,
+  PRIMARY KEY (name));

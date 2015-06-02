@@ -2,6 +2,7 @@ package com.claro.cpymes.ejb.starup;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
@@ -16,6 +17,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.job.JobNits;
 import com.claro.cpymes.util.Constant;
 
@@ -37,6 +39,9 @@ public class LoadNitsOnixEJB {
    private JobDetail job;
 
    private Trigger trigger;
+
+   @EJB
+   private ParameterDAORemote parameterDAO;
 
    @PostConstruct
    @Asynchronous

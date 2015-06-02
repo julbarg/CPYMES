@@ -96,4 +96,8 @@ public class Constant {
 
    public static final int TIMER_LOAD_NITS = Util.getPropertiesInt("timer_load_nits");
 
+   public static final int PERCENTAGE_DIFFERENCE_NITS = 1;
+
+   public static final String FECHA_ULTIMO_CARGUE_NITS = "fechaUltimoCargueNits";
+
 }

@@ -18,6 +18,7 @@ import javax.persistence.Table;
 @Table(name = "nit_onix")
 @NamedQueries({
    @NamedQuery(name = "NitOnixEntity.findAll", query = "SELECT n FROM NitOnixEntity n"),
+   @NamedQuery(name = "NitOnixEntity.findAllCount", query = "SELECT COUNT(n) FROM NitOnixEntity n"),
    @NamedQuery(name = "NitOnixEntity.findByEstado", query = "SELECT n FROM NitOnixEntity n WHERE n.estadoServicio =:estado"), })
 public class NitOnixEntity implements Serializable {
    private static final long serialVersionUID = 1L;

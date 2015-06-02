@@ -1,6 +1,7 @@
 package com.claro.cpymes.ejb.remote;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.ejb.Remote;
 
@@ -18,5 +19,7 @@ public interface IVREJBRemote {
    public ArrayList<AlarmaPymesServicioNitIVREntity> findCodigosServicio(AlarmaPymeIVRDTO alarmFind) throws Exception;
 
    public ArrayList<AlarmaPymeIVRDTO> findByFilter(AlarmaPymeIVRDTO alarmaFilter) throws Exception;
+
+   public Date getDateLoadNits();
 
 }

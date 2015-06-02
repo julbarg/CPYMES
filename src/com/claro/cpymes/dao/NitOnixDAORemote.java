@@ -16,4 +16,6 @@ public interface NitOnixDAORemote {
 
    public void removeAll() throws Exception;
 
+   public int findAllCount() throws Exception;
+
 }

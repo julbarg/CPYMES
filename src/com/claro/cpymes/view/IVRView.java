@@ -2,6 +2,7 @@ package com.claro.cpymes.view;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -14,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
 import com.claro.cpymes.ejb.remote.IVREJBRemote;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
+import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
 
 
@@ -57,6 +59,7 @@ public class IVRView {
 
    public void load() {
       try {
+         validateDateLoadNits();
          initializeAttributes();
          if (!validateSesion()) {
             goLogIn();
@@ -66,6 +69,21 @@ public class IVRView {
       } catch (Exception e) {
          LOGGER.error("Ha ocurrido un error al cargar alarmas del IVR", e);
       }
+   }
+
+   private void validateDateLoadNits() {
+      Date dateLoadNits = IVREJB.getDateLoadNits();
+      Date today = new Date();
+      long hours;
+      if (dateLoadNits != null) {
+         hours = Util.getHoursBetweenTwoDates(dateLoadNits, today);
+         if (hours > Constant.TIMER_LOAD_NITS) {
+            Util.addMessageFatal("Se esta presentando un error al realizar el cargue de Codigos de Servicio vs Nits. "
+               + hours);
+            LOGGER.info("Se esta presentando un error al realizar el cargue de Codigos de Servicio vs Nits.");
+         }
+      }
+
    }
 
    public void initializeAttributes() {

@@ -1,30 +1,42 @@
 package com.claro.cpymes.ejb;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.AlarmaPymesServicioNitIVRDAORemote;
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
 import com.claro.cpymes.ejb.remote.IVREJBRemote;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 import com.claro.cpymes.enums.StateEnum;
+import com.claro.cpymes.util.Constant;
+import com.claro.cpymes.util.Util;
 
 
 @Stateless
 @LocalBean
 public class IVREJB implements IVREJBRemote {
 
+   private static Logger LOGGER = LogManager.getLogger(IVREJB.class.getName());
+
    @EJB
    private AlarmaPymesIVRDAORemote alarmPymesIVRDAO;
 
    @EJB
    private AlarmaPymesServicioNitIVRDAORemote alarmaPymesServicioNitIVRDAO;
+
+   @EJB
+   private ParameterDAORemote parameterDAO;
 
    @PostConstruct
    private void initialize() {
@@ -88,5 +100,19 @@ public class IVREJB implements IVREJBRemote {
       alarmDTO.setUsuarioModificacion(alarmEntity.getUsuarioModificacion());
 
       return alarmDTO;
+   }
+
+   @Override
+   public Date getDateLoadNits() {
+      Date date;
+      try {
+         String dateString = parameterDAO.findByName(Constant.FECHA_ULTIMO_CARGUE_NITS);
+         date = Util.getDateStringToDate(dateString);
+         return date;
+      } catch (Exception e) {
+         LOGGER.error("getDateLoadNits", e);
+         return null;
+      }
+
    }
 }
