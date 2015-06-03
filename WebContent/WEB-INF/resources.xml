@@ -6,6 +6,8 @@
 		password=Claro2015*
 		jdbcUrl=jdbc:mysql://localhost:3306/cpymes
 		jtaManaged=false
+		testOnBorrow=true
+		validationQuery=SELECT 1
 	</Resource>
 	<Resource id="NoJTALogsDS" type="javax.sql.DataSource">
 		jdbcDriver=com.mysql.jdbc.Driver
@@ -13,6 +15,8 @@
 		password=telmex
 		jdbcUrl=jdbc:mysql://172.22.208.5:3306/syslog_alcatel_pymes_cli
 		jtaManaged=false
+		testOnBorrow=true
+		validationQuery=SELECT 1
 	</Resource>
 	<Resource id="IVRDS" type="javax.sql.DataSource">
 		jdbcDriver=oracle.jdbc.OracleDriver
@@ -20,6 +24,8 @@
 		password=claro
 		jdbcUrl=jdbc:oracle:thin:@localhost:1521:xe
 		jtaManaged=false
+		testOnBorrow=true
+		validationQuery=SELECT 1
 	</Resource>
 </resources>
 
