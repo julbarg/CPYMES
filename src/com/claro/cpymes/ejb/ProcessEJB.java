@@ -1,9 +1,9 @@
 package com.claro.cpymes.ejb;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -15,8 +15,13 @@ import javax.ejb.TransactionAttributeType;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import CMBD.EquipoCMBD;
+import CMBD.PrincipalCMBD;
+
 import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
+import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
+import com.claro.cpymes.dao.AlarmaPymesServicioNitIVRDAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dao.NitOnixDAORemote;
 import com.claro.cpymes.dto.KeyCatalogDTO;
@@ -24,12 +29,14 @@ import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.ejb.remote.ProcessEJBRemote;
 import com.claro.cpymes.entity.AlarmCatalogEntity;
 import com.claro.cpymes.entity.AlarmPymesEntity;
+import com.claro.cpymes.entity.AlarmaPymeIVREntity;
+import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 import com.claro.cpymes.entity.LogEntity;
 import com.claro.cpymes.entity.NitOnixEntity;
 import com.claro.cpymes.enums.FilterCatalogEnum;
 import com.claro.cpymes.enums.ProcessEnum;
-import com.claro.cpymes.enums.SeverityEnum;
 import com.claro.cpymes.enums.StateEnum;
+import com.claro.cpymes.enums.TypeEventEnum;
 import com.claro.cpymes.rule.Correlacion;
 import com.claro.cpymes.rule.Filtrado;
 import com.claro.cpymes.util.Constant;
@@ -60,6 +67,12 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    @EJB
    private NitOnixDAORemote nitOnixDAO;
+
+   @EJB
+   private AlarmaPymesIVRDAORemote alarmaPymesIVRDAO;
+
+   @EJB
+   private AlarmaPymesServicioNitIVRDAORemote alarmaPymesServicioNitIVRDAO;
 
    private HashMap<KeyCatalogDTO, AlarmCatalogEntity> catalog;
 
@@ -126,11 +139,10 @@ public class ProcessEJB implements ProcessEJBRemote {
          mapearListLogDTO();
          filtrar();
          saveAlarmFilter();
-         // saveAlarm(listLogDTOs);
-         // cleanMemory();
-         // correlate(listLogDTOs);
-         // saveOrUpdateCEP();
-         validateNitOnix();
+         cleanMemory();
+         correlate();
+         saveOrUpdateCEP();
+         sendIVR();
          LOGGER.info("FIN");
          LOGGER.info("-----------------------------------------------");
       } catch (Exception e) {
@@ -213,46 +225,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void saveAlarmFilter() {
-
-      ArrayList<AlarmPymesEntity> listAlarmCreate = new ArrayList<AlarmPymesEntity>();
-      listLog = alarmPymesDAORemote.validateSimilar(listLog);
-      for (LogDTO logDTO : listLog) {
-
-         if (logDTO.getSeverity() != null && logDTO.isRelevant()) {
-            try {
-               AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
-               alarmEntity.setIp(logDTO.getIp());
-               alarmEntity.setOid(logDTO.getOID());
-               alarmEntity.setName(logDTO.getName());
-               alarmEntity.setNodo(logDTO.getNodo());
-               alarmEntity.setEventName(logDTO.getNameEvent());
-               alarmEntity.setPriority(logDTO.getPriority());
-               alarmEntity.setMessage(logDTO.getMessageDRL());
-               // TODO
-               String severity = logDTO.getSeverity();
-               if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
-                  || SeverityEnum.PAS.getValue().equals(severity)) {
-                  alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
-               } else {
-                  alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
-               }
-
-               alarmEntity.setSeverity(severity);
-               Date today = new Date();
-               alarmEntity.setDate(today);
-
-               listAlarmCreate.add(alarmEntity);
-
-            } catch (Exception e) {
-               LOGGER.error("Error guardando Alarma", e);
-            }
-
-         }
-
-      }
-      alarmPymesDAORemote.createList(listAlarmCreate);
-      LOGGER.info("FILTRADO - Alarmas Filtradas: " + listAlarmCreate.size());
-
+      listLog = alarmPymesDAORemote.saveAlarmFilter(listLog);
    }
 
    /**
@@ -379,26 +352,76 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmPymesDAORemote.create(alarmEntity);
    }
 
-   private void validateNitOnix() {
-      String descripcionAlarm;
-      StringTokenizer tokenDescripcionAlarm;
-      String codeService;
-      Long nit;
-      for (LogDTO log : listLog) {
-         descripcionAlarm = log.getDescriptionAlarm();
-         if (descripcionAlarm != null && log.isRelevant()) {
-            tokenDescripcionAlarm = new StringTokenizer(descripcionAlarm);
-            while (tokenDescripcionAlarm.hasMoreTokens()) {
-               codeService = tokenDescripcionAlarm.nextToken();
-               if (nitOnixs.containsKey(codeService)) {
-                  nit = nitOnixs.get(codeService);
-                  LOGGER.info(codeService + " - " + nit);
-               }
+   private void sendIVR() {
+      try {
+         for (LogDTO log : listLog) {
+            if (log.isSendIVR()) {
+               EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
+               AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
+
+               alarmaIVR.setClaseEquipo(equipo.getClaseEquipo());
+               alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
+               alarmaIVR.setCiudad(equipo.getCiudad());
+               alarmaIVR.setDivision(equipo.getDivision());
+
+               alarmaIVR.setEstadoAlarma(StateEnum.ACTIVO.getValue());
+
+               alarmaIVR.setCodigoAudioIvr(getCodigoAudioIvr());
+
+               Date today = new Date();
+               alarmaIVR.setFechaInicio(today);
+
+               // TODO
+               alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, today));
+
+               alarmaIVR.setIp(log.getIp());
+
+               // TODO
+               TypeEventEnum.TRONCAL.getValue();
+               TypeEventEnum.PUERTO.getValue();
+               TypeEventEnum.EQUIPO.getValue();
+               alarmaIVR.setTipoEvento(TypeEventEnum.EQUIPO.getValue());
+
+               alarmaIVR = alarmaPymesIVRDAO.update(alarmaIVR);
+
+               saveAlarmaPymesServicioNits(alarmaIVR, equipo);
+
             }
          }
-
+      } catch (Exception e) {
+         LOGGER.error("Error Send IVR", e);
       }
 
+   }
+
+   private EquipoCMBD getEquipo(String IP, String interFace, String name) {
+      return PrincipalCMBD.getNitsFromCRM(IP, interFace, name);
+   }
+
+   private BigDecimal getCodigoAudioIvr() {
+      return Constant.CODIGO_AUDIO_IVR;
+   }
+
+   // TODO
+   private Date getFechaEsperanza(EquipoCMBD equipo, Date today) {
+      int numberHours = 20;
+      return Util.addHoursToDate(today, numberHours);
+   }
+
+   private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) {
+      for (String codigoServicio : equipo.getCodigosServicio()) {
+         AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
+         Long nit = getNit(codigoServicio);
+         alarmaServicioNitIVR.setNit(nit.toString());
+         alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
+         alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
+
+         alarmaPymesServicioNitIVRDAO.update(alarmaServicioNitIVR);
+      }
+   }
+
+   private Long getNit(String codigoServicio) {
+      return nitOnixs.get(codigoServicio);
    }
 
 }

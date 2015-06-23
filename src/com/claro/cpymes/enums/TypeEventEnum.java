@@ -1,21 +1,14 @@
 package com.claro.cpymes.enums;
 
-/**
- * Define los estados de las alarmas
- * @author jbarragan
- *
- */
-public enum StateEnum {
+public enum TypeEventEnum {
 
-   ACTIVO("A", "Activo"),
-   NO_SAVE("N", "No Save"),
-   INACTIVO("I", "Incactivo");
+   TRONCAL("T", "Troncal"), PUERTO("P", "Puerto"), EQUIPO("E", "Equipo");
 
    private String value;
 
    private String name;
 
-   StateEnum(String value, String name) {
+   TypeEventEnum(String value, String name) {
       this.name = name;
       this.value = value;
    }

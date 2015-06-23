@@ -104,6 +104,9 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    private void validateNumberRegisters() throws Exception {
       int numberRegistersPrevious = nitOnixDAO.findAllCount();
+      if (numberRegistersPrevious == 0) {
+         return;
+      }
       int numberRegistersNew = listNitOnix.size();
       double difference = Math.abs(numberRegistersPrevious - numberRegistersNew);
       double percentageDifference = (difference / numberRegistersPrevious) * 100;

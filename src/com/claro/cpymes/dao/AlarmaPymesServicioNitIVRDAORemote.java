@@ -13,4 +13,6 @@ public interface AlarmaPymesServicioNitIVRDAORemote {
 
    public ArrayList<AlarmaPymesServicioNitIVREntity> findByAlarm(AlarmaPymeIVREntity alarmaPymeIVR) throws Exception;
 
+   public AlarmaPymesServicioNitIVREntity update(AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR);
+
 }

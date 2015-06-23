@@ -1,5 +1,7 @@
 package com.claro.cpymes.util;
 
+import java.math.BigDecimal;
+
 /**
  * Define las contantes de la aplicacion
  * @author jbarragan
@@ -99,5 +101,7 @@ public class Constant {
    public static final int PERCENTAGE_DIFFERENCE_NITS = 1;
 
    public static final String FECHA_ULTIMO_CARGUE_NITS = "fechaUltimoCargueNits";
+
+   public static final BigDecimal CODIGO_AUDIO_IVR = new BigDecimal(2354);
 
 }

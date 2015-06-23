@@ -13,6 +13,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -175,4 +176,8 @@ public class Util {
       return hours;
    }
 
+   public static Date addHoursToDate(Date today, int numberHours) {
+      return DateUtils.addHours(today, numberHours);
+      
+   }
 }

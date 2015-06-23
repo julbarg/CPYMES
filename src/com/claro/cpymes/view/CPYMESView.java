@@ -1,15 +1,28 @@
 package com.claro.cpymes.view;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.opensaml.xml.Namespace;
+import org.opensaml.xml.NamespaceManager;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.encryption.P;
+import org.opensaml.xml.schema.XSBooleanValue;
+import org.opensaml.xml.util.IDIndex;
+import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.xml.validation.Validator;
+import org.w3c.dom.Element;
 
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dto.AlarmPymesDTO;
@@ -119,6 +132,7 @@ public class CPYMESView {
     */
    private void initializePrioritys() {
       listPrioritySelect = new ArrayList<String>();
+      prioritys = new ArrayList<String>();
       prioritys.add(PriorityEnum.ALERT.getValue());
       prioritys.add(PriorityEnum.CRITIC.getValue());
       prioritys.add(PriorityEnum.INFO.getValue());

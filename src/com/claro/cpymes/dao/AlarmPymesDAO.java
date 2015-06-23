@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.enums.ProcessEnum;
+import com.claro.cpymes.enums.SeverityEnum;
 import com.claro.cpymes.enums.StateEnum;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
@@ -44,11 +45,11 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    public ArrayList<AlarmPymesEntity> findByEstado(String estado) {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
-      TypedQuery<AlarmPymesEntity> query = entityManager
-         .createNamedQuery("AlarmPymesEntity.findByEstado", AlarmPymesEntity.class);
+      TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findByEstado",
+         AlarmPymesEntity.class);
       query.setParameter("estado", estado);
-      ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.setMaxResults(Constant.MAXIME_RESULT_ALARM)
-         .getResultList();
+      ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.setMaxResults(
+         Constant.MAXIME_RESULT_ALARM).getResultList();
       entityManager.getTransaction().commit();
       entityManager.close();
 
@@ -92,47 +93,52 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    }
 
    @Override
-   public void createList(ArrayList<AlarmPymesEntity> listAlarm) {
+   public int createList(ArrayList<AlarmPymesEntity> listAlarm) {
+      int numberRegisterCreate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
       for (AlarmPymesEntity alarm : listAlarm) {
-         entityManager.persist(alarm);
+         if (!existSimilar(alarm, entityManager)) {
+            entityManager.persist(alarm);
+            numberRegisterCreate++;
+         }
       }
       entityTransaction.commit();
       entityManager.close();
+
+      return numberRegisterCreate;
 
    }
 
    /**
     * Obtiene las entidades AlarmPymesEntity por criterios de busqueda
+    * @param entityManager 
     * @param eventName Nombre del evento
     * @param name Nombre del dispositivo
     * @param startDate Rango de fecha inicial
     * @param endDate Rango de fecha final
     * @return ArrayList<AlarmPymesEntity> Lista de entidades encontradas
     */
-   @Override
-   public ArrayList<AlarmPymesEntity> findSimiliar(String eventName, String name, Date startDate, Date endDate) {
-      ArrayList<AlarmPymesEntity> results = new ArrayList<AlarmPymesEntity>();
+   private boolean existSimilar(AlarmPymesEntity alarm, EntityManager entityManager) {
+      boolean exist = false;
+      Date today = new Date();
+      Date startDate = Util.restarFecha(today, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
       try {
-         EntityManager entityManager = entityManagerFactory.createEntityManager();
-         entityManager.getTransaction().begin();
          TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliar",
             AlarmPymesEntity.class);
-         query.setParameter("eventName", eventName);
-         query.setParameter("name", name);
+         query.setParameter("eventName", alarm.getEventName());
+         query.setParameter("name", alarm.getName());
          query.setParameter("startDate", startDate);
-         query.setParameter("endDate", endDate);
-         results = (ArrayList<AlarmPymesEntity>) query.setFirstResult(1).setMaxResults(1).getResultList();
-         entityManager.getTransaction().commit();
-         entityManager.close();
+         query.setParameter("endDate", today);
+         exist = query.setFirstResult(1).setMaxResults(1).getResultList().size() > 0;
+
       } catch (Exception e) {
          LOGGER.error("Error buscando registros similares", e);
-         return results;
+         return exist;
       }
 
-      return results;
+      return exist;
    }
 
    /**
@@ -148,7 +154,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       ArrayList<AlarmPymesEntity> results = new ArrayList<AlarmPymesEntity>();
       try {
          EntityManager entityManager = entityManagerFactory.createEntityManager();
-         entityManager.getTransaction().begin();
          TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliarCEP",
             AlarmPymesEntity.class);
          query.setParameter("nodo", nodo);
@@ -157,7 +162,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
          query.setParameter("endDate", endDate);
          query.setParameter("estado", StateEnum.ACTIVO.getValue());
          results = (ArrayList<AlarmPymesEntity>) query.getResultList();
-         entityManager.getTransaction().commit();
+
          entityManager.close();
       } catch (Exception e) {
          LOGGER.error("Error buscando registros similares", e);
@@ -179,7 +184,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       ArrayList<AlarmPymesEntity> results = new ArrayList<AlarmPymesEntity>();
       try {
          EntityManager entityManager = entityManagerFactory.createEntityManager();
-         entityManager.getTransaction().begin();
          TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliarCEPByDate",
             AlarmPymesEntity.class);
          query.setParameter("nodo", nodo);
@@ -187,7 +191,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
          query.setParameter("date", date);
          query.setParameter("estado", StateEnum.ACTIVO.getValue());
          results = (ArrayList<AlarmPymesEntity>) query.setFirstResult(1).setMaxResults(1).getResultList();
-         entityManager.getTransaction().commit();
+
          entityManager.close();
       } catch (Exception e) {
          LOGGER.error("Error buscando registros similares", e);
@@ -209,8 +213,8 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       try {
          EntityManager entityManager = entityManagerFactory.createEntityManager();
          entityManager.getTransaction().begin();
-         TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliarCEPReconocidas",
-            AlarmPymesEntity.class);
+         TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery(
+            "AlarmPymesEntity.findSimiliarCEPReconocidas", AlarmPymesEntity.class);
          query.setParameter("startDate", startDate);
          query.setParameter("endDate", endDate);
          query.setParameter("estado", ProcessEnum.RECONOCIDO.getValue());
@@ -224,38 +228,56 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
-   public ArrayList<LogDTO> validateSimilar(ArrayList<LogDTO> listLogsDTO) {
-      ArrayList<AlarmPymesEntity> listResult = new ArrayList<AlarmPymesEntity>();
-      Date endDate;
-      Date startDate;
-      try {
-         EntityManager entityManager = entityManagerFactory.createEntityManager();
-         entityManager.getTransaction().begin();
-         TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliar",
-            AlarmPymesEntity.class);
-         for (LogDTO log : listLogsDTO) {
-            if (log.isRelevant()) {
-               endDate = new Date();
-               startDate = Util.restarFecha(endDate, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
-               query.setParameter("eventName", log.getNameEvent());
-               query.setParameter("name", log.getName());
-               query.setParameter("startDate", startDate);
-               query.setParameter("endDate", endDate);
-               listResult = (ArrayList<AlarmPymesEntity>) query.setMaxResults(1).getResultList();
-               if (listResult.size() > 0) {
-                  log.setRelevant(false);
+   public ArrayList<LogDTO> saveAlarmFilter(ArrayList<LogDTO> listLog) {
+      int numberRegisterCreate = 0;
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+
+      for (LogDTO logDTO : listLog) {
+         if (logDTO.getSeverity() != null && logDTO.isRelevant()) {
+            try {
+               AlarmPymesEntity alarmEntity = getAlarmPymesEntity(logDTO);
+               if (!existSimilar(alarmEntity, entityManager)) {
+                  entityManager.persist(alarmEntity);
+                  numberRegisterCreate++;
+               } else {
+                  logDTO.setRelevant(false);
                }
+            } catch (Exception e) {
+               LOGGER.error("Error guardando Alarma", e);
             }
-
          }
-         entityManager.getTransaction().commit();
-         entityManager.close();
-      } catch (Exception e) {
-         LOGGER.error("Error buscando registros similares", e);
-         return listLogsDTO;
       }
+      entityTransaction.commit();
+      entityManager.close();
+      LOGGER.info("FILTRADO - Alarmas Filtradas: " + numberRegisterCreate);
+      return listLog;
+   }
 
-      return listLogsDTO;
+   private AlarmPymesEntity getAlarmPymesEntity(LogDTO logDTO) {
+      AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
+      alarmEntity.setIp(logDTO.getIp());
+      alarmEntity.setOid(logDTO.getOID());
+      alarmEntity.setName(logDTO.getName());
+      alarmEntity.setNodo(logDTO.getNodo());
+      alarmEntity.setEventName(logDTO.getNameEvent());
+      alarmEntity.setPriority(logDTO.getPriority());
+      alarmEntity.setMessage(logDTO.getMessageDRL());
+      // TODO No se deben mostrar todas las alarmas
+      // Falta definir que alarmas se van a mostrar inmediatemente en pantalla
+      String severity = logDTO.getSeverity();
+      if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
+         || SeverityEnum.PAS.getValue().equals(severity)) {
+         alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
+      } else {
+         alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
+      }
+      alarmEntity.setSeverity(severity);
+      Date today = new Date();
+      alarmEntity.setDate(today);
+
+      return alarmEntity;
    }
 
 }

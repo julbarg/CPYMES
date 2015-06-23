@@ -29,8 +29,6 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<AlarmPymesEntity> findByEstado(String estado);
 
-   public ArrayList<AlarmPymesEntity> findSimiliar(String eventName, String name, Date startDate, Date endDate);
-
    public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date startDate, Date endDate);
 
    public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date date);
@@ -39,8 +37,8 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect);
 
-   public void createList(ArrayList<AlarmPymesEntity> listAlarm);
+   public int createList(ArrayList<AlarmPymesEntity> listAlarm);
 
-   public ArrayList<LogDTO> validateSimilar(ArrayList<LogDTO> listLogsDTO);
+   public ArrayList<LogDTO> saveAlarmFilter(ArrayList<LogDTO> listLog);
 
 }

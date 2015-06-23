@@ -59,6 +59,8 @@ public class LogDTO implements Serializable {
 
    private boolean mapeado;
 
+   private boolean sendIVR;
+
    private KeyCatalogDTO key;
 
    private String severity;
@@ -192,7 +194,8 @@ public class LogDTO implements Serializable {
 
    @Override
    public String toString() {
-      String message = "IP: " + ip + " Name: " + name + " EventName: " + nameEvent + " Message" + messageDRL;
+      String message = "IP: " + ip + " OID: " + OID + " Name: " + name + " EventName: " + nameEvent + " Message: "
+         + messageDRL;
       return message;
    }
 
@@ -266,6 +269,14 @@ public class LogDTO implements Serializable {
 
    public void setSeverity(String severity) {
       this.severity = severity;
+   }
+
+   public boolean isSendIVR() {
+      return sendIVR;
+   }
+
+   public void setSendIVR(boolean sendIVR) {
+      this.sendIVR = sendIVR;
    }
 
 }

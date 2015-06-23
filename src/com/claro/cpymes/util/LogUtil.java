@@ -65,6 +65,7 @@ public class LogUtil {
     * @throws FormatLogException 
     */
    private static LogDTO mapearLogDTO() {
+      int numberTokens = tokenMain.countTokens();
       String codeServiceIp = validateNextTokenMain();
       tokenCodeServiceIp = new StringTokenizer(codeServiceIp, Constant.DELIMETER_IP);
 
@@ -77,7 +78,7 @@ public class LogUtil {
       String name = validateNextTokenMain().trim();
       String translatedLine = validateNextTokenMain(); // translatedLine
 
-      if (tokenMain.countTokens() > 6) {
+      if (numberTokens > 6) {
          validateNextTokenMain(); // marca
       }
 
