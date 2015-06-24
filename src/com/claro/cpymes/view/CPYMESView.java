@@ -134,7 +134,7 @@ public class CPYMESView {
       listPrioritySelect = new ArrayList<String>();
       prioritys = new ArrayList<String>();
       prioritys.add(PriorityEnum.ALERT.getValue());
-      prioritys.add(PriorityEnum.CRITIC.getValue());
+      prioritys.add(PriorityEnum.CRITICAL.getValue());
       prioritys.add(PriorityEnum.INFO.getValue());
       prioritys.add(PriorityEnum.NOTICE.getValue());
       prioritys.add(PriorityEnum.WARNING.getValue());

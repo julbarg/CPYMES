@@ -1,7 +1,12 @@
 package test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.claro.cpymes.dto.LogDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.LogEntity;
+import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.LogUtil;
 
 
@@ -380,5 +385,12 @@ public class Test {
       System.out.println("Priority: " + logZGpon.getPriority());
       LogDTO logF = LogUtil.mapearLog(logZGpon);
       System.out.println(logF);
+
+      String[] eventTrigger = new String[] { "uno", "dos" };
+      RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO("eventRes", eventTrigger, "123-11");
+      System.out.println(restore.getEventTrigger());
+
+      String ip = "TMF0989 - httpd: HUAWEI 172.30.9.7";
+      System.out.println(LogUtil.getIp(ip));
    }
 }

@@ -71,9 +71,7 @@ public class LogUtil {
 
       validateNextTokenCodeServiceIp().trim(); // codeService
       String ip = validateNextTokenCodeServiceIp().trim();
-      if (ip.length() > 30) {
-         ip = ip.substring(0, 29);
-      }
+      ip = getIp(ip);
 
       String name = validateNextTokenMain().trim();
       String translatedLine = validateNextTokenMain(); // translatedLine
@@ -191,6 +189,15 @@ public class LogUtil {
     */
    public static boolean evaluarEvento(EventType eventType, Event event) {
       return eventType.equals(event.getHeader().getEventType());
+   }
+
+   public static String getIp(String ip) {
+      Pattern pattern = Pattern.compile(Constant.REGEX_IP);
+      Matcher matcher = pattern.matcher(ip);
+      if (matcher.find()) {
+         ip = matcher.group();
+      }
+      return ip;
    }
 
    public static String getInterface(String translatedLine) {

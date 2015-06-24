@@ -37,8 +37,6 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect);
 
-   public int createList(ArrayList<AlarmPymesEntity> listAlarm);
-
-   public ArrayList<LogDTO> saveAlarmFilter(ArrayList<LogDTO> listLog);
+   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog);
 
 }

@@ -26,6 +26,7 @@ import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dao.NitOnixDAORemote;
 import com.claro.cpymes.dto.KeyCatalogDTO;
 import com.claro.cpymes.dto.LogDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.ejb.remote.ProcessEJBRemote;
 import com.claro.cpymes.entity.AlarmCatalogEntity;
 import com.claro.cpymes.entity.AlarmPymesEntity;
@@ -39,6 +40,7 @@ import com.claro.cpymes.enums.StateEnum;
 import com.claro.cpymes.enums.TypeEventEnum;
 import com.claro.cpymes.rule.Correlacion;
 import com.claro.cpymes.rule.Filtrado;
+import com.claro.cpymes.rule.RestoreEvent;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.LogUtil;
 import com.claro.cpymes.util.Util;
@@ -82,6 +84,8 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private Correlacion correlacion;
 
+   private RestoreEvent restoreEvent;
+
    private ArrayList<LogEntity> listAlarms;
 
    private ArrayList<LogDTO> listLog;
@@ -95,6 +99,9 @@ public class ProcessEJB implements ProcessEJBRemote {
          filtrado.initialize(catalog);
          correlacion = new Correlacion();
          correlacion.initialize();
+         restoreEvent = new RestoreEvent();
+         restoreEvent.initialize();
+
       } catch (Exception e) {
          LOGGER.error("Error iniciando Rules: ", e);
       }
@@ -143,6 +150,7 @@ public class ProcessEJB implements ProcessEJBRemote {
          correlate();
          saveOrUpdateCEP();
          sendIVR();
+         restoreEvent();
          LOGGER.info("FIN");
          LOGGER.info("-----------------------------------------------");
       } catch (Exception e) {
@@ -225,7 +233,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void saveAlarmFilter() {
-      listLog = alarmPymesDAORemote.saveAlarmFilter(listLog);
+      listLog = alarmPymesDAORemote.createList(listLog);
    }
 
    /**
@@ -422,6 +430,20 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private Long getNit(String codigoServicio) {
       return nitOnixs.get(codigoServicio);
+   }
+
+   private void restoreEvent() {
+      RestoreEventAlarmDTO restoreAlarmEvent;
+      for (LogDTO log : listLog) {
+         if (log.isRelevant()) {
+            restoreAlarmEvent = restoreEvent.restoreEvent(log);
+            if (restoreAlarmEvent != null) {
+               LOGGER.info(restoreAlarmEvent.getIp() + " - " + log.getName() + " - "
+                  + restoreAlarmEvent.getEvenRestore() + " - " + restoreAlarmEvent.getEventTrigger()[0]);
+            }
+         }
+
+      }
    }
 
 }

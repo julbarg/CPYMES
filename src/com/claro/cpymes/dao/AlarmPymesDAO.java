@@ -92,25 +92,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
 
    }
 
-   @Override
-   public int createList(ArrayList<AlarmPymesEntity> listAlarm) {
-      int numberRegisterCreate = 0;
-      EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
-      for (AlarmPymesEntity alarm : listAlarm) {
-         if (!existSimilar(alarm, entityManager)) {
-            entityManager.persist(alarm);
-            numberRegisterCreate++;
-         }
-      }
-      entityTransaction.commit();
-      entityManager.close();
-
-      return numberRegisterCreate;
-
-   }
-
    /**
     * Obtiene las entidades AlarmPymesEntity por criterios de busqueda
     * @param entityManager 
@@ -228,7 +209,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
-   public ArrayList<LogDTO> saveAlarmFilter(ArrayList<LogDTO> listLog) {
+   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) {
       int numberRegisterCreate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -266,14 +247,15 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       alarmEntity.setMessage(logDTO.getMessageDRL());
       // TODO No se deben mostrar todas las alarmas
       // Falta definir que alarmas se van a mostrar inmediatemente en pantalla
-      String severity = logDTO.getSeverity();
-      if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
-         || SeverityEnum.PAS.getValue().equals(severity)) {
-         alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
-      } else {
-         alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
-      }
-      alarmEntity.setSeverity(severity);
+      /* String severity = logDTO.getSeverity();
+       * if (SeverityEnum.AS.getValue().equals(severity) || SeverityEnum.NAS.getValue().equals(severity)
+       * || SeverityEnum.PAS.getValue().equals(severity)) {
+       * alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
+       * } else {
+       * alarmEntity.setEstado(StateEnum.NO_SAVE.getValue());
+       * } */
+      alarmEntity.setEstado(logDTO.getState());
+      alarmEntity.setSeverity(logDTO.getSeverity());
       Date today = new Date();
       alarmEntity.setDate(today);
 

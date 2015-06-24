@@ -65,6 +65,10 @@ public class LogDTO implements Serializable {
 
    private String severity;
 
+   private String state;
+
+   private boolean restoreEvent;
+
    public LogDTO() {
 
    }
@@ -277,6 +281,22 @@ public class LogDTO implements Serializable {
 
    public void setSendIVR(boolean sendIVR) {
       this.sendIVR = sendIVR;
+   }
+
+   public boolean isRestoreEvent() {
+      return restoreEvent;
+   }
+
+   public void setRestoreEvent(boolean restoreEvent) {
+      this.restoreEvent = restoreEvent;
+   }
+
+   public String getState() {
+      return state;
+   }
+
+   public void setState(String state) {
+      this.state = state;
    }
 
 }

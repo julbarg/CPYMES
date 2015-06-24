@@ -2,6 +2,7 @@ package com.claro.cpymes.util;
 
 import java.math.BigDecimal;
 
+
 /**
  * Define las contantes de la aplicacion
  * @author jbarragan
@@ -22,6 +23,8 @@ public class Constant {
    public static final String PATH_CONNECTION_LISTENER = Util.getProperties("path_snmptt");
 
    public static final String PATH_DRL_FILE = Util.getProperties("path_drl_file");
+
+   public static final String PATH_DRL_FILE_RESTORE = Util.getProperties("path_drl_file_restore");
 
    public static final String PATH_DRL_FILE_CEP = Util.getProperties("path_drl_file_cep");
 
@@ -103,5 +106,7 @@ public class Constant {
    public static final String FECHA_ULTIMO_CARGUE_NITS = "fechaUltimoCargueNits";
 
    public static final BigDecimal CODIGO_AUDIO_IVR = new BigDecimal(2354);
+
+   public static final String REGEX_IP = "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b";
 
 }
