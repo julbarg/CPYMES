@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class Constant {
 
    public static final String PATH_CONFIG_PROPERTIES = "/usr/share/tomee/conf/CPyMES.properties";
+   //public static final String PATH_CONFIG_PROPERTIES = "C:/Users/jbarragan/Claro/CPyMES.properties";
 
    public static final String ESTADO = "estado";
 

@@ -13,16 +13,17 @@ public class RestoreEventAlarmDTO implements Serializable {
 
    private String evenRestore;
 
-   private String [] eventTrigger;
+   private String[] eventTrigger;
 
    private String ip;
 
    private Date date;
 
-   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger [], String ip) {
+   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger[], String ip, Date date) {
       this.evenRestore = eventRestore;
       this.eventTrigger = eventTrigger;
       this.ip = ip;
+      this.date = date;
    }
 
    public String getEvenRestore() {

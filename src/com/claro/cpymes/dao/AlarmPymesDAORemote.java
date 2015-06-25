@@ -39,4 +39,6 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog);
 
+   public int clearAlarm(String[] eventName, String ip, Date date) throws Exception;
+
 }

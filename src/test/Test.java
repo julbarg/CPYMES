@@ -1,12 +1,10 @@
 package test;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
 
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.LogEntity;
-import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.LogUtil;
 
 
@@ -377,6 +375,8 @@ public class Test {
       //
       String zGpon = "TFM0775 - httpd: ZE 172.30.97.69 | ZAC-CAR.INEM-CP1 | caida puerto GPON 806421504 |  |  | .1.3.6.1.4.1.3902.1012.3.45.101 | ";
       zGpon = "TFM0775 - httpd: ZTE 172.30.15.195 | ZAC-BOG.TRIARA-CP2 | Enlace caido FE 0/5/10 - CRP SA P000469 - CRPAA01-2 | | | .1.3.6.1.4.1.3902.1012.3.45.105 | zxGponOltDOWi";
+      zGpon = "httpd: HUAWEI 172.30.65.109 | HAC-CAL.PLAZATOROS-CP1 | Enlace reestablecido en la interfaz | | .1.3.6.1.4.1.2011.2.123.0.3 | LinkUp";
+      zGpon = "httpd: ZTE 172.30.97.69 | ZAC-CAR.INEM-CP1 | Falla en seÃ±optica de ONU BINCOLPAR P002789 BINCP03-4 ZTE-F600 1,ZTEGC0408A5C | | | .1.3.6.1.4.1.3902.1012.3.45.107 | 806421504";
 
       System.out.println(zGpon);
       LogEntity logZGpon = new LogEntity();
@@ -387,10 +387,18 @@ public class Test {
       System.out.println(logF);
 
       String[] eventTrigger = new String[] { "uno", "dos" };
-      RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO("eventRes", eventTrigger, "123-11");
+      RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO("eventRes", eventTrigger, "123-11", new Date());
       System.out.println(restore.getEventTrigger());
 
       String ip = "TMF0989 - httpd: HUAWEI 172.30.9.7";
       System.out.println(LogUtil.getIp(ip));
+
+      String eventNamesStr = "";
+      String[] eventNames = new String[] { "1", "2", "3", "4", "5" };
+      for (int i = 0; i < eventNames.length-1; i++) {
+         eventNamesStr = eventNamesStr + eventNames[i] + ",";
+      }
+      eventNamesStr = eventNamesStr + eventNames[eventNames.length-1];
+      System.out.println(eventNamesStr);
    }
 }

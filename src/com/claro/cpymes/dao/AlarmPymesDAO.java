@@ -9,6 +9,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.log4j.LogManager;
@@ -17,7 +18,6 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.enums.ProcessEnum;
-import com.claro.cpymes.enums.SeverityEnum;
 import com.claro.cpymes.enums.StateEnum;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
@@ -260,6 +260,45 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       alarmEntity.setDate(today);
 
       return alarmEntity;
+   }
+
+   @Override
+   public int clearAlarm(String[] eventNames, String ip, Date date) throws Exception {
+      int resultUpdate = 0;
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+      Date endDate = date;
+      Date startDate = Util.restarFecha(endDate, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
+
+      Query query = entityManager.createQuery(getQuery(eventNames));
+      query.setParameter("estado", StateEnum.INACTIVO.getValue());
+      query.setParameter("ip", ip);
+      query.setParameter("startDate", startDate);
+      query.setParameter("endDate", endDate);
+      resultUpdate = query.executeUpdate();
+
+      entityTransaction.commit();
+      entityManager.close();
+
+      return resultUpdate;
+
+   }
+
+   private String getQuery(String[] eventNames) {
+      String query = "UPDATE AlarmPymesEntity a SET a.estado=:estado" + " WHERE a.ip=:ip and a.eventName in ("
+         + getEventNamesStr(eventNames) + ")" + " and a.date BETWEEN :startDate AND :endDate ";
+      return query;
+   }
+
+   private String getEventNamesStr(String[] eventNames) {
+      String eventNamesStr = "";
+      for (int i = 0; i < eventNames.length - 1; i++) {
+         eventNamesStr = eventNamesStr + "'" + eventNames[i] + "',";
+      }
+      eventNamesStr = eventNamesStr + "'" + eventNames[eventNames.length - 1] + "'";
+
+      return eventNamesStr;
    }
 
 }

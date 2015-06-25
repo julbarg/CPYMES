@@ -10,7 +10,7 @@ public class UtilCMBD {
       ConstanteCMBD constante = new ConstanteCMBD();
       ArrayList<String> result = new ArrayList<String>();
       Random randomGenerator = new Random();
-      int numberOfRwgisters = randomGenerator.nextInt(100);
+      int numberOfRwgisters = randomGenerator.nextInt(9);
       for (int i = 0; i < numberOfRwgisters; i++) {
          randomGenerator = new Random();
          int register = randomGenerator.nextInt(constante.getListNitCodeServices().size());

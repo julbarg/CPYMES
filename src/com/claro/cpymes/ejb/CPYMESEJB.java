@@ -86,6 +86,7 @@ public class CPYMESEJB implements CPYMESEJBRemote {
       alarmEntity.setNameCorrelation(alarmDTO.getNameCorrelation());
       alarmEntity.setEstado(alarmDTO.getEstado());
       alarmEntity.setDate(alarmDTO.getDate());
+      alarmEntity.setDatetimeAcknowledge(alarmDTO.getDatetimeAcknowledge());
 
       alarmPymesDAO.update(alarmEntity);
 

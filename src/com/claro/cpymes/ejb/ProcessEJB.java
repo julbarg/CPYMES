@@ -361,6 +361,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void sendIVR() {
+      int numberRegistersIVR = 0;
       try {
          for (LogDTO log : listLog) {
             if (log.isSendIVR()) {
@@ -368,7 +369,8 @@ public class ProcessEJB implements ProcessEJBRemote {
                AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
 
                alarmaIVR.setClaseEquipo(equipo.getClaseEquipo());
-               alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
+               // alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
+               alarmaIVR.setDescripcionAlarma(log.getNameEvent());
                alarmaIVR.setCiudad(equipo.getCiudad());
                alarmaIVR.setDivision(equipo.getDivision());
 
@@ -393,9 +395,10 @@ public class ProcessEJB implements ProcessEJBRemote {
                alarmaIVR = alarmaPymesIVRDAO.update(alarmaIVR);
 
                saveAlarmaPymesServicioNits(alarmaIVR, equipo);
-
+               numberRegistersIVR++;
             }
          }
+         LOGGER.info("IVR - Alarmas enviadas al IVR: " + numberRegistersIVR);
       } catch (Exception e) {
          LOGGER.error("Error Send IVR", e);
       }
@@ -420,11 +423,14 @@ public class ProcessEJB implements ProcessEJBRemote {
       for (String codigoServicio : equipo.getCodigosServicio()) {
          AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
          Long nit = getNit(codigoServicio);
-         alarmaServicioNitIVR.setNit(nit.toString());
-         alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
-         alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
+         if (nit != null) {
+            alarmaServicioNitIVR.setNit(nit.toString());
+            alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
+            alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
 
-         alarmaPymesServicioNitIVRDAO.update(alarmaServicioNitIVR);
+            alarmaPymesServicioNitIVRDAO.update(alarmaServicioNitIVR);
+         }
+
       }
    }
 
@@ -433,17 +439,29 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void restoreEvent() {
+      int numberRegistersClear = 0;
       RestoreEventAlarmDTO restoreAlarmEvent;
       for (LogDTO log : listLog) {
          if (log.isRelevant()) {
             restoreAlarmEvent = restoreEvent.restoreEvent(log);
             if (restoreAlarmEvent != null) {
-               LOGGER.info(restoreAlarmEvent.getIp() + " - " + log.getName() + " - "
-                  + restoreAlarmEvent.getEvenRestore() + " - " + restoreAlarmEvent.getEventTrigger()[0]);
+               try {
+                  int result = alarmPymesDAORemote.clearAlarm(restoreAlarmEvent.getEventTrigger(),
+                     restoreAlarmEvent.getIp(), restoreAlarmEvent.getDate());
+                  LOGGER.info(restoreAlarmEvent.getIp() + " - " + log.getName() + " - "
+                     + restoreAlarmEvent.getEvenRestore() + " - " + restoreAlarmEvent.getEventTrigger()[0] + " - "
+                     + result);
+                  numberRegistersClear = numberRegistersClear + result;
+
+               } catch (Exception e) {
+                  LOGGER.error("Error actualizando registros de Alarmas [Restore]", e);
+               }
+
             }
          }
 
       }
+      LOGGER.info("RESTORE EVENT - Alarmas Restauradas: " + numberRegistersClear);
    }
 
 }
