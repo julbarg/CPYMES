@@ -364,7 +364,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       int numberRegistersIVR = 0;
       try {
          for (LogDTO log : listLog) {
-            if (log.isSendIVR()) {
+            if (log.isSendIVR() && log.isRelevant()) {
                EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
                AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
 
