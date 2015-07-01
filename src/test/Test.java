@@ -387,7 +387,7 @@ public class Test {
       System.out.println(logF);
 
       String[] eventTrigger = new String[] { "uno", "dos" };
-      RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO("eventRes", eventTrigger, "123-11", new Date());
+      RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO("eventRes", eventTrigger, "123-11", new Date(), "0/8/8");
       System.out.println(restore.getEventTrigger());
 
       String ip = "TMF0989 - httpd: HUAWEI 172.30.9.7";

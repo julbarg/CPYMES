@@ -17,11 +17,9 @@ import com.claro.cpymes.entity.NitOnixEntity;
 public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAORemote {
 
    @Override
-   public ArrayList<NitOnixEntity> findByEstado(String estado) throws Exception {
+   public ArrayList<NitOnixEntity> findAll() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      TypedQuery<NitOnixEntity> query = entityManager.createNamedQuery("NitOnixEntity.findByEstado",
-         NitOnixEntity.class);
-      query.setParameter("estado", estado);
+      TypedQuery<NitOnixEntity> query = entityManager.createNamedQuery("NitOnixEntity.findAll", NitOnixEntity.class);
       ArrayList<NitOnixEntity> results = (ArrayList<NitOnixEntity>) query.getResultList();
       entityManager.close();
       return results;

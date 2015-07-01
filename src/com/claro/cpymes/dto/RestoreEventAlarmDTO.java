@@ -19,11 +19,14 @@ public class RestoreEventAlarmDTO implements Serializable {
 
    private Date date;
 
-   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger[], String ip, Date date) {
+   private String interFace;
+
+   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger[], String ip, Date date, String interFace) {
       this.evenRestore = eventRestore;
       this.eventTrigger = eventTrigger;
       this.ip = ip;
       this.date = date;
+      this.interFace = interFace;
    }
 
    public String getEvenRestore() {
@@ -56,6 +59,14 @@ public class RestoreEventAlarmDTO implements Serializable {
 
    public void setDate(Date date) {
       this.date = date;
+   }
+
+   public String getInterFace() {
+      return interFace;
+   }
+
+   public void setInterFace(String interFace) {
+      this.interFace = interFace;
    }
 
 }

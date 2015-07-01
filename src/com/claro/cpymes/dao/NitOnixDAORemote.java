@@ -10,7 +10,7 @@ import com.claro.cpymes.entity.NitOnixEntity;
 @Remote
 public interface NitOnixDAORemote {
 
-   public ArrayList<NitOnixEntity> findByEstado(String filter) throws Exception;
+   public ArrayList<NitOnixEntity> findAll() throws Exception;
 
    public void createList(ArrayList<NitOnixEntity> listNitOnix) throws Exception;
 

@@ -8,18 +8,17 @@ import javax.ejb.Startup;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
 import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.job.JobNits;
-import com.claro.cpymes.util.Constant;
 
 
 @Singleton
@@ -38,7 +37,7 @@ public class LoadNitsOnixEJB {
 
    private JobDetail job;
 
-   private Trigger trigger;
+   private CronTrigger trigger;
 
    @EJB
    private ParameterDAORemote parameterDAO;
@@ -67,15 +66,13 @@ public class LoadNitsOnixEJB {
    }
 
    private void createTrigger() {
-      int intervalInHours = Constant.TIMER_LOAD_NITS;
-      trigger = getTriggerBuilder(intervalInHours);
+      trigger = getTriggerBuilder();
 
    }
 
-   private Trigger getTriggerBuilder(int intervalInHours) {
+   private CronTrigger getTriggerBuilder() {
       return TriggerBuilder.newTrigger().withIdentity(TRIGGER_NAME, GROUP_NAME).startNow()
-         .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInHours(intervalInHours).repeatForever())
-         .build();
+         .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(1, 00)).build();
    }
 
    private void schedulerJob() throws SchedulerException {

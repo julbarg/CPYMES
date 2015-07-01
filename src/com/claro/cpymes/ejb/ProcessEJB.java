@@ -78,7 +78,7 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private HashMap<KeyCatalogDTO, AlarmCatalogEntity> catalog;
 
-   private HashMap<String, Long> nitOnixs;
+   private HashMap<String, String> nitOnixs;
 
    private Filtrado filtrado;
 
@@ -118,7 +118,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
-   private boolean validateInfoNit(String codeService, Long nit) {
+   private boolean validateInfoNit(String codeService, String nit) {
       return (codeService != null && nit != null && !codeService.isEmpty());
 
    }
@@ -160,15 +160,14 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void loadNitOnix() throws Exception {
-      ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findByEstado(Constant.ACTIVADO);
-      nitOnixs = new HashMap<String, Long>();
+      ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findAll();
+      nitOnixs = new HashMap<String, String>();
       for (NitOnixEntity nitOnix : listNitOnix) {
-         String codeService = nitOnix.getIdEnlace();
-         Long nit = nitOnix.getNit();
+         String codeService = nitOnix.getCodeService();
+         String nit = nitOnix.getNit();
          if (validateInfoNit(codeService, nit)) {
             nitOnixs.put(codeService, nit);
          }
-
       }
    }
 
@@ -387,10 +386,9 @@ public class ProcessEJB implements ProcessEJBRemote {
                alarmaIVR.setIp(log.getIp());
 
                // TODO
-               TypeEventEnum.TRONCAL.getValue();
-               TypeEventEnum.PUERTO.getValue();
-               TypeEventEnum.EQUIPO.getValue();
-               alarmaIVR.setTipoEvento(TypeEventEnum.EQUIPO.getValue());
+               TypeEventEnum.NODO.getValue();
+               TypeEventEnum.FIBRA.getValue();
+               alarmaIVR.setTipoEvento(TypeEventEnum.NODO.getValue());
 
                alarmaIVR = alarmaPymesIVRDAO.update(alarmaIVR);
 
@@ -422,7 +420,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) {
       for (String codigoServicio : equipo.getCodigosServicio()) {
          AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
-         Long nit = getNit(codigoServicio);
+         String nit = getNit(codigoServicio);
          if (nit != null) {
             alarmaServicioNitIVR.setNit(nit.toString());
             alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
@@ -434,7 +432,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
-   private Long getNit(String codigoServicio) {
+   private String getNit(String codigoServicio) {
       return nitOnixs.get(codigoServicio);
    }
 
@@ -442,24 +440,16 @@ public class ProcessEJB implements ProcessEJBRemote {
       int numberRegistersClear = 0;
       RestoreEventAlarmDTO restoreAlarmEvent;
       for (LogDTO log : listLog) {
-         if (log.isRelevant()) {
-            restoreAlarmEvent = restoreEvent.restoreEvent(log);
-            if (restoreAlarmEvent != null) {
-               try {
-                  int result = alarmPymesDAORemote.clearAlarm(restoreAlarmEvent.getEventTrigger(),
-                     restoreAlarmEvent.getIp(), restoreAlarmEvent.getDate());
-                  LOGGER.info(restoreAlarmEvent.getIp() + " - " + log.getName() + " - "
-                     + restoreAlarmEvent.getEvenRestore() + " - " + restoreAlarmEvent.getEventTrigger()[0] + " - "
-                     + result);
-                  numberRegistersClear = numberRegistersClear + result;
+         restoreAlarmEvent = restoreEvent.restoreEvent(log);
+         if (restoreAlarmEvent != null) {
+            try {
+               int result = alarmPymesDAORemote.clearAlarm(restoreAlarmEvent);
+               numberRegistersClear = numberRegistersClear + result;
 
-               } catch (Exception e) {
-                  LOGGER.error("Error actualizando registros de Alarmas [Restore]", e);
-               }
-
+            } catch (Exception e) {
+               LOGGER.error("Error actualizando registros de Alarmas [Restore]", e);
             }
          }
-
       }
       LOGGER.info("RESTORE EVENT - Alarmas Restauradas: " + numberRegistersClear);
    }

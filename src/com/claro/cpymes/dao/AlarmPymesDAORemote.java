@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.ejb.Remote;
 
 import com.claro.cpymes.dto.LogDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 
 
@@ -39,6 +40,6 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog);
 
-   public int clearAlarm(String[] eventName, String ip, Date date) throws Exception;
+   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception;
 
 }

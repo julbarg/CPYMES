@@ -16,26 +16,18 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "nit_onix")
-@NamedQueries({
-   @NamedQuery(name = "NitOnixEntity.findAll", query = "SELECT n FROM NitOnixEntity n"),
-   @NamedQuery(name = "NitOnixEntity.findAllCount", query = "SELECT COUNT(n) FROM NitOnixEntity n"),
-   @NamedQuery(name = "NitOnixEntity.findByEstado", query = "SELECT n FROM NitOnixEntity n WHERE n.estadoServicio =:estado"), })
+@NamedQueries({ @NamedQuery(name = "NitOnixEntity.findAll", query = "SELECT n FROM NitOnixEntity n"),
+   @NamedQuery(name = "NitOnixEntity.findAllCount", query = "SELECT COUNT(n) FROM NitOnixEntity n"), })
 public class NitOnixEntity implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @Id
    private long id;
 
-   @Column(name = "estado_servicio")
-   private String estadoServicio;
+   @Column(name = "code_service")
+   private String codeService;
 
-   @Column(name = "id_cliente")
-   private long idCliente;
-
-   @Column(name = "id_enlace")
-   private String idEnlace;
-
-   private long nit;
+   private String nit;
 
    public NitOnixEntity() {
    }
@@ -48,35 +40,19 @@ public class NitOnixEntity implements Serializable {
       this.id = id;
    }
 
-   public String getEstadoServicio() {
-      return this.estadoServicio;
+   public String getCodeService() {
+      return this.codeService;
    }
 
-   public void setEstadoServicio(String estadoServicio) {
-      this.estadoServicio = estadoServicio;
+   public void setCodeService(String codeService) {
+      this.codeService = codeService;
    }
 
-   public long getIdCliente() {
-      return this.idCliente;
-   }
-
-   public void setIdCliente(long idCliente) {
-      this.idCliente = idCliente;
-   }
-
-   public String getIdEnlace() {
-      return this.idEnlace;
-   }
-
-   public void setIdEnlace(String idEnlace) {
-      this.idEnlace = idEnlace;
-   }
-
-   public long getNit() {
+   public String getNit() {
       return this.nit;
    }
 
-   public void setNit(long nit) {
+   public void setNit(String nit) {
       this.nit = nit;
    }
 

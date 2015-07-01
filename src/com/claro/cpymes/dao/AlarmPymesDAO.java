@@ -16,6 +16,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.claro.cpymes.dto.LogDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.enums.ProcessEnum;
 import com.claro.cpymes.enums.StateEnum;
@@ -112,6 +113,8 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
          query.setParameter("name", alarm.getName());
          query.setParameter("startDate", startDate);
          query.setParameter("endDate", today);
+         query.setParameter("estado", StateEnum.ACTIVO.getValue());
+         query.setParameter("interFace", alarm.getInterFace());
          exist = query.setFirstResult(1).setMaxResults(1).getResultList().size() > 0;
 
       } catch (Exception e) {
@@ -232,7 +235,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       }
       entityTransaction.commit();
       entityManager.close();
-      LOGGER.info("FILTRADO - Alarmas Filtradas: " + numberRegisterCreate);
+      LOGGER.info("FILTRADO - Alarmas Filtradas Guardadas: " + numberRegisterCreate);
       return listLog;
    }
 
@@ -256,6 +259,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
        * } */
       alarmEntity.setEstado(logDTO.getState());
       alarmEntity.setSeverity(logDTO.getSeverity());
+      alarmEntity.setInterFace(logDTO.getInterFace());
       Date today = new Date();
       alarmEntity.setDate(today);
 
@@ -263,19 +267,17 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    }
 
    @Override
-   public int clearAlarm(String[] eventNames, String ip, Date date) throws Exception {
+   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
-      Date endDate = date;
-      Date startDate = Util.restarFecha(endDate, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
 
-      Query query = entityManager.createQuery(getQuery(eventNames));
+      Query query = entityManager.createQuery(getQuery(restore.getEventTrigger()));
       query.setParameter("estado", StateEnum.INACTIVO.getValue());
-      query.setParameter("ip", ip);
-      query.setParameter("startDate", startDate);
-      query.setParameter("endDate", endDate);
+      query.setParameter("ip", restore.getIp());
+      query.setParameter("dateRestore", new Date());
+      query.setParameter("interFace", restore.getInterFace());
       resultUpdate = query.executeUpdate();
 
       entityTransaction.commit();
@@ -286,8 +288,9 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    }
 
    private String getQuery(String[] eventNames) {
-      String query = "UPDATE AlarmPymesEntity a SET a.estado=:estado" + " WHERE a.ip=:ip and a.eventName in ("
-         + getEventNamesStr(eventNames) + ")" + " and a.date BETWEEN :startDate AND :endDate ";
+      String query = "UPDATE AlarmPymesEntity a SET a.estado=:estado, a.datetimeAcknowledge=:dateRestore "
+         + " WHERE a.ip=:ip and a.eventName in (" + getEventNamesStr(eventNames) + ")" + " and a.estado != 'I'"
+         + " and a.interFace=:interFace";
       return query;
    }
 

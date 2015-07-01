@@ -1,12 +1,12 @@
 package com.claro.cpymes.ejb;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
@@ -14,11 +14,6 @@ import javax.ejb.Stateless;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.claro.cpymes.dao.NitOnixDAORemote;
 import com.claro.cpymes.dao.ParameterDAORemote;
@@ -28,8 +23,6 @@ import com.claro.cpymes.entity.NitOnixEntity;
 import com.claro.cpymes.exceptions.FileNitEmptyException;
 import com.claro.cpymes.exceptions.PercentageDifferenceException;
 import com.claro.cpymes.util.Constant;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 
 
 @Stateless
@@ -49,21 +42,10 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    private ArrayList<NitOnixEntity> listNitOnix;
 
-   private static final int A = CellReference.convertColStringToIndex("A");
-
-   private static final int B = CellReference.convertColStringToIndex("B");
-
-   private static final int C = CellReference.convertColStringToIndex("C");
-
-   private static final int D = CellReference.convertColStringToIndex("D");
-
-   private static final int E = CellReference.convertColStringToIndex("E");
-
    @Override
    public void processNits() {
       try {
          listNitOnix = new ArrayList<NitOnixEntity>();
-         getFileNitsCopyServe();
          processFile();
          validateNumberRegisters();
          deleteTableNits();
@@ -76,30 +58,49 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    }
 
-   private void getFileNitsCopyServe() throws FileNotFoundException, JSchException, SftpException {
-      SFTPRemote.download();
+   private void processFile() throws IOException, FileNitEmptyException {
+
+      BufferedReader buffer = new BufferedReader(new FileReader(Constant.PATH_ONIX_IVR));
+      try {
+         String register = buffer.readLine();
+         while (register != null) {
+            converToEntity(register);
+            register = buffer.readLine();
+         }
+      } finally {
+         buffer.close();
+      }
+
    }
 
-   @SuppressWarnings("resource")
-   private void processFile() throws IOException, FileNitEmptyException {
-      File pathFile = new File(getPathFile());
-      FileInputStream file = new FileInputStream(pathFile);
-      XSSFWorkbook myWorkBook = new XSSFWorkbook(file);
-      XSSFSheet mySheet = myWorkBook.getSheetAt(0);
-
-      int i = 0;
-      for (Row row : mySheet) {
-         if (i++ > 0) {
-            NitOnixEntity nitOnix = getInfoFromRow(row);
-            if (nitOnix != null) {
-               listNitOnix.add(nitOnix);
-            }
-         }
-      }
-      if (listNitOnix.isEmpty()) {
-         throw new FileNitEmptyException("No se encontraron registros dentro del archivo");
+   private void converToEntity(String register) {
+      NitOnixEntity nitOnix;
+      StringTokenizer token = new StringTokenizer(register, Constant.DELIMETER_SNMPTT);
+      try {
+         long id = getNextTokenLong(token);
+         String codeService = getNextTokenString(token);
+         String nit = getNextTokenString(token);
+         nitOnix = new NitOnixEntity();
+         nitOnix.setId(id);
+         nitOnix.setCodeService(codeService);
+         nitOnix.setNit(nit);
+         listNitOnix.add(nitOnix);
+      } catch (Exception e) {
+         LOGGER.error("Error Creando Registros de Nit Onix", e);
       }
 
+   }
+
+   private static String getNextTokenString(StringTokenizer token) throws Exception {
+      String value = token.nextToken();
+      if (value == null)
+         throw new Exception();
+      return value.trim();
+   }
+
+   private static long getNextTokenLong(StringTokenizer token) throws Exception {
+      String value = token.nextToken();
+      return Long.parseLong(value.trim());
    }
 
    private void validateNumberRegisters() throws Exception {
@@ -114,34 +115,6 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
          throw new PercentageDifferenceException("La diferncia porcentual de Numero de Registros de Nits es anormal");
       }
 
-   }
-
-   private NitOnixEntity getInfoFromRow(Row row) {
-      NitOnixEntity nitOnix = new NitOnixEntity();
-      try {
-         Cell cell = row.getCell(A);
-         nitOnix.setId((long) cell.getNumericCellValue());
-
-         cell = row.getCell(B);
-         nitOnix.setIdEnlace(cell.getStringCellValue());
-
-         cell = row.getCell(C);
-         nitOnix.setNit((long) cell.getNumericCellValue());
-
-         cell = row.getCell(D);
-         nitOnix.setIdCliente((long) cell.getNumericCellValue());
-
-         cell = row.getCell(E);
-         nitOnix.setEstadoServicio(cell.getStringCellValue());
-         return nitOnix;
-      } catch (Exception e) {
-         return null;
-      }
-
-   }
-
-   private String getPathFile() {
-      return Constant.SERVER_WORKING_DIR + Constant.NAME_FILE_NITS;
    }
 
    private void deleteTableNits() throws Exception {

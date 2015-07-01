@@ -317,10 +317,8 @@ UPDATE `cpymes`.`alarm_catalog` SET `criticality`='info' WHERE `id`='234';
 
 CREATE TABLE cpymes.nit_onix (
   id BIGINT NOT NULL,
-  id_enlace VARCHAR(100) NOT NULL,
-  nit BIGINT NOT NULL,
-  id_cliente BIGINT NOT NULL,
-  estado_servicio VARCHAR(20) NOT NULL,
+  code_service VARCHAR(100) NOT NULL,
+  nit VARCHAR(100) NOT NULL,
   PRIMARY KEY (id));
   
   
