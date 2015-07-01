@@ -79,7 +79,9 @@
 						styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_tipoEvento" headerText="Tipo Evento">
-					<h:outputText id="text_tipo_evento" value="#{alarmIVR.tipoEvento}" styleClass="td-table-list" />
+					<h:outputText id="text_tipo_evento" value="#{alarmIVR.tipoEvento}" styleClass="td-table-list">
+						<f:converter converterId="eventConverter" />
+					</h:outputText>
 				</p:column>
 				<p:column id="column_ciudad" headerText="Ciudad">
 					<h:outputText id="text_ciudad" value="#{alarmIVR.ciudad}" styleClass="td-table-list" />
