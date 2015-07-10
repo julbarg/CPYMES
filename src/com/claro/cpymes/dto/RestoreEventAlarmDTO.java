@@ -21,12 +21,21 @@ public class RestoreEventAlarmDTO implements Serializable {
 
    private String interFace;
 
-   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger[], String ip, Date date, String interFace) {
+   private boolean restoreIVR;
+
+   public RestoreEventAlarmDTO(String eventRestore, String eventTrigger[], String ip, Date date, String interFace,
+      boolean restoreIVR) {
       this.evenRestore = eventRestore;
       this.eventTrigger = eventTrigger;
       this.ip = ip;
       this.date = date;
       this.interFace = interFace;
+      this.restoreIVR = restoreIVR;
+   }
+
+   public RestoreEventAlarmDTO(String eventTrigger[], String ip) {
+      this.eventTrigger = eventTrigger;
+      this.ip = ip;
    }
 
    public String getEvenRestore() {
@@ -67,6 +76,14 @@ public class RestoreEventAlarmDTO implements Serializable {
 
    public void setInterFace(String interFace) {
       this.interFace = interFace;
+   }
+
+   public boolean isRestoreIVR() {
+      return restoreIVR;
+   }
+
+   public void setRestoreIVR(boolean restoreIVR) {
+      this.restoreIVR = restoreIVR;
    }
 
 }

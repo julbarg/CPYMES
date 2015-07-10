@@ -132,9 +132,10 @@ public class CPYMESEJB implements CPYMESEJBRemote {
     * Cargar alarmas por prioridades
     * @param listPrioritySelect Lista de prioridades a filtrar
     * @return ArrayList<AlarmPymesDTO> alarmas encontradas
+    * @throws Exception 
     */
    @Override
-   public ArrayList<AlarmPymesDTO> loadAlarmByPriority(ArrayList<String> listPrioritySelect) {
+   public ArrayList<AlarmPymesDTO> loadAlarmByPriority(ArrayList<String> listPrioritySelect) throws Exception {
       ArrayList<AlarmPymesDTO> listAlarmPymesDTO = new ArrayList<AlarmPymesDTO>();
       ArrayList<AlarmPymesEntity> listAlarmEntity = alarmPymesDAO.findByPriority(listPrioritySelect);
       for (AlarmPymesEntity alarmEntity : listAlarmEntity) {

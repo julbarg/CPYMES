@@ -42,16 +42,15 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
     * @return ArrayList<AlarmPymesEntity> Lista de entidades encontradas
     */
    @Override
-   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public ArrayList<AlarmPymesEntity> findByEstado(String estado) {
+   public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception{
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
+      
       TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findByEstado",
          AlarmPymesEntity.class);
       query.setParameter("estado", estado);
       ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.setMaxResults(
          Constant.MAXIME_RESULT_ALARM).getResultList();
-      entityManager.getTransaction().commit();
+      
       entityManager.close();
 
       return results;
@@ -63,16 +62,14 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
     * @return ArrayList<AlarmPymesEntity>  Lista de alarmas encontradas
     */
    @Override
-   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect) {
+   public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
       TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findByPriority",
          AlarmPymesEntity.class);
       query.setParameter("listPriority", listPrioritySelect);
       query.setParameter("estado", ProcessEnum.ACTIVO.getValue());
       ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.getResultList();
-      entityManager.getTransaction().commit();
+
       entityManager.close();
 
       return results;
@@ -91,38 +88,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
          LOGGER.error("Error creando registro", e);
       }
 
-   }
-
-   /**
-    * Obtiene las entidades AlarmPymesEntity por criterios de busqueda
-    * @param entityManager 
-    * @param eventName Nombre del evento
-    * @param name Nombre del dispositivo
-    * @param startDate Rango de fecha inicial
-    * @param endDate Rango de fecha final
-    * @return ArrayList<AlarmPymesEntity> Lista de entidades encontradas
-    */
-   private boolean existSimilar(AlarmPymesEntity alarm, EntityManager entityManager) {
-      boolean exist = false;
-      Date today = new Date();
-      Date startDate = Util.restarFecha(today, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
-      try {
-         TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliar",
-            AlarmPymesEntity.class);
-         query.setParameter("eventName", alarm.getEventName());
-         query.setParameter("name", alarm.getName());
-         query.setParameter("startDate", startDate);
-         query.setParameter("endDate", today);
-         query.setParameter("estado", StateEnum.ACTIVO.getValue());
-         query.setParameter("interFace", alarm.getInterFace());
-         exist = query.setFirstResult(1).setMaxResults(1).getResultList().size() > 0;
-
-      } catch (Exception e) {
-         LOGGER.error("Error buscando registros similares", e);
-         return exist;
-      }
-
-      return exist;
    }
 
    /**
@@ -212,8 +177,12 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
-   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) {
+   @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) throws Exception {
       int numberRegisterCreate = 0;
+      int numberRegisterActive = 0;
+      int numberOfRegister = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
@@ -225,6 +194,9 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
                if (!existSimilar(alarmEntity, entityManager)) {
                   entityManager.persist(alarmEntity);
                   numberRegisterCreate++;
+                  if (StateEnum.ACTIVO.getValue().equals(alarmEntity.getEstado())) {
+                     numberRegisterActive++;
+                  }
                } else {
                   logDTO.setRelevant(false);
                }
@@ -232,11 +204,40 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
                LOGGER.error("Error guardando Alarma", e);
             }
          }
+         numberOfRegister++;
+         if (numberOfRegister == 100) {
+            entityManager.flush();
+            entityManager.clear();
+            numberOfRegister = 0;
+         }
       }
       entityTransaction.commit();
       entityManager.close();
       LOGGER.info("FILTRADO - Alarmas Filtradas Guardadas: " + numberRegisterCreate);
+      LOGGER.info("FILTRADO - Alarmas Activas Guardadas: " + numberRegisterActive);
       return listLog;
+   }
+
+   private boolean existSimilar(AlarmPymesEntity alarm, EntityManager entityManager) {
+      boolean exist = false;
+      Date today = new Date();
+      Date startDate = Util.restarFecha(today, Integer.parseInt(Constant.TIMER_SIMILAR_REGISTERS));
+      try {
+         Query query = entityManager.createNamedQuery("AlarmPymesEntity.findSimiliar");
+         query.setParameter("eventName", alarm.getEventName());
+         query.setParameter("name", alarm.getName());
+         query.setParameter("startDate", startDate);
+         query.setParameter("endDate", today);
+         query.setParameter("estado", StateEnum.ACTIVO.getValue());
+         query.setParameter("interFace", alarm.getInterFace());
+         exist = query.setMaxResults(1).getResultList().size() > 0;
+
+      } catch (Exception e) {
+         LOGGER.error("Error buscando registros similares", e);
+         return exist;
+      }
+
+      return exist;
    }
 
    private AlarmPymesEntity getAlarmPymesEntity(LogDTO logDTO) {
@@ -267,11 +268,25 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    }
 
    @Override
-   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
+
+      for (RestoreEventAlarmDTO restore : listRestore) {
+         resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+      }
+
+      entityTransaction.commit();
+      entityManager.close();
+
+      LOGGER.info("RESTORE EVENT CPYMES - Alarmas Restauradas: " + resultUpdate);
+   }
+
+   private int clearAlarm(RestoreEventAlarmDTO restore, EntityManager entityManager) throws Exception {
+      int resultUpdate = 0;
 
       Query query = entityManager.createQuery(getQuery(restore.getEventTrigger()));
       query.setParameter("estado", StateEnum.INACTIVO.getValue());
@@ -280,16 +295,12 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       query.setParameter("interFace", restore.getInterFace());
       resultUpdate = query.executeUpdate();
 
-      entityTransaction.commit();
-      entityManager.close();
-
       return resultUpdate;
-
    }
 
    private String getQuery(String[] eventNames) {
       String query = "UPDATE AlarmPymesEntity a SET a.estado=:estado, a.datetimeAcknowledge=:dateRestore "
-         + " WHERE a.ip=:ip and a.eventName in (" + getEventNamesStr(eventNames) + ")" + " and a.estado != 'I'"
+         + " WHERE a.ip=:ip and (" + getEventNamesStr(eventNames) + ")" + " and a.estado != 'I'"
          + " and a.interFace=:interFace";
       return query;
    }
@@ -297,9 +308,9 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    private String getEventNamesStr(String[] eventNames) {
       String eventNamesStr = "";
       for (int i = 0; i < eventNames.length - 1; i++) {
-         eventNamesStr = eventNamesStr + "'" + eventNames[i] + "',";
+         eventNamesStr = eventNamesStr + " a.eventName = '" + eventNames[i] + "' OR ";
       }
-      eventNamesStr = eventNamesStr + "'" + eventNames[eventNames.length - 1] + "'";
+      eventNamesStr = eventNamesStr + " a.eventName = '" + eventNames[eventNames.length - 1] + "' ";
 
       return eventNamesStr;
    }

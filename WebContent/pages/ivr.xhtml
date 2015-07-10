@@ -62,6 +62,7 @@
 
 		<p:panel styleClass="panel_transparent">
 			<p:messages />
+			<p:outputLabel value="#{ivr.listAlarmaPymesIVR.size()}" />
 			<p:dataTable id="data_alarm" var="alarmIVR" value="#{ivr.listAlarmaPymesIVR}"
 				widgetVar="dataAlarmIVR" paginatorPosition="bottom" rows="50" paginator="true"
 				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">

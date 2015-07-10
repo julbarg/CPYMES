@@ -17,7 +17,9 @@ import java.util.List;
 @Table(name = "ALARMA_PYMES")
 @NamedQueries({
    @NamedQuery(name = "AlarmaPymeIVREntity.findAll", query = "SELECT a FROM AlarmaPymeIVREntity a"),
-   @NamedQuery(name = "AlarmaPymeIVREntity.findByEstado", query = "SELECT a FROM AlarmaPymeIVREntity a WHERE a.estadoAlarma = :estado ORDER BY a.fechaInicio DESC"), })
+   @NamedQuery(name = "AlarmaPymeIVREntity.findByEstado", query = "SELECT a FROM AlarmaPymeIVREntity a WHERE a.estadoAlarma = :estado ORDER BY a.fechaInicio DESC"),
+   @NamedQuery(name = "AlarmaPymeIVREntity.findSimiliar", query = "SELECT a FROM AlarmaPymeIVREntity a WHERE a.estadoAlarma=:estado AND a.claseEquipo=:eventName and a.ip=:ip"),
+})
 public class AlarmaPymeIVREntity implements Serializable {
    private static final long serialVersionUID = 1L;
 

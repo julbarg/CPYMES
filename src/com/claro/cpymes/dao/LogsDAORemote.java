@@ -15,18 +15,18 @@ import com.claro.cpymes.entity.LogEntity;
 @Remote
 public interface LogsDAORemote {
 
-   public LogEntity findOne(long id);
+   public LogEntity findOne(long id) throws Exception;
 
-   public void create(LogEntity entity);
+   public void create(LogEntity entity) throws Exception;
 
-   public LogEntity update(LogEntity entity);
+   public LogEntity update(LogEntity entity) throws Exception;
 
-   public void delete(LogEntity entity);
+   public void delete(LogEntity entity) throws Exception;
 
-   public void deleteById(long entityId);
+   public void deleteById(long entityId) throws Exception;
 
-   public ArrayList<LogEntity> findByEstado(String estado);
+   public ArrayList<LogEntity> findByEstado(String estado) throws Exception;
    
-   public void updateList(ArrayList<LogEntity> listEntity);
+   public void updateList(ArrayList<LogEntity> listEntity) throws Exception;
 
 }

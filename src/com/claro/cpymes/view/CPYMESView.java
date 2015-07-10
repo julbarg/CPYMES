@@ -1,32 +1,21 @@
 package com.claro.cpymes.view;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.xml.namespace.QName;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.opensaml.xml.Namespace;
-import org.opensaml.xml.NamespaceManager;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.encryption.P;
-import org.opensaml.xml.schema.XSBooleanValue;
-import org.opensaml.xml.util.IDIndex;
-import org.opensaml.xml.validation.ValidationException;
-import org.opensaml.xml.validation.Validator;
-import org.w3c.dom.Element;
 
+import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dto.AlarmPymesDTO;
 import com.claro.cpymes.dto.PriorityCountDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.ejb.remote.CPYMESEJBRemote;
 import com.claro.cpymes.ejb.remote.ProcessEJBRemote;
 import com.claro.cpymes.enums.PriorityEnum;
@@ -63,6 +52,9 @@ public class CPYMESView {
 
    @EJB
    private ProcessEJBRemote processEJB;
+
+   @EJB
+   private AlarmaPymesIVRDAORemote alarmaPymesIVRDAO;
 
    private String priorityAction;
 
@@ -154,11 +146,25 @@ public class CPYMESView {
          alarmDTO.setDatetimeAcknowledge(new Date());
          try {
             cpymesEJB.update(alarmDTO);
+            restoreAlarms(alarmDTO);
          } catch (Exception e) {
             LOGGER.info("Error reconociendo alarma: ", e);
          }
       }
       load();
+   }
+
+   private void restoreAlarms(AlarmPymesDTO alarmDTO) {
+      try {
+         String[] eventTrigger = new String[] { alarmDTO.getNameEvent() };
+         String ip = alarmDTO.getIp();
+         RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO(eventTrigger, ip);
+         int resultIVR = alarmaPymesIVRDAO.clearAlarm(restore);
+         LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas [View]: " + resultIVR);
+      } catch (Exception e) {
+         LOGGER.info("Error reconociendo alarma: ", e);
+      }
+
    }
 
    public void search() {

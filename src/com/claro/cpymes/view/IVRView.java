@@ -146,7 +146,7 @@ public class IVRView {
          Util.getUserName();
          return true;
       } catch (Exception e) {
-         LOGGER.error("Error de Sesion", e);
+         LOGGER.info("Error. No existe una sesion activa");
          return false;
 
       }

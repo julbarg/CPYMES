@@ -7,6 +7,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
@@ -31,6 +32,20 @@ public class AlarmaPymesServicioNitIVRDAO extends TemplateIVRDAO<AlarmaPymesServ
       entityManager.close();
 
       return results;
+   }
+
+   @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public AlarmaPymesServicioNitIVREntity updateAlarm(AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR)
+      throws Exception {
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+      alarmaServicioNitIVR = entityManager.merge(alarmaServicioNitIVR);
+      entityTransaction.commit();
+      entityManager.close();
+
+      return alarmaServicioNitIVR;
    }
 
 }

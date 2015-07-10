@@ -69,6 +69,8 @@ public class LogDTO implements Serializable {
 
    private boolean restoreEvent;
 
+   private String typeEvent;
+
    public LogDTO() {
 
    }
@@ -189,7 +191,7 @@ public class LogDTO implements Serializable {
    }
 
    public String getInterFace() {
-      return interFace != null ? interFace : "-";
+      return interFace != null ? interFace : "";
    }
 
    public void setInterFace(String interFace) {
@@ -297,6 +299,14 @@ public class LogDTO implements Serializable {
 
    public void setState(String state) {
       this.state = state;
+   }
+
+   public String getTypeEvent() {
+      return typeEvent;
+   }
+
+   public void setTypeEvent(String typeEvent) {
+      this.typeEvent = typeEvent;
    }
 
 }

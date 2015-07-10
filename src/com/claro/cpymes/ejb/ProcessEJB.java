@@ -99,9 +99,6 @@ public class ProcessEJB implements ProcessEJBRemote {
          filtrado.initialize(catalog);
          correlacion = new Correlacion();
          correlacion.initialize();
-         restoreEvent = new RestoreEvent();
-         restoreEvent.initialize();
-
       } catch (Exception e) {
          LOGGER.error("Error iniciando Rules: ", e);
       }
@@ -193,8 +190,9 @@ public class ProcessEJB implements ProcessEJBRemote {
     * Description a el objeto LogDTO
     * @param listAlarms Lista de logs a procesar
     * @return ArrayList<LogEntity> Mapeados
+    * @throws Exception 
     */
-   private void mapearListLogDTO() {
+   private void mapearListLogDTO() throws Exception {
       int mapeadas = 0;
       listLog = new ArrayList<LogDTO>();
       String procesados = ProcessEnum.PROCESADO.getValue();
@@ -206,8 +204,10 @@ public class ProcessEJB implements ProcessEJBRemote {
             mapeadas++;
          }
       }
-      logsDAORemote.updateList(listAlarms);
       LOGGER.info("MAPEADAS - Alarmas Mapeadas: " + mapeadas);
+      logsDAORemote.updateList(listAlarms);
+      LOGGER.info("UPDATE PROCESADOS - Alarmas Mapeadas");
+
    }
 
    /**
@@ -219,19 +219,10 @@ public class ProcessEJB implements ProcessEJBRemote {
     * @return ArrayList<LogDTO> con la informacion modificada resultado del filtrado
     */
    private void filtrar() {
-      try {
-         for (LogDTO log : listLog) {
-            if (log.isMapeado()) {
-               log = filtrado.filtrar(log);
-            }
-         }
-      } catch (Exception e) {
-         LOGGER.error("Error Filtrando", e);
-      }
-
+      listLog = filtrado.filtrar(listLog);
    }
 
-   private void saveAlarmFilter() {
+   private void saveAlarmFilter() throws Exception {
       listLog = alarmPymesDAORemote.createList(listLog);
    }
 
@@ -243,23 +234,15 @@ public class ProcessEJB implements ProcessEJBRemote {
     * @param listLogDTOs Lista de logs a ejecutar
     */
    private void correlate() {
-      for (LogDTO logCEP : listLog) {
-         if (logCEP.isCorrelation() && logCEP.isRelevant()) {
-            // Si fueron marcados con correlacion y son relevantes
-            // se almacenan en MemoryEntryPoint para tener en cuenta
-            // en la proxima ejecucion de correlacion
-            logCEP.setContCorrelate(1);
-            correlacion.insertToEntryPoint(logCEP);
-         }
-      }
-
+      correlacion.insertToEntryPoint(listLog);
    }
 
    /**
     * Limpia las alarmas que han sido marcadas como reconocidas por el usuario.
     * Se extraen del WorkingMemoryEntryPoint
+    * @throws Exception 
     */
-   private void cleanMemory() {
+   private void cleanMemory() throws Exception {
       Date endDate = new Date();
       Date startDate = Util.restarFecha(endDate, Constant.TIME_RECOGNIZE_CORRELATION);
       ArrayList<AlarmPymesEntity> listAlarmsReconocidas = alarmPymesDAORemote.findSimiliarCEPReconocidas(startDate,
@@ -290,6 +273,9 @@ public class ProcessEJB implements ProcessEJBRemote {
                   update++;
                } else {
                   saveAlarmCEP(logDTO);
+                  logDTO.setTypeEvent(TypeEventEnum.MULTIPLE.getValue());
+                  sendIVR(logDTO);
+
                   news++;
                }
             } catch (Exception e) {
@@ -317,8 +303,9 @@ public class ProcessEJB implements ProcessEJBRemote {
     * Busca alarmas por nodo, nameCorrelation y date
     * @param logDTO Log que contiene la informacion para realizar busqueda
     * @return ArrayList<AlarmPymesEntity> de alarmas encontradas
+    * @throws Exception 
     */
-   private ArrayList<AlarmPymesEntity> findAlarmCPE(LogDTO logDTO) {
+   private ArrayList<AlarmPymesEntity> findAlarmCPE(LogDTO logDTO) throws Exception {
       Date date = logDTO.getDate();
       String nodo = logDTO.getNodo();
       String nameCorrelation = logDTO.getNameCorrelation();
@@ -330,20 +317,21 @@ public class ProcessEJB implements ProcessEJBRemote {
     * Actualiza la alarma correlacionada
     * @param logDTO Log para ampliar informacion
     * @param alarmEntity Alarma a actualizar
+    * @throws Exception 
     */
-   private void updateAlarmCEP(LogDTO logDTO, AlarmPymesEntity alarmEntity) {
+   private void updateAlarmCEP(LogDTO logDTO, AlarmPymesEntity alarmEntity) throws Exception {
       alarmEntity.setMessage(logDTO.getMessageDRL());
       alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
 
       alarmPymesDAORemote.update(alarmEntity);
-
    }
 
    /**
     * Crea una alarma correlacionada
     * @param logDTO Log que contiene informacion
+    * @throws Exception 
     */
-   private void saveAlarmCEP(LogDTO logDTO) {
+   private void saveAlarmCEP(LogDTO logDTO) throws Exception {
       AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
       alarmEntity.setIp(logDTO.getIp());
       alarmEntity.setOid(logDTO.getOID());
@@ -364,42 +352,48 @@ public class ProcessEJB implements ProcessEJBRemote {
       try {
          for (LogDTO log : listLog) {
             if (log.isSendIVR() && log.isRelevant()) {
-               EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
-               AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
-
-               alarmaIVR.setClaseEquipo(equipo.getClaseEquipo());
-               // alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
-               alarmaIVR.setDescripcionAlarma(log.getNameEvent());
-               alarmaIVR.setCiudad(equipo.getCiudad());
-               alarmaIVR.setDivision(equipo.getDivision());
-
-               alarmaIVR.setEstadoAlarma(StateEnum.ACTIVO.getValue());
-
-               alarmaIVR.setCodigoAudioIvr(getCodigoAudioIvr());
-
-               Date today = new Date();
-               alarmaIVR.setFechaInicio(today);
-
-               // TODO
-               alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, today));
-
-               alarmaIVR.setIp(log.getIp());
-
-               // TODO
-               TypeEventEnum.NODO.getValue();
-               TypeEventEnum.FIBRA.getValue();
-               alarmaIVR.setTipoEvento(TypeEventEnum.NODO.getValue());
-
-               alarmaIVR = alarmaPymesIVRDAO.update(alarmaIVR);
-
-               saveAlarmaPymesServicioNits(alarmaIVR, equipo);
-               numberRegistersIVR++;
+               if (sendIVR(log)) {
+                  numberRegistersIVR++;
+               }
             }
          }
          LOGGER.info("IVR - Alarmas enviadas al IVR: " + numberRegistersIVR);
       } catch (Exception e) {
          LOGGER.error("Error Send IVR", e);
       }
+
+   }
+
+   private boolean sendIVR(LogDTO log) throws Exception {
+      EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
+      AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
+
+      alarmaIVR.setClaseEquipo(log.getNameEvent());
+      alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
+      alarmaIVR.setCiudad(equipo.getCiudad());
+      alarmaIVR.setDivision(equipo.getDivision());
+
+      alarmaIVR.setEstadoAlarma(StateEnum.ACTIVO.getValue());
+
+      alarmaIVR.setCodigoAudioIvr(getCodigoAudioIvr());
+
+      Date today = new Date();
+      alarmaIVR.setFechaInicio(today);
+
+      // TODO
+      alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, today));
+
+      alarmaIVR.setIp(log.getIp());
+
+      alarmaIVR.setTipoEvento(log.getTypeEvent());
+
+      alarmaIVR = alarmaPymesIVRDAO.updateAlarm(alarmaIVR);
+
+      if (alarmaIVR != null) {
+         saveAlarmaPymesServicioNits(alarmaIVR, equipo);
+         return true;
+      }
+      return false;
 
    }
 
@@ -417,16 +411,16 @@ public class ProcessEJB implements ProcessEJBRemote {
       return Util.addHoursToDate(today, numberHours);
    }
 
-   private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) {
+   private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) throws Exception {
       for (String codigoServicio : equipo.getCodigosServicio()) {
          AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
          String nit = getNit(codigoServicio);
-         if (nit != null) {
+         if (nit != null && alarmaIVR.getIdAlarmaPymes() != 0) {
             alarmaServicioNitIVR.setNit(nit.toString());
             alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
             alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
 
-            alarmaPymesServicioNitIVRDAO.update(alarmaServicioNitIVR);
+            alarmaPymesServicioNitIVRDAO.updateAlarm(alarmaServicioNitIVR);
          }
 
       }
@@ -437,21 +431,36 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private void restoreEvent() {
-      int numberRegistersClear = 0;
-      RestoreEventAlarmDTO restoreAlarmEvent;
-      for (LogDTO log : listLog) {
-         restoreAlarmEvent = restoreEvent.restoreEvent(log);
-         if (restoreAlarmEvent != null) {
-            try {
-               int result = alarmPymesDAORemote.clearAlarm(restoreAlarmEvent);
-               numberRegistersClear = numberRegistersClear + result;
-
-            } catch (Exception e) {
-               LOGGER.error("Error actualizando registros de Alarmas [Restore]", e);
-            }
-         }
+      try {
+         restoreEvent = null;
+         restoreEvent = new RestoreEvent();
+         restoreEvent.initialize();
+      } catch (Exception e) {
+         LOGGER.error("ERROR Initialize Restore Rules: ", e);
       }
-      LOGGER.info("RESTORE EVENT - Alarmas Restauradas: " + numberRegistersClear);
+      ArrayList<RestoreEventAlarmDTO> listRestoreAlarmEvent = new ArrayList<RestoreEventAlarmDTO>();
+      listRestoreAlarmEvent = restoreEvent.restoreEvent(listLog);
+
+      LOGGER.info("RESTORE Eventos de Recuperacion: " + listRestoreAlarmEvent.size());
+      clearAlarmCPYMES(listRestoreAlarmEvent);
+      clearAlarmIVR(listRestoreAlarmEvent);
+   }
+
+   private void clearAlarmCPYMES(ArrayList<RestoreEventAlarmDTO> listRestoreCPYMES) {
+      try {
+         alarmPymesDAORemote.clearAlarm(listRestoreCPYMES);
+      } catch (Exception e) {
+         LOGGER.error("Error actualizando registros de Alarmas [Restore CPYMES]", e);
+      }
+   }
+
+   private void clearAlarmIVR(ArrayList<RestoreEventAlarmDTO> listRestoreIVR) {
+      try {
+         alarmaPymesIVRDAO.clearAlarm(listRestoreIVR);
+      } catch (Exception e) {
+         LOGGER.error("Error actualizando registros de Alarmas [Restore IVR]", e);
+      }
+
    }
 
 }

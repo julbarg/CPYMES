@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
@@ -27,8 +29,8 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
    }
 
    @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public void removeAll() throws Exception {
-
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       Query query = entityManager.createQuery("DELETE FROM NitOnixEntity");
@@ -39,6 +41,7 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
    }
 
    @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public void createList(ArrayList<NitOnixEntity> listNitOnix) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();

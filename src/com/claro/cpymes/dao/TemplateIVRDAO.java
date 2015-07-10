@@ -1,5 +1,7 @@
 package com.claro.cpymes.dao;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -17,7 +19,7 @@ public class TemplateIVRDAO<T> {
       this.clase = entity;
    }
 
-   public T findOne(long id) {
+   public T findOne(long id) throws Exception {
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       T t = entityManager.find(this.clase, id);
@@ -26,7 +28,8 @@ public class TemplateIVRDAO<T> {
       return t;
    }
 
-   public void create(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void create(T entity) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
@@ -35,17 +38,20 @@ public class TemplateIVRDAO<T> {
       entityManager.close();
    }
 
-   public T update(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+   public T update(T entity) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
-      T t = entityManager.merge(entity);
-      entityManager.getTransaction().commit();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+      entity = entityManager.merge(entity);
+      entityTransaction.commit();
       entityManager.close();
 
-      return t;
+      return entity;
    }
 
-   public void delete(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void delete(T entity) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
@@ -53,7 +59,8 @@ public class TemplateIVRDAO<T> {
       entityManager.close();
    }
 
-   public void deleteById(long entityId) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void deleteById(long entityId) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       T entity = this.findOne(entityId);

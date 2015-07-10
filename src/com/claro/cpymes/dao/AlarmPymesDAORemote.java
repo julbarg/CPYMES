@@ -18,28 +18,30 @@ import com.claro.cpymes.entity.AlarmPymesEntity;
 @Remote
 public interface AlarmPymesDAORemote {
 
-   public AlarmPymesEntity findOne(long id);
+   public AlarmPymesEntity findOne(long id) throws Exception;
 
-   public void create(AlarmPymesEntity entity);
+   public void create(AlarmPymesEntity entity) throws Exception;
 
-   public AlarmPymesEntity update(AlarmPymesEntity entity);
+   public AlarmPymesEntity update(AlarmPymesEntity entity) throws Exception;
 
-   public void delete(AlarmPymesEntity entity);
+   public void delete(AlarmPymesEntity entity) throws Exception;
 
-   public void deleteById(long entityId);
+   public void deleteById(long entityId) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findByEstado(String estado);
+   public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date startDate, Date endDate);
+   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date startDate, Date endDate) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date date);
+   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date date) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findSimiliarCEPReconocidas(Date startDate, Date endDate);
+   public ArrayList<AlarmPymesEntity> findSimiliarCEPReconocidas(Date startDate, Date endDate) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect);
+   public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect) throws Exception;
 
-   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog);
+   public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) throws Exception;
 
-   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception;
+   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception;
+   
+   
 
 }

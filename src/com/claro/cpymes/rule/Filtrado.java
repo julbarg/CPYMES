@@ -1,6 +1,7 @@
 package com.claro.cpymes.rule;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.LogManager;
@@ -40,11 +41,15 @@ public class Filtrado {
       ksession.setGlobal("catalog", catalog);
    }
 
-   public LogDTO filtrar(LogDTO log) {
-      ksession.insert(log);
+   public ArrayList<LogDTO> filtrar(ArrayList<LogDTO> listLog) {
+      for (LogDTO log : listLog) {
+         if (log.isMapeado()) {
+            ksession.insert(log);
+         }
+      }
       ksession.fireAllRules();
 
-      return log;
+      return listLog;
    }
 
    private static KnowledgeBase readKnowledgeBase(String drlFile) throws Exception {

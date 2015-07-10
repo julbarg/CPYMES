@@ -22,7 +22,7 @@
 		jdbcDriver=oracle.jdbc.OracleDriver
 		userName=SYSTEM
 		password=claro
-		jdbcUrl=jdbc:oracle:thin:@localhost:1521:xe
+		jdbcUrl=jdbc:oracle:thin:@localhost:1521:XE
 		jtaManaged=false
 		testOnBorrow=true
 		validationQuery=SELECT 1

@@ -1,6 +1,7 @@
 package com.claro.cpymes.rule;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.LogManager;
@@ -38,19 +39,23 @@ public class RestoreEvent {
       ksession = kbase.newStatefulKnowledgeSession();
    }
 
-   public RestoreEventAlarmDTO restoreEvent(LogDTO log) {
-      ksession.insert(log);
+   public ArrayList<RestoreEventAlarmDTO> restoreEvent(ArrayList<LogDTO> listLog) {
+      for (LogDTO log : listLog) {
+         ksession.insert(log);
+      }
       ksession.fireAllRules();
+      
       Collection<Object> listEventRestore = ksession.getObjects();
-      RestoreEventAlarmDTO restoreEventAlarm = null;
+      RestoreEventAlarmDTO restoreEventAlarm;
+      ArrayList<RestoreEventAlarmDTO> listRestoreEventsAlarm = new ArrayList<RestoreEventAlarmDTO>();
       for (Object obj : listEventRestore) {
          if (obj instanceof RestoreEventAlarmDTO) {
             restoreEventAlarm = ((RestoreEventAlarmDTO) obj);
+            listRestoreEventsAlarm.add(restoreEventAlarm);
             ksession.retract(ksession.getFactHandle(obj));
-            break;
          }
       }
-      return restoreEventAlarm;
+      return listRestoreEventsAlarm;
    }
 
    private static KnowledgeBase readKnowledgeBase(String drlFile) throws Exception {

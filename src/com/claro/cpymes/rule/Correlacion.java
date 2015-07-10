@@ -47,11 +47,18 @@ public class Correlacion {
       ksession.fireAllRules();
    }
 
-   public LogDTO insertToEntryPoint(LogDTO log) {
-      workingLogCorrelation.insert(log);
-      ksession.fireAllRules();
+   public void insertToEntryPoint(ArrayList<LogDTO> listLog) {
+      for (LogDTO log : listLog) {
+         if (log.isCorrelation() && log.isRelevant()) {
+            // Si fueron marcados con correlacion y son relevantes
+            // se almacenan en MemoryEntryPoint para tener en cuenta
+            // en la proxima ejecucion de correlacion
+            log.setContCorrelate(1);
+            workingLogCorrelation.insert(log);
+         }
+      }
 
-      return log;
+      ksession.fireAllRules();
    }
 
    public void retract(String nodo, String nameCorrelation) {

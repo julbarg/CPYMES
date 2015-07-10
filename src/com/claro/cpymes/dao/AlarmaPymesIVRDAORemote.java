@@ -5,20 +5,27 @@ import java.util.ArrayList;
 import javax.ejb.Remote;
 
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 
 
 @Remote
 public interface AlarmaPymesIVRDAORemote {
 
-   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado);
+   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) throws Exception;
 
-   public AlarmaPymeIVREntity findOne(long id);
+   public AlarmaPymeIVREntity findOne(long id) throws Exception;
 
-   public AlarmaPymeIVREntity update(AlarmaPymeIVREntity alarmaPymeIVR);
+   public AlarmaPymeIVREntity update(AlarmaPymeIVREntity alarmaPymeIVR) throws Exception;
 
    public AlarmaPymeIVREntity findById(long idAlarmaPymes) throws Exception;
 
    public ArrayList<AlarmaPymeIVREntity> findByFilter(AlarmaPymeIVRDTO filterAlarm) throws Exception;
+
+   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> lisRestore) throws Exception;
+
+   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception;
+
+   public AlarmaPymeIVREntity updateAlarm(AlarmaPymeIVREntity alarmaIVR) throws Exception;
 
 }

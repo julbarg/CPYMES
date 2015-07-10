@@ -1,5 +1,7 @@
 package com.claro.cpymes.dao;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -24,7 +26,7 @@ public class TemplateDAO<T> {
       this.clase = entity;
    }
 
-   public T findOne(long id) {
+   public T findOne(long id) throws Exception{
       T t;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
@@ -35,7 +37,8 @@ public class TemplateDAO<T> {
       return t;
    }
 
-   public void create(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void create(T entity) throws Exception{
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
@@ -44,7 +47,8 @@ public class TemplateDAO<T> {
       entityManager.close();
    }
 
-   public T update(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public T update(T entity) throws Exception{
 
       T t;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -56,7 +60,8 @@ public class TemplateDAO<T> {
       return t;
    }
 
-   public void delete(T entity) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void delete(T entity) throws Exception{
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
@@ -64,7 +69,8 @@ public class TemplateDAO<T> {
       entityManager.close();
    }
 
-   public void deleteById(long entityId) {
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void deleteById(long entityId) throws Exception{
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       T entity = this.findOne(entityId);

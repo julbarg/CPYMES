@@ -22,6 +22,6 @@ public interface CPYMESEJBRemote {
 
    public PriorityCountDTO countAlarm(ArrayList<AlarmPymesDTO> listAlarm);
 
-   public ArrayList<AlarmPymesDTO> loadAlarmByPriority(ArrayList<String> listPrioritySelect);
+   public ArrayList<AlarmPymesDTO> loadAlarmByPriority(ArrayList<String> listPrioritySelect) throws Exception;
 
 }

@@ -8,19 +8,27 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
+import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
+import com.claro.cpymes.enums.StateEnum;
 
 
 @Stateless
 @LocalBean
 public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> implements AlarmaPymesIVRDAORemote {
 
+   private static Logger LOGGER = LogManager.getLogger(AlarmaPymesIVRDAO.class.getName());
+
    @Override
-   @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) {
+   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) throws Exception{
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado",
          AlarmaPymeIVREntity.class);
@@ -85,4 +93,116 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       return comandQuery;
    }
 
+   @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
+      int resultUpdate = 0;
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+
+      for (RestoreEventAlarmDTO restore : listRestore) {
+         resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+      }
+
+      entityTransaction.commit();
+      entityManager.close();
+
+      LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas: " + resultUpdate);
+
+   }
+
+   private int clearAlarm(RestoreEventAlarmDTO restore, EntityManager entityManager) throws Exception {
+      String[] eventNames = restore.getEventTrigger();
+      Query query;
+      if (eventNames.length == 1) {
+         query = entityManager.createQuery(getQuery());
+         query.setParameter("eventName", eventNames[0]);
+      } else if (eventNames.length > 1) {
+         query = entityManager.createQuery(getQuery(eventNames));
+      } else {
+         return 0;
+      }
+
+      query.setParameter("estado", StateEnum.INACTIVO.getValue());
+      query.setParameter("ip", restore.getIp());
+      query.setParameter("dateEnd", new Date());
+
+      return query.executeUpdate();
+
+   }
+
+   private String getQuery() {
+      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd "
+         + " WHERE a.ip=:ip and a.claseEquipo = :eventName  and a.estadoAlarma != 'I'";
+      return query;
+   }
+
+   private String getQuery(String[] eventNames) {
+      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd "
+         + " WHERE a.ip=:ip and (" + getEventNamesStr(eventNames) + ")" + " and a.estadoAlarma != 'I'";
+      return query;
+   }
+
+   @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception {
+      int resultUpdate = 0;
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+
+      resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+
+      entityTransaction.commit();
+      entityManager.close();
+
+      return resultUpdate;
+
+   }
+
+   private String getEventNamesStr(String[] eventNames) {
+      String eventNamesStr = "";
+      for (int i = 0; i < eventNames.length - 1; i++) {
+         eventNamesStr = eventNamesStr + " a.claseEquipo = '" + eventNames[i] + "' OR ";
+      }
+      eventNamesStr = eventNamesStr + " a.claseEquipo = '" + eventNames[eventNames.length - 1] + "' ";
+
+      return eventNamesStr;
+   }
+
+   @Override
+   @TransactionAttribute(TransactionAttributeType.REQUIRED)
+   public AlarmaPymeIVREntity updateAlarm(AlarmaPymeIVREntity alarmaIVR) throws Exception {
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+      entityTransaction.begin();
+      if (!(existSimilar(alarmaIVR, entityManager))) {
+         alarmaIVR = update(alarmaIVR);
+         entityTransaction.commit();
+         entityManager.close();
+         return alarmaIVR;
+      }
+      entityTransaction.commit();
+      entityManager.close();
+      return null;
+   }
+
+   private boolean existSimilar(AlarmaPymeIVREntity alarm, EntityManager entityManager) {
+      boolean exist = false;
+      try {
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findSimiliar",
+            AlarmaPymeIVREntity.class);
+         query.setParameter("estado", StateEnum.ACTIVO.getValue());
+         query.setParameter("eventName", alarm.getClaseEquipo());
+         query.setParameter("ip", alarm.getIp());
+         exist = query.setFirstResult(1).setMaxResults(1).getResultList().size() > 0;
+
+      } catch (Exception e) {
+         LOGGER.error("Error buscando registros similares en IVR", e);
+         return exist;
+      }
+
+      return exist;
+   }
 }
