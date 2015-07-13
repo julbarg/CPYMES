@@ -13,7 +13,7 @@ import javax.persistence.TypedQuery;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.claro.cpymes.entity.LogEntity;
+import com.claro.cpymes.entity.Log2Entity;
 import com.claro.cpymes.enums.ProcessEnum;
 import com.claro.cpymes.util.Constant;
 
@@ -26,9 +26,9 @@ import com.claro.cpymes.util.Constant;
  */
 @Stateless
 @LocalBean
-public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote {
+public class Logs2DAO extends TemplateLogs2DAO<Log2Entity> implements Logs2DAORemote {
 
-   private static Logger LOGGER = LogManager.getLogger(LogsDAO.class.getName());
+   private static Logger LOGGER = LogManager.getLogger(Logs2DAO.class.getName());
 
    /**
     * Obtiene las entidades LogEntity por estado
@@ -36,13 +36,12 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
     * @return ArrayList<LogEntity> Lista de entidades encontradas
     */
    @Override
-   public ArrayList<LogEntity> findByEstado(String procesado) throws Exception {
+   public ArrayList<Log2Entity> findNoProcess() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-      TypedQuery<LogEntity> query = entityManager.createNamedQuery("LogEntity.findByProcesado", LogEntity.class);
-      query.setParameter("procesados", procesado);
-      ;
-      ArrayList<LogEntity> results = (ArrayList<LogEntity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS)
+      TypedQuery<Log2Entity> query = entityManager.createNamedQuery("Log2Entity.findNoProcess", Log2Entity.class);
+
+      ArrayList<Log2Entity> results = (ArrayList<Log2Entity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS)
          .getResultList();
 
       entityManager.close();
@@ -57,8 +56,8 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
     */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public LogEntity update(LogEntity entity) throws Exception {
-      LogEntity logEntity = new LogEntity();
+   public Log2Entity update(Log2Entity entity) throws Exception {
+      Log2Entity logEntity = new Log2Entity();
       try {
          logEntity = super.update(entity);
       } catch (Exception e) {
@@ -70,12 +69,12 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
 
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public void updateList(ArrayList<LogEntity> listEntity) throws Exception {
+   public void updateList(ArrayList<Log2Entity> listEntity) throws Exception {
+      ArrayList<Integer> seqs = new ArrayList<Integer>();
       if (listEntity.size() == 0) {
          return;
       }
-      ArrayList<Integer> seqs = new ArrayList<Integer>();
-      for (LogEntity log : listEntity) {
+      for (Log2Entity log : listEntity) {
          seqs.add(log.getSeq());
       }
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -92,7 +91,8 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
    }
 
    private String getQuery() {
-      String query = "UPDATE LogEntity l SET l.procesados=:estado WHERE l.seq IN :seqs";
+      String query = "UPDATE Log2Entity l SET l.procesados=:estado WHERE l.seq IN :seqs";
       return query;
    }
+
 }

@@ -23,6 +23,15 @@
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 		</properties>
 	</persistence-unit>
+	<persistence-unit name="LogsPU2" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<non-jta-data-source>NoJTALogsDS2</non-jta-data-source>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<class>com.claro.cpymes.entity.Log2Entity</class>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+		</properties>
+	</persistence-unit>
 	<persistence-unit name="IVRPU" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<non-jta-data-source>IVRDS</non-jta-data-source>

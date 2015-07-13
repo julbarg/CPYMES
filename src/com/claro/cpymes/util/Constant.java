@@ -111,5 +111,11 @@ public class Constant {
    public static final String REGEX_IP = "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b";
    
    public static final String PATH_ONIX_IVR = Util.getProperties("path_onix_ivr");
+   
+   public static final String REACHABILITY = "Alcanzabilidad";
+   
+   public static final String REACHABILITY_EVENT_NAME = "ReachabilityIssue";
+   
+   
 
 }

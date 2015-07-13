@@ -18,6 +18,15 @@
 		testOnBorrow=true
 		validationQuery=SELECT 1
 	</Resource>
+	<Resource id="NoJTALogsDS2" type="javax.sql.DataSource">
+		jdbcDriver=com.mysql.jdbc.Driver
+		userName=datawh
+		password=telmex
+		jdbcUrl=jdbc:mysql://172.22.208.5:3306/syslog_alcatel_pymes
+		jtaManaged=false
+		testOnBorrow=true
+		validationQuery=SELECT 1
+	</Resource>
 	<Resource id="IVRDS" type="javax.sql.DataSource">
 		jdbcDriver=oracle.jdbc.OracleDriver
 		userName=SYSTEM

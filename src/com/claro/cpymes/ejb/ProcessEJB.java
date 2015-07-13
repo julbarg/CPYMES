@@ -22,6 +22,7 @@ import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
 import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.AlarmaPymesServicioNitIVRDAORemote;
+import com.claro.cpymes.dao.Logs2DAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dao.NitOnixDAORemote;
 import com.claro.cpymes.dto.KeyCatalogDTO;
@@ -32,6 +33,7 @@ import com.claro.cpymes.entity.AlarmCatalogEntity;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
+import com.claro.cpymes.entity.Log2Entity;
 import com.claro.cpymes.entity.LogEntity;
 import com.claro.cpymes.entity.NitOnixEntity;
 import com.claro.cpymes.enums.FilterCatalogEnum;
@@ -43,6 +45,7 @@ import com.claro.cpymes.rule.Filtrado;
 import com.claro.cpymes.rule.RestoreEvent;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.LogUtil;
+import com.claro.cpymes.util.LogUtil2;
 import com.claro.cpymes.util.Util;
 
 
@@ -60,6 +63,9 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    @EJB
    private LogsDAORemote logsDAORemote;
+
+   @EJB
+   private Logs2DAORemote logs2DAORemote;
 
    @EJB
    private AlarmPymesDAORemote alarmPymesDAORemote;
@@ -87,6 +93,8 @@ public class ProcessEJB implements ProcessEJBRemote {
    private RestoreEvent restoreEvent;
 
    private ArrayList<LogEntity> listAlarms;
+
+   private ArrayList<Log2Entity> listAlarms2;
 
    private ArrayList<LogDTO> listLog;
 
@@ -140,7 +148,9 @@ public class ProcessEJB implements ProcessEJBRemote {
          LOGGER.info("INICIO PROCESO PRINCIPAL");
          loadNitOnix();
          getListAlarmsEntity();
+         getListAlarmsEntity2();
          mapearListLogDTO();
+         mapearListLogDTO2();
          filtrar();
          saveAlarmFilter();
          cleanMemory();
@@ -183,6 +193,16 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
+   private void getListAlarmsEntity2() {
+      listAlarms2 = new ArrayList<Log2Entity>();
+      try {
+         listAlarms2 = logs2DAORemote.findNoProcess();
+         LOGGER.info("KOU - Alarmas Encontradas Equipos: " + listAlarms2.size());
+      } catch (Exception e) {
+         LOGGER.error("Obtenido Registro de Logs: ", e);
+      }
+   }
+
    /**
     * Mapea los registros obtenidos en la base de datos KOU,
     * Atravez de string obtiene la informacion para ser mapaeada a
@@ -207,6 +227,23 @@ public class ProcessEJB implements ProcessEJBRemote {
       LOGGER.info("MAPEADAS - Alarmas Mapeadas: " + mapeadas);
       logsDAORemote.updateList(listAlarms);
       LOGGER.info("UPDATE PROCESADOS - Alarmas Mapeadas");
+
+   }
+
+   private void mapearListLogDTO2() throws Exception {
+      int mapeadas = 0;
+      String procesados = ProcessEnum.PROCESADO.getValue();
+      for (Log2Entity log2Entity : listAlarms2) {
+         LogDTO logDTO = LogUtil2.mapearLog(log2Entity);
+         listLog.add(logDTO);
+         log2Entity.setProcesados(procesados);
+         if (logDTO.isMapeado()) {
+            mapeadas++;
+         }
+      }
+      LOGGER.info("MAPEADAS - Alarmas Mapeadas Equipo: " + mapeadas);
+      logs2DAORemote.updateList(listAlarms2);
+      LOGGER.info("UPDATE PROCESADOS - Alarmas Mapeadas Equipo");
 
    }
 

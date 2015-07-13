@@ -7,7 +7,8 @@ public enum TypeEventEnum {
    TRONCAL("T", "Troncal"), 
    CLIENTE("C", "Cliente"), 
    FASTETHERNET("E", "FastEthernet"), 
-      MULTIPLE("M", "Multiple");
+   EQUIPO("Q", "Equipo"), 
+   MULTIPLE("M", "Multiple");
 
    private String value;
 
@@ -51,6 +52,9 @@ public enum TypeEventEnum {
             break;
          case "E":
             name = TypeEventEnum.FASTETHERNET.getName();
+            break;
+         case "Q":
+            name = TypeEventEnum.EQUIPO.getName();
             break;
          case "M":
             name = TypeEventEnum.MULTIPLE.getName();
