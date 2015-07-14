@@ -7,6 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
+
+import CMBD.EquipoCMBD;
+
+import com.claro.cpymes.ejb.ProcessEJB;
 
 
 public class Test {
@@ -31,15 +37,34 @@ public class Test {
    }
 
    public static void main(String[] args) {
-      String test = "anuncio.pl[1616]: ALC_PYMES ZAC-BUC.RICAURTE-CP1 Problemas de Alcanzabilidad - 172.30.98.9";
-      int start = test.indexOf("ALC_PdYMES");
-      int end = test.indexOf("Probldemas");
-      System.out.println(start);
-      System.out.println(end);
-      test = test.substring(start, end).trim();
+      String IP = "172.30.15.134";
+      String interFace = "1/1/14";
 
-      
-      System.out.println(test);
+      String name = null;
+      EquipoCMBD equipo = ProcessEJB.getEquipo(IP, interFace, name);
+      System.out.println("Consultando CMBD IP + Port");
+      System.out.println("Ciudad: " + equipo.getCiudad());
+      System.out.println("Descripcion: " + equipo.getDescripcion());
+      System.out.println("Division: " + equipo.getDivision());
+      System.out.println("Codigos de Servicios: ");
+      ArrayList<String> codesService = equipo.getCodigosServicio();
+      for (String service : codesService) {
+         System.out.println("\t" + service);
+      }
+
+      System.out.println("");
+
+      interFace = null;
+      equipo = ProcessEJB.getEquipo(IP, interFace, name);
+      System.out.println("Consultando CMBD IP");
+      System.out.println("Ciudad: " + equipo.getCiudad());
+      System.out.println("Descripcion: " + equipo.getDescripcion());
+      System.out.println("Division: " + equipo.getDivision());
+      System.out.println("Codigos de Servicios: ");
+      codesService = equipo.getCodigosServicio();
+      for (String service : codesService) {
+         System.out.println("\t" + service);
+      }
 
    }
 }

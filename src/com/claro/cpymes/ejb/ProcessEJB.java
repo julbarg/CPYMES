@@ -1,6 +1,7 @@
 package com.claro.cpymes.ejb;
 
 import java.math.BigDecimal;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,12 +12,14 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.xml.rpc.ServiceException;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import CMBD.EquipoCMBD;
-import CMBD.PrincipalCMBD;
+import claro.com.co.IvrcmdbLocator;
+import claro.com.co.ServicesDevicesDTO;
 
 import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
@@ -434,8 +437,62 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
-   private EquipoCMBD getEquipo(String IP, String interFace, String name) {
-      return PrincipalCMBD.getNitsFromCRM(IP, interFace, name);
+   public static EquipoCMBD getEquipo(String IP, String interFace, String name) {
+      EquipoCMBD equipoCMBD = new EquipoCMBD();
+      ServicesDevicesDTO equipo;
+
+      try {
+         ServicesDevicesDTO[] equipos = consultCMBD(IP, interFace, name);
+         if (equipos.length > 0) {
+            equipo = equipos[0];
+            equipoCMBD = getCityDescriptionDivision(equipo, equipoCMBD);
+            equipoCMBD.setCodigosServicio(getCodesService(equipo));
+         }
+
+      } catch (RemoteException | ServiceException e) {
+         LOGGER.error("Error consultando Servicios Afectados en CMBD", e);
+      }
+
+      return equipoCMBD;
+      // return PrincipalCMBD.getNitsFromCRM(IP, interFace, name);
+   }
+
+   private static ServicesDevicesDTO[] consultCMBD(String IP, String interFace, String name) throws RemoteException,
+      ServiceException {
+      ServicesDevicesDTO[] equipos = null;
+      IvrcmdbLocator ivrCmbd = new IvrcmdbLocator();
+      if (interFace != null && interFace.length() > 0 && IP != null && IP.length() > 0) {
+         equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP, interFace, name);
+      } else if (IP != null && IP.length() > 0) {
+         equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesIp(IP);
+      }
+      return equipos;
+   }
+
+   private static EquipoCMBD getCityDescriptionDivision(ServicesDevicesDTO equipo, EquipoCMBD equipoCMBD) {
+      equipoCMBD.setCiudad(equipo.getCity());
+      if (equipo.getDescription() != null) {
+         equipoCMBD.setDescripcion(equipo.getDescription() + " - " + equipo.getDeviceType() + " - "
+            + equipo.getDevice());
+      } else {
+         equipoCMBD.setDescripcion(equipo.getDeviceType() + " - " + equipo.getDevice());
+      }
+      equipoCMBD.setDivision(equipo.getSds());
+
+      return equipoCMBD;
+   }
+
+   private static ArrayList<String> getCodesService(ServicesDevicesDTO equipo) {
+      ArrayList<String> codesService = new ArrayList<String>();
+      if (equipo.getServiceList() != null && equipo.getServiceList().length > 0) {
+         for (String code : equipo.getServiceList()) {
+            codesService.add(code);
+         }
+      } else {
+         codesService.add(equipo.getService());
+      }
+
+      return codesService;
    }
 
    private BigDecimal getCodigoAudioIvr() {
