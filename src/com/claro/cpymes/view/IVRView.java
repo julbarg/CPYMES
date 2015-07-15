@@ -16,6 +16,7 @@ import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
 import com.claro.cpymes.ejb.remote.IVREJBRemote;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 import com.claro.cpymes.util.Constant;
+import com.claro.cpymes.util.SessionException;
 import com.claro.cpymes.util.Util;
 
 
@@ -110,10 +111,18 @@ public class IVRView {
          return;
       }
       try {
+         alarmEdit.setFechaModificacion(new Date());
+         alarmEdit.setUsuarioModificacion(Util.getUserName());
          IVREJB.edit(alarmEdit);
+
          Util.addMessageInfo("Alarma modificada exitosamente");
+      } catch (SessionException e1) {
+         goLogIn();
+         LOGGER.error("Ha ocurrido un error al modificar alarmas del IVR", e1);
+         Util.addMessageFatal("No se ha iniciado Sesion");
       } catch (Exception e) {
          LOGGER.error("Ha ocurrido un error al modificar alarmas del IVR", e);
+         Util.addMessageFatal("Ha ocurrido un error al modificar Alarma");
       }
    }
 

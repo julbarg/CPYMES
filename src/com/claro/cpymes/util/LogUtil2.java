@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.entity.Log2Entity;
+import com.claro.cpymes.enums.PriorityEnum;
 
 
 public class LogUtil2 {
@@ -15,22 +16,31 @@ public class LogUtil2 {
       logDTO = new LogDTO();
       String msg = log2Entity.getMsg();
       if (msg.contains(Constant.REACHABILITY)) {
-         logDTO.setName(getName(msg));
+         logDTO.setName(getName(msg, log2Entity.getPriority()));
          logDTO.setIp(getIp(msg));
          logDTO.setPriority(log2Entity.getPriority());
-         logDTO.setNameEvent(Constant.REACHABILITY_EVENT_NAME);
          logDTO.setTranslatedLine(msg);
          logDTO.setMapeado(true);
+         if (log2Entity.getPriority().equals(PriorityEnum.ALERT.getValue())) {
+            logDTO.setNameEvent(Constant.REACHABILITY_EVENT_NAME);
+         } else if (log2Entity.getPriority().equals(PriorityEnum.NOTICE.getValue())) {
+            logDTO.setNameEvent(Constant.REACHABILITY_RESTORE_EVENT_NAME);
+         }
       }
 
       return logDTO;
 
    }
 
-   private static String getName(String msg) {
+   private static String getName(String msg, String priority) {
       String name = "";
       int start = msg.indexOf("ALC_PYMES");
-      int end = msg.indexOf("Problemas");
+      int end = 0;
+      if (priority.equals(PriorityEnum.ALERT.getValue())) {
+         end = msg.indexOf("Problemas");
+      } else if (priority.equals(PriorityEnum.NOTICE.getValue())) {
+         end = msg.indexOf("Alcanzabilidad");
+      }
 
       if (start != -1 && end != -1) {
          start = start + "ALC_PYMES".length();

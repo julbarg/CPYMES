@@ -132,9 +132,16 @@ public class Util {
       Util.getSession().setAttribute(Constant.USER_NAME, userName.getUserName());
    }
 
-   public static String getUserName() throws Exception {
-      HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-      return session.getAttribute(Constant.USER_NAME).toString();
+   public static String getUserName() throws SessionException {
+      String userName = null;
+      try {
+         HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+         userName = session.getAttribute(Constant.USER_NAME).toString();
+      } catch (Exception e) {
+         throw new SessionException("getUserName");
+      }
+
+      return userName;
    }
 
    public static boolean validateSesion() {
@@ -178,6 +185,6 @@ public class Util {
 
    public static Date addHoursToDate(Date today, int numberHours) {
       return DateUtils.addHours(today, numberHours);
-      
+
    }
 }

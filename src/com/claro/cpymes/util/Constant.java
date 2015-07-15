@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 public class Constant {
 
    public static final String PATH_CONFIG_PROPERTIES = "/usr/share/tomee/conf/CPyMES.properties";
-   //public static final String PATH_CONFIG_PROPERTIES = "C:/Users/jbarragan/Claro/CPyMES.properties";
+
+   // public static final String PATH_CONFIG_PROPERTIES = "C:/Users/jbarragan/Claro/CPyMES.properties";
 
    public static final String ESTADO = "estado";
 
@@ -109,13 +110,13 @@ public class Constant {
    public static final BigDecimal CODIGO_AUDIO_IVR = new BigDecimal(2354);
 
    public static final String REGEX_IP = "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b";
-   
+
    public static final String PATH_ONIX_IVR = Util.getProperties("path_onix_ivr");
-   
+
    public static final String REACHABILITY = "Alcanzabilidad";
-   
+
    public static final String REACHABILITY_EVENT_NAME = "ReachabilityIssue";
-   
-   
+
+   public static final String REACHABILITY_RESTORE_EVENT_NAME = "ReachabilityRestore";
 
 }

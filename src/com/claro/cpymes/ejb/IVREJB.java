@@ -59,6 +59,9 @@ public class IVREJB implements IVREJBRemote {
       AlarmaPymeIVREntity alarmEntity = alarmPymesIVRDAO.findById(alarmEdit.getIdAlarmaPymes());
       alarmEntity.setFechaEsperanza(alarmEdit.getFechaEsperanza());
       alarmEntity.setTicketOnix(alarmEdit.getTicketOnix());
+      alarmEntity.setFechaModificacion(alarmEdit.getFechaModificacion());
+      alarmEntity.setUsuarioModificacion(alarmEdit.getUsuarioModificacion());
+
       alarmPymesIVRDAO.update(alarmEntity);
    }
 

@@ -2,21 +2,22 @@ package com.claro.cpymes.enums;
 
 public enum TypeEventEnum {
 
-   NODO("N", "Nodo"), 
-   FIBRA("F", "Fibra"), 
-   TRONCAL("T", "Troncal"), 
-   CLIENTE("C", "Cliente"), 
-   FASTETHERNET("E", "FastEthernet"), 
-   EQUIPO("Q", "Equipo"), 
-   MULTIPLE("M", "Multiple");
+   TRONCAL("T", "Troncal", "Fibra"), 
+   CLIENTE("C", "Cliente", "Fibra"), 
+   FASTETHERNET("E", "FastEthernet", "Fibra"), 
+   EQUIPO("Q", "Equipo", "Nodo"),
+   MULTIPLE("M", "Multiple", "Fibra");
 
    private String value;
 
    private String name;
 
-   TypeEventEnum(String value, String name) {
+   private String type;
+
+   TypeEventEnum(String value, String name, String type) {
       this.name = name;
       this.value = value;
+      this.setType(type);
    }
 
    public String getName() {
@@ -38,12 +39,6 @@ public enum TypeEventEnum {
    public static String getName(String value) {
       String name = "";
       switch (value) {
-         case "N":
-            name = TypeEventEnum.NODO.getName();
-            break;
-         case "F":
-            name = TypeEventEnum.FIBRA.getName();
-            break;
          case "T":
             name = TypeEventEnum.TRONCAL.getName();
             break;
@@ -63,6 +58,14 @@ public enum TypeEventEnum {
             break;
       }
       return name;
+   }
+
+   public String getType() {
+      return type;
+   }
+
+   public void setType(String type) {
+      this.type = type;
    }
 
 }

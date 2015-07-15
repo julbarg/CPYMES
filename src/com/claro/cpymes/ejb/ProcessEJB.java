@@ -313,7 +313,7 @@ public class ProcessEJB implements ProcessEJBRemote {
                   update++;
                } else {
                   saveAlarmCEP(logDTO);
-                  logDTO.setTypeEvent(TypeEventEnum.MULTIPLE.getValue());
+                  logDTO.setTypeEvent(TypeEventEnum.MULTIPLE);
                   sendIVR(logDTO);
 
                   news++;
@@ -406,6 +406,9 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private boolean sendIVR(LogDTO log) throws Exception {
       EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
+      if (equipo.getCiudad() == null)
+         return false;
+
       AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
 
       alarmaIVR.setClaseEquipo(log.getNameEvent());
@@ -425,7 +428,7 @@ public class ProcessEJB implements ProcessEJBRemote {
 
       alarmaIVR.setIp(log.getIp());
 
-      alarmaIVR.setTipoEvento(log.getTypeEvent());
+      alarmaIVR.setTipoEvento(log.getTypeEvent().getType());
 
       alarmaIVR = alarmaPymesIVRDAO.updateAlarm(alarmaIVR);
 
@@ -437,13 +440,14 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
-   public static EquipoCMBD getEquipo(String IP, String interFace, String name) {
+   public EquipoCMBD getEquipo(String IP, String interFace, String name) {
       EquipoCMBD equipoCMBD = new EquipoCMBD();
+      ;
       ServicesDevicesDTO equipo;
 
       try {
          ServicesDevicesDTO[] equipos = consultCMBD(IP, interFace, name);
-         if (equipos.length > 0) {
+         if (equipos != null && equipos.length > 0) {
             equipo = equipos[0];
             equipoCMBD = getCityDescriptionDivision(equipo, equipoCMBD);
             equipoCMBD.setCodigosServicio(getCodesService(equipo));
@@ -454,10 +458,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
 
       return equipoCMBD;
-      // return PrincipalCMBD.getNitsFromCRM(IP, interFace, name);
+
    }
 
-   private static ServicesDevicesDTO[] consultCMBD(String IP, String interFace, String name) throws RemoteException,
+   private ServicesDevicesDTO[] consultCMBD(String IP, String interFace, String name) throws RemoteException,
       ServiceException {
       ServicesDevicesDTO[] equipos = null;
       IvrcmdbLocator ivrCmbd = new IvrcmdbLocator();
@@ -469,20 +473,19 @@ public class ProcessEJB implements ProcessEJBRemote {
       return equipos;
    }
 
-   private static EquipoCMBD getCityDescriptionDivision(ServicesDevicesDTO equipo, EquipoCMBD equipoCMBD) {
+   private EquipoCMBD getCityDescriptionDivision(ServicesDevicesDTO equipo, EquipoCMBD equipoCMBD) {
       equipoCMBD.setCiudad(equipo.getCity());
       if (equipo.getDescription() != null) {
-         equipoCMBD.setDescripcion(equipo.getDescription() + " - " + equipo.getDeviceType() + " - "
-            + equipo.getDevice());
-      } else {
-         equipoCMBD.setDescripcion(equipo.getDeviceType() + " - " + equipo.getDevice());
+         equipoCMBD.setDescripcion(equipo.getDescription());
+      } else if (equipo.getDevice() != null) {
+         equipoCMBD.setDescripcion(equipo.getDevice());
       }
       equipoCMBD.setDivision(equipo.getSds());
 
       return equipoCMBD;
    }
 
-   private static ArrayList<String> getCodesService(ServicesDevicesDTO equipo) {
+   private ArrayList<String> getCodesService(ServicesDevicesDTO equipo) {
       ArrayList<String> codesService = new ArrayList<String>();
       if (equipo.getServiceList() != null && equipo.getServiceList().length > 0) {
          for (String code : equipo.getServiceList()) {

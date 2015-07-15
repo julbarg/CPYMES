@@ -28,7 +28,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    private static Logger LOGGER = LogManager.getLogger(AlarmaPymesIVRDAO.class.getName());
 
    @Override
-   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) throws Exception{
+   public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado",
          AlarmaPymeIVREntity.class);
@@ -133,14 +133,16 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    }
 
    private String getQuery() {
-      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd "
+      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd,"
+         + "a.tiempoTotalFalla = EXTRACT(HOUR FROM :dateEnd - a.fechaInicio) "
          + " WHERE a.ip=:ip and a.claseEquipo = :eventName  and a.estadoAlarma != 'I'";
       return query;
    }
 
    private String getQuery(String[] eventNames) {
-      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd "
-         + " WHERE a.ip=:ip and (" + getEventNamesStr(eventNames) + ")" + " and a.estadoAlarma != 'I'";
+      String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd, "
+         + "a.tiempoTotalFalla = EXTRACT(HOUR FROM :dateEnd - a.fechaInicio) " + " WHERE a.ip=:ip and ("
+         + getEventNamesStr(eventNames) + ")" + " and a.estadoAlarma != 'I'";
       return query;
    }
 
@@ -178,7 +180,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       EntityTransaction entityTransaction = entityManager.getTransaction();
       entityTransaction.begin();
       if (!(existSimilar(alarmaIVR, entityManager))) {
-         alarmaIVR = update(alarmaIVR);
+         alarmaIVR = entityManager.merge(alarmaIVR);
          entityTransaction.commit();
          entityManager.close();
          return alarmaIVR;

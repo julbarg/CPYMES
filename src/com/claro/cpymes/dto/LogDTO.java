@@ -3,6 +3,8 @@ package com.claro.cpymes.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.claro.cpymes.enums.TypeEventEnum;
+
 
 /**
  * LogDTO - DTO que ayuda en el mapeo de los logs obtenidos
@@ -69,7 +71,7 @@ public class LogDTO implements Serializable {
 
    private boolean restoreEvent;
 
-   private String typeEvent;
+   private TypeEventEnum typeEvent;
 
    public LogDTO() {
 
@@ -301,11 +303,11 @@ public class LogDTO implements Serializable {
       this.state = state;
    }
 
-   public String getTypeEvent() {
+   public TypeEventEnum getTypeEvent() {
       return typeEvent;
    }
 
-   public void setTypeEvent(String typeEvent) {
+   public void setTypeEvent(TypeEventEnum typeEvent) {
       this.typeEvent = typeEvent;
    }
 

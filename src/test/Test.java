@@ -39,8 +39,7 @@ public class Test {
    public static void main(String[] args) {
       String IP = "172.30.15.134";
       String interFace = "1/1/14";
-
-      String name = null;
+      String name = "ZAC-YOP.HELECHOS-CP1";
       EquipoCMBD equipo = ProcessEJB.getEquipo(IP, interFace, name);
       System.out.println("Consultando CMBD IP + Port");
       System.out.println("Ciudad: " + equipo.getCiudad());
@@ -55,6 +54,7 @@ public class Test {
       System.out.println("");
 
       interFace = null;
+      name = null;
       equipo = ProcessEJB.getEquipo(IP, interFace, name);
       System.out.println("Consultando CMBD IP");
       System.out.println("Ciudad: " + equipo.getCiudad());
