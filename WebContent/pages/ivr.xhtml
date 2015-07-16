@@ -80,9 +80,7 @@
 						styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_tipoEvento" headerText="Tipo Evento">
-					<h:outputText id="text_tipo_evento" value="#{alarmIVR.tipoEvento}" styleClass="td-table-list">
-						<f:converter converterId="eventConverter" />
-					</h:outputText>
+					<h:outputText id="text_tipo_evento" value="#{alarmIVR.tipoEvento}" styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_ciudad" headerText="Ciudad">
 					<h:outputText id="text_ciudad" value="#{alarmIVR.ciudad}" styleClass="td-table-list" />
@@ -100,7 +98,7 @@
 					<h:outputText id="text_fechaEsperanza" value="#{alarmIVR.fechaEsperanza}"
 						styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_tiempoTotalFalla" headerText="Tiempo Total Falla">
+				<p:column id="column_tiempoTotalFalla" headerText="Tiempo Total Falla" rendered="false">
 					<h:outputText id="text_tiempoTotalFalla" value="#{alarmIVR.tiempoTotalFalla}"
 						styleClass="td-table-list" />
 				</p:column>
@@ -116,7 +114,7 @@
 					<h:outputText id="text_codigoAudioIvr" value="#{alarmIVR.codigoAudioIvr}"
 						styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_estadoAlarma" headerText="Estado Alarma">
+				<p:column id="column_estadoAlarma" headerText="Estado Alarma" rendered="false">
 					<h:outputText id="text_estadoAlarma" value="#{alarmIVR.estadoAlarma}"
 						styleClass="td-table-list" />
 				</p:column>

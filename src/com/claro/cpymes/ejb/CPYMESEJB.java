@@ -8,7 +8,9 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.dto.AlarmPymesDTO;
+import com.claro.cpymes.dto.HistoricalRecordsDTO;
 import com.claro.cpymes.dto.PriorityCountDTO;
 import com.claro.cpymes.ejb.remote.CPYMESEJBRemote;
 import com.claro.cpymes.entity.AlarmPymesEntity;
@@ -27,6 +29,9 @@ public class CPYMESEJB implements CPYMESEJBRemote {
 
    @EJB
    private AlarmPymesDAORemote alarmPymesDAO;
+
+   @EJB
+   private ParameterDAORemote parametroDAO;
 
    @PostConstruct
    private void initialize() {
@@ -160,5 +165,10 @@ public class CPYMESEJB implements CPYMESEJBRemote {
          listAlarmPymesDTO.add(alarmDTO);
       }
       return listAlarmPymesDTO;
+   }
+
+   @Override
+   public HistoricalRecordsDTO getHistoricalRecords() throws Exception {
+      return parametroDAO.getHistoricalRecords();
    }
 }

@@ -22,7 +22,7 @@ public interface AlarmaPymesIVRDAORemote {
 
    public ArrayList<AlarmaPymeIVREntity> findByFilter(AlarmaPymeIVRDTO filterAlarm) throws Exception;
 
-   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> lisRestore) throws Exception;
+   public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception;
 
    public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception;
 

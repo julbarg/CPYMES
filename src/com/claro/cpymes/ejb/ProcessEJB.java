@@ -28,6 +28,7 @@ import com.claro.cpymes.dao.AlarmaPymesServicioNitIVRDAORemote;
 import com.claro.cpymes.dao.Logs2DAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dao.NitOnixDAORemote;
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.dto.KeyCatalogDTO;
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.dto.RestoreEventAlarmDTO;
@@ -84,6 +85,9 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    @EJB
    private AlarmaPymesServicioNitIVRDAORemote alarmaPymesServicioNitIVRDAO;
+
+   @EJB
+   private ParameterDAORemote parametroDAO;
 
    private HashMap<KeyCatalogDTO, AlarmCatalogEntity> catalog;
 
@@ -191,6 +195,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       try {
          listAlarms = logsDAORemote.findByEstado(ProcessEnum.NO_PROCESADO.getValue());
          LOGGER.info("KOU - Alarmas Encontradas: " + listAlarms.size());
+         parametroDAO.addCountResgister(Constant.SEND_FROM_KOU, listAlarms.size());
       } catch (Exception e) {
          LOGGER.error("Obtenido Registro de Logs: ", e);
       }
@@ -201,6 +206,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       try {
          listAlarms2 = logs2DAORemote.findNoProcess();
          LOGGER.info("KOU - Alarmas Encontradas Equipos: " + listAlarms2.size());
+         parametroDAO.addCountResgister(Constant.SEND_FROM_KOU, listAlarms2.size());
       } catch (Exception e) {
          LOGGER.error("Obtenido Registro de Logs: ", e);
       }
@@ -398,6 +404,7 @@ public class ProcessEJB implements ProcessEJBRemote {
             }
          }
          LOGGER.info("IVR - Alarmas enviadas al IVR: " + numberRegistersIVR);
+         parametroDAO.addCountResgister(Constant.SEND_TO_IVR, numberRegistersIVR);
       } catch (Exception e) {
          LOGGER.error("Error Send IVR", e);
       }
@@ -545,7 +552,8 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private void clearAlarmCPYMES(ArrayList<RestoreEventAlarmDTO> listRestoreCPYMES) {
       try {
-         alarmPymesDAORemote.clearAlarm(listRestoreCPYMES);
+         int alarmRestore = alarmPymesDAORemote.clearAlarm(listRestoreCPYMES);
+         parametroDAO.addCountResgister(Constant.ALARM_RESTORE_CPYMES, alarmRestore);
       } catch (Exception e) {
          LOGGER.error("Error actualizando registros de Alarmas [Restore CPYMES]", e);
       }
@@ -553,7 +561,8 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    private void clearAlarmIVR(ArrayList<RestoreEventAlarmDTO> listRestoreIVR) {
       try {
-         alarmaPymesIVRDAO.clearAlarm(listRestoreIVR);
+         int alarmRestore = alarmaPymesIVRDAO.clearAlarm(listRestoreIVR);
+         parametroDAO.addCountResgister(Constant.ALARM_RESTORE_IVR, alarmRestore);
       } catch (Exception e) {
          LOGGER.error("Error actualizando registros de Alarmas [Restore IVR]", e);
       }

@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dto.AlarmPymesDTO;
+import com.claro.cpymes.dto.HistoricalRecordsDTO;
 import com.claro.cpymes.dto.PriorityCountDTO;
 import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.ejb.remote.CPYMESEJBRemote;
@@ -43,6 +44,8 @@ public class CPYMESView {
    private ArrayList<AlarmPymesDTO> listAlarm;
 
    private ArrayList<AlarmPymesDTO> listAlarmSelect;
+
+   private HistoricalRecordsDTO historicalRecords;
 
    @EJB
    private CPYMESEJBRemote cpymesEJB;
@@ -87,6 +90,7 @@ public class CPYMESView {
       listAlarmSelect = new ArrayList<AlarmPymesDTO>();
       listPrioritySelect = new ArrayList<String>();
       prioritys = new ArrayList<String>();
+      setHistoricalRecords(new HistoricalRecordsDTO());
       load();
       initializePriority();
       initializePrioritys();
@@ -102,6 +106,7 @@ public class CPYMESView {
          priorityCount = cpymesEJB.countAlarm(listAlarm);
          initializePriority();
          initializePrioritys();
+         getHistoricalRecordsDB();
       } catch (Exception e) {
          LOGGER.info("Erro cargando alarmas: ", e);
       }
@@ -130,6 +135,15 @@ public class CPYMESView {
       prioritys.add(PriorityEnum.INFO.getValue());
       prioritys.add(PriorityEnum.NOTICE.getValue());
       prioritys.add(PriorityEnum.WARNING.getValue());
+   }
+
+   private void getHistoricalRecordsDB() {
+      try {
+         historicalRecords = cpymesEJB.getHistoricalRecords();
+      } catch (Exception e) {
+         LOGGER.error("Ocurrio un error al obtener los Registros Historicos", e);
+      }
+
    }
 
    /**
@@ -381,6 +395,14 @@ public class CPYMESView {
 
    public void setPrioritys(ArrayList<String> prioritys) {
       this.prioritys = prioritys;
+   }
+
+   public HistoricalRecordsDTO getHistoricalRecords() {
+      return historicalRecords;
+   }
+
+   public void setHistoricalRecords(HistoricalRecordsDTO historicalRecords) {
+      this.historicalRecords = historicalRecords;
    }
 
 }

@@ -95,7 +95,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
+   public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -109,6 +109,8 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       entityManager.close();
 
       LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas: " + resultUpdate);
+
+      return resultUpdate;
 
    }
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.ejb.Remote;
 
 import com.claro.cpymes.dto.AlarmPymesDTO;
+import com.claro.cpymes.dto.HistoricalRecordsDTO;
 import com.claro.cpymes.dto.PriorityCountDTO;
 
 
@@ -23,5 +24,7 @@ public interface CPYMESEJBRemote {
    public PriorityCountDTO countAlarm(ArrayList<AlarmPymesDTO> listAlarm);
 
    public ArrayList<AlarmPymesDTO> loadAlarmByPriority(ArrayList<String> listPrioritySelect) throws Exception;
+
+   public HistoricalRecordsDTO getHistoricalRecords() throws Exception;
 
 }

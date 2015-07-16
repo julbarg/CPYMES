@@ -3,6 +3,7 @@ package com.claro.cpymes.dao;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -36,21 +37,24 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
 
    private static Logger LOGGER = LogManager.getLogger(AlarmPymesDAO.class.getName());
 
+   @EJB
+   private ParameterDAORemote parametroDAO;
+
    /**
     * Obtiene las entidades AlarmPymesEntity por estado
     * @param estado Con el que se realiza la consulta
     * @return ArrayList<AlarmPymesEntity> Lista de entidades encontradas
     */
    @Override
-   public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception{
+   public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      
+
       TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findByEstado",
          AlarmPymesEntity.class);
       query.setParameter("estado", estado);
       ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.setMaxResults(
          Constant.MAXIME_RESULT_ALARM).getResultList();
-      
+
       entityManager.close();
 
       return results;
@@ -215,6 +219,10 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       entityManager.close();
       LOGGER.info("FILTRADO - Alarmas Filtradas Guardadas: " + numberRegisterCreate);
       LOGGER.info("FILTRADO - Alarmas Activas Guardadas: " + numberRegisterActive);
+
+      parametroDAO.addCountResgister(Constant.SEND_TO_CPYMS_NO_ACTIVE, numberRegisterCreate);
+      parametroDAO.addCountResgister(Constant.SEND_TO_CPYMES_ACTIVE, numberRegisterActive);
+
       return listLog;
    }
 
@@ -269,7 +277,7 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
 
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
+   public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       EntityTransaction entityTransaction = entityManager.getTransaction();
@@ -283,6 +291,8 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       entityManager.close();
 
       LOGGER.info("RESTORE EVENT CPYMES - Alarmas Restauradas: " + resultUpdate);
+
+      return resultUpdate;
    }
 
    private int clearAlarm(RestoreEventAlarmDTO restore, EntityManager entityManager) throws Exception {

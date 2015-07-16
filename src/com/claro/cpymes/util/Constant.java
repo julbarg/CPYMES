@@ -119,4 +119,16 @@ public class Constant {
 
    public static final String REACHABILITY_RESTORE_EVENT_NAME = "ReachabilityRestore";
 
+   public static final String SEND_FROM_KOU = "sendFromKou";
+
+   public static final String SEND_TO_CPYMS_NO_ACTIVE = "sendToCPYMESNoActive";
+
+   public static final String SEND_TO_CPYMES_ACTIVE = "sendToCPYMESActive";
+
+   public static final String SEND_TO_IVR = "sendToIVR";
+
+   public static final String ALARM_RESTORE_CPYMES = "alarmRestoreCPYMES";
+
+   public static final String ALARM_RESTORE_IVR = "alarmRestoreIVR";
+
 }

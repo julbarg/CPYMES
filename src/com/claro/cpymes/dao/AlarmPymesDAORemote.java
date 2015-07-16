@@ -30,7 +30,8 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception;
 
-   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date startDate, Date endDate) throws Exception;
+   public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date startDate, Date endDate)
+      throws Exception;
 
    public ArrayList<AlarmPymesEntity> findSimiliarCEP(String nodo, String nameCorrelation, Date date) throws Exception;
 
@@ -40,8 +41,6 @@ public interface AlarmPymesDAORemote {
 
    public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) throws Exception;
 
-   public void clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception;
-   
-   
+   public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception;
 
 }
