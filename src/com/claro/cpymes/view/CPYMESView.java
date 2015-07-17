@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
+import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.dto.AlarmPymesDTO;
 import com.claro.cpymes.dto.HistoricalRecordsDTO;
 import com.claro.cpymes.dto.PriorityCountDTO;
@@ -21,6 +22,7 @@ import com.claro.cpymes.ejb.remote.CPYMESEJBRemote;
 import com.claro.cpymes.ejb.remote.ProcessEJBRemote;
 import com.claro.cpymes.enums.PriorityEnum;
 import com.claro.cpymes.enums.ProcessEnum;
+import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
 
 
@@ -58,6 +60,9 @@ public class CPYMESView {
 
    @EJB
    private AlarmaPymesIVRDAORemote alarmaPymesIVRDAO;
+
+   @EJB
+   private ParameterDAORemote parameterDAO;
 
    private String priorityAction;
 
@@ -174,6 +179,7 @@ public class CPYMESView {
          String ip = alarmDTO.getIp();
          RestoreEventAlarmDTO restore = new RestoreEventAlarmDTO(eventTrigger, ip);
          int resultIVR = alarmaPymesIVRDAO.clearAlarm(restore);
+         parameterDAO.addCountResgister(Constant.ALARM_RESTORE_IVR, resultIVR);
          LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas [View]: " + resultIVR);
       } catch (Exception e) {
          LOGGER.info("Error reconociendo alarma: ", e);
@@ -235,7 +241,7 @@ public class CPYMESView {
    private void changeStyle(String priority) {
       if (priority.equals(PriorityEnum.ALERT.getValue())) {
          alertStyle = alertStyle.equals(BUTTON_PRIORITY) ? BUTTON_PRIORITY_ACTIVE : BUTTON_PRIORITY;
-      } else if (priority.equals(PriorityEnum.CRITIC.getValue())) {
+      } else if (priority.equals(PriorityEnum.CRITICAL.getValue())) {
          criticStyle = criticStyle.equals(BUTTON_PRIORITY) ? BUTTON_PRIORITY_ACTIVE : BUTTON_PRIORITY;
       } else if (priority.equals(PriorityEnum.INFO.getValue())) {
          infoStyle = infoStyle.equals(BUTTON_PRIORITY) ? BUTTON_PRIORITY_ACTIVE : BUTTON_PRIORITY;
