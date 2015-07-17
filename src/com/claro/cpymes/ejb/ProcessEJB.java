@@ -320,7 +320,6 @@ public class ProcessEJB implements ProcessEJBRemote {
                } else {
                   saveAlarmCEP(logDTO);
                   logDTO.setTypeEvent(TypeEventEnum.MULTIPLE);
-                  sendIVR(logDTO);
 
                   news++;
                }
@@ -389,14 +388,18 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmEntity.setEstado(StateEnum.ACTIVO.getValue());
       alarmEntity.setNodo(logDTO.getNodo());
       alarmEntity.setDate(logDTO.getDate());
+      alarmEntity.setSeverity(logDTO.getSeverity());
+      alarmEntity.setSendIVR(logDTO.isSendIVR() ? ProcessEnum.SI.getValue() : null);
+      alarmEntity.setTypeEvent(logDTO.getTypeEvent().getValue());
 
       alarmPymesDAORemote.create(alarmEntity);
    }
 
-   private void sendIVR() {
+   private void sendIVR() throws Exception {
+      ArrayList<LogDTO> listLogSendIVR = alarmPymesDAORemote.findSendIVR();
       int numberRegistersIVR = 0;
       try {
-         for (LogDTO log : listLog) {
+         for (LogDTO log : listLogSendIVR) {
             if (log.isSendIVR() && log.isRelevant()) {
                if (sendIVR(log)) {
                   numberRegistersIVR++;
@@ -405,6 +408,7 @@ public class ProcessEJB implements ProcessEJBRemote {
          }
          LOGGER.info("IVR - Alarmas enviadas al IVR: " + numberRegistersIVR);
          parametroDAO.addCountResgister(Constant.SEND_TO_IVR, numberRegistersIVR);
+         alarmPymesDAORemote.updateAlarmSendIVR(listLogSendIVR);
       } catch (Exception e) {
          LOGGER.error("Error Send IVR", e);
       }
@@ -412,7 +416,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    private boolean sendIVR(LogDTO log) throws Exception {
-      EquipoCMBD equipo = getEquipo(log.getIp(), log.getInterFace(), log.getName());
+      EquipoCMBD equipo = getEquipo(log);
       if (equipo.getCiudad() == null)
          return false;
 
@@ -422,9 +426,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
       alarmaIVR.setCiudad(equipo.getCiudad());
       alarmaIVR.setDivision(equipo.getDivision());
-
       alarmaIVR.setEstadoAlarma(StateEnum.ACTIVO.getValue());
-
       alarmaIVR.setCodigoAudioIvr(getCodigoAudioIvr());
 
       Date today = new Date();
@@ -432,7 +434,6 @@ public class ProcessEJB implements ProcessEJBRemote {
 
       // TODO
       alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, today));
-
       alarmaIVR.setIp(log.getIp());
 
       alarmaIVR.setTipoEvento(log.getTypeEvent().getType());
@@ -447,13 +448,13 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
-   public EquipoCMBD getEquipo(String IP, String interFace, String name) {
+   public EquipoCMBD getEquipo(LogDTO log) {
       EquipoCMBD equipoCMBD = new EquipoCMBD();
       ;
       ServicesDevicesDTO equipo;
 
       try {
-         ServicesDevicesDTO[] equipos = consultCMBD(IP, interFace, name);
+         ServicesDevicesDTO[] equipos = consultCMBD(log);
          if (equipos != null && equipos.length > 0) {
             equipo = equipos[0];
             equipoCMBD = getCityDescriptionDivision(equipo, equipoCMBD);
@@ -468,11 +469,15 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
-   private ServicesDevicesDTO[] consultCMBD(String IP, String interFace, String name) throws RemoteException,
-      ServiceException {
+   private ServicesDevicesDTO[] consultCMBD(LogDTO log) throws RemoteException, ServiceException {
       ServicesDevicesDTO[] equipos = null;
       IvrcmdbLocator ivrCmbd = new IvrcmdbLocator();
-      if (interFace != null && interFace.length() > 0 && IP != null && IP.length() > 0) {
+      String IP = log.getIp();
+      String interFace = log.getInterFace();
+      String name = log.getName();
+      if (log.isCorrelation() && isVerificable(log)) {
+         equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesIp(IP);
+      } else if (interFace != null && interFace.length() > 0 && IP != null && IP.length() > 0) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP, interFace, name);
       } else if (IP != null && IP.length() > 0) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesIp(IP);

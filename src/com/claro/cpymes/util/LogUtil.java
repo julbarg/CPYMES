@@ -95,7 +95,7 @@ public class LogUtil {
 
       logDTO.setKey(new KeyCatalogDTO(OID, null));
 
-      logDTO.setNodo(getNodo(name));
+      logDTO.setNodo(name);
 
       logDTO.setMapeado(true);
 
@@ -113,26 +113,6 @@ public class LogUtil {
          logDTO.getKey().setCriticality(priority);
       }
 
-   }
-
-   /**
-    * Obtiene el nodo a partir del NameDevice
-    * @param name
-    * @return Nodo
-    */
-   private static String getNodo(String name) {
-      String expresion = "[.][A-Z_0-9]+[-]";
-      String nodo = "";
-
-      Pattern pattern = Pattern.compile(expresion);
-      Matcher matcher = pattern.matcher(name);
-
-      if (matcher.find()) {
-         nodo = matcher.group();
-         nodo = nodo.replace("-", "");
-         nodo = nodo.replace(".", "");
-      }
-      return nodo;
    }
 
    private static LogDTO procesarTranslatedLine(LogDTO logDTO, String translatedLine) {

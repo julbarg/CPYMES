@@ -21,6 +21,7 @@ import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmPymesEntity;
 import com.claro.cpymes.enums.ProcessEnum;
 import com.claro.cpymes.enums.StateEnum;
+import com.claro.cpymes.enums.TypeEventEnum;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
 
@@ -51,7 +52,9 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
 
       TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findByEstado",
          AlarmPymesEntity.class);
+      Date dateLater = Util.restarFecha(new Date(), Constant.TIME_SEND_CPYMES);
       query.setParameter("estado", estado);
+      query.setParameter("date", dateLater);
       ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.setMaxResults(
          Constant.MAXIME_RESULT_ALARM).getResultList();
 
@@ -271,6 +274,10 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       alarmEntity.setInterFace(logDTO.getInterFace());
       Date today = new Date();
       alarmEntity.setDate(today);
+      alarmEntity.setSendIVR(logDTO.isSendIVR() ? ProcessEnum.SI.getValue() : null);
+      if (logDTO.getTypeEvent() != null) {
+         alarmEntity.setTypeEvent(logDTO.getTypeEvent().getValue());
+      }
 
       return alarmEntity;
    }
@@ -325,4 +332,83 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return eventNamesStr;
    }
 
+   @Override
+   public ArrayList<LogDTO> findSendIVR() throws Exception {
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      TypedQuery<AlarmPymesEntity> query = entityManager.createNamedQuery("AlarmPymesEntity.findSendIVR",
+         AlarmPymesEntity.class);
+      Date dateLeter = Util.restarFecha(new Date(), Constant.TIME_SEND_IVR);
+      query.setParameter("date", dateLeter);
+      query.setParameter("estado", ProcessEnum.ACTIVO.getValue());
+      query.setParameter("sendIVR", ProcessEnum.SI.getValue());
+      ArrayList<AlarmPymesEntity> results = (ArrayList<AlarmPymesEntity>) query.getResultList();
+      entityManager.close();
+      ArrayList<LogDTO> listLogDTO = getListLogsSendIVR(results);
+
+      return listLogDTO;
+   }
+
+   private ArrayList<LogDTO> getListLogsSendIVR(ArrayList<AlarmPymesEntity> results) {
+      LogDTO log;
+      ArrayList<LogDTO> listLogDTO = new ArrayList<LogDTO>();
+      for (AlarmPymesEntity alarmEntity : results) {
+         log = new LogDTO();
+
+         log.setSeq(alarmEntity.getId());
+         log.setIp(alarmEntity.getIp());
+         log.setOID(alarmEntity.getOid());
+         log.setName(alarmEntity.getName());
+         log.setNodo(alarmEntity.getNodo());
+         log.setNameEvent(alarmEntity.getEventName());
+         log.setPriority(alarmEntity.getPriority());
+         log.setMessageDRL(alarmEntity.getMessage());
+         log.setState(alarmEntity.getEstado());
+         log.setSeverity(alarmEntity.getSeverity());
+         log.setInterFace(alarmEntity.getInterFace());
+         log.setDate(alarmEntity.getDate());
+         log.setSendIVR(true);
+         log.setRelevant(true);
+
+         TypeEventEnum typeEnum = TypeEventEnum.getTypeEnum(alarmEntity.getTypeEvent());
+         log.setTypeEvent(typeEnum);
+
+         if (alarmEntity.getNameCorrelation() != null) {
+            log.setCorrelation(true);
+         }
+
+         listLogDTO.add(log);
+
+      }
+      return listLogDTO;
+
+   }
+
+   @Override
+   public void updateAlarmSendIVR(ArrayList<LogDTO> listLogSendIVR) throws Exception {
+
+      if (listLogSendIVR.size() == 0) {
+         return;
+      }
+      ArrayList<Long> ids = new ArrayList<Long>();
+      for (LogDTO log : listLogSendIVR) {
+         ids.add(log.getSeq());
+      }
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      entityManager.getTransaction().begin();
+
+      Query query = entityManager.createQuery(getQuery());
+      query.setParameter("sendIVR", null);
+      query.setParameter("ids", ids);
+
+      query.executeUpdate();
+
+      entityManager.getTransaction().commit();
+      entityManager.close();
+
+   }
+
+   private String getQuery() {
+      String query = "UPDATE AlarmPymesEntity l SET l.sendIVR=:sendIVR WHERE l.id IN :ids";
+      return query;
+   }
 }

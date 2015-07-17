@@ -7,12 +7,8 @@ package com.claro.cpymes.enums;
  */
 public enum ProcessEnum {
 
-   PROCESADO("S", "Procesado"), 
-   NO_PROCESADO("N", "No Procesado"), 
-   FILTRADO("F", "Filtrado"), 
-   RECONOCIDO("R", "Reconocido"),
-   ACTIVO("A", "Activo"), 
-   DEFAULT("", "Default");
+   PROCESADO("S", "Procesado"), NO_PROCESADO("N", "No Procesado"), FILTRADO("F", "Filtrado"), RECONOCIDO("R",
+      "Reconocido"), ACTIVO("A", "Activo"), DEFAULT("", "Default"), SI("S", "Si");
 
    private String name;
 

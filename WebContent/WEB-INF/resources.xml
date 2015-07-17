@@ -29,9 +29,9 @@
 	</Resource>
 	<Resource id="IVRDS" type="javax.sql.DataSource">
 		jdbcDriver=oracle.jdbc.OracleDriver
-		userName=SYSTEM
-		password=claro
-		jdbcUrl=jdbc:oracle:thin:@localhost:1521:XE
+		userName=KOU_ADM
+		password=Kouadm#2014
+		jdbcUrl=jdbc:oracle:thin:@192.168.33.145:1527:TELMEXIV
 		jtaManaged=false
 		testOnBorrow=true
 		validationQuery=SELECT 1

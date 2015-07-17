@@ -59,12 +59,7 @@ public class CPYMESEJB implements CPYMESEJBRemote {
          alarmDTO.setNameCorrelation(alarmEntity.getNameCorrelation());
          alarmDTO.setNodo(alarmEntity.getNodo());
          alarmDTO.setSeverity(alarmEntity.getSeverity());
-
-         if (alarmEntity.getNameCorrelation() == null) {
-            alarmDTO.setName(alarmEntity.getName());
-         } else {
-            alarmDTO.setName(alarmEntity.getNodo());
-         }
+         alarmDTO.setName(alarmEntity.getName());
 
          listAlarmPymesDTO.add(alarmDTO);
       }

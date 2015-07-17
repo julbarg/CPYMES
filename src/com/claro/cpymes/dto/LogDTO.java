@@ -19,7 +19,7 @@ public class LogDTO implements Serializable {
     */
    private static final long serialVersionUID = -7710710013852148814L;
 
-   private int seq;
+   private long seq;
 
    private String priority;
 
@@ -84,11 +84,11 @@ public class LogDTO implements Serializable {
       this.nameEvent = nameEvent;
    }
 
-   public int getSeq() {
+   public long getSeq() {
       return seq;
    }
 
-   public void setSeq(int seq) {
+   public void setSeq(long seq) {
       this.seq = seq;
    }
 

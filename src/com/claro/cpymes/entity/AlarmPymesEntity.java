@@ -1,11 +1,19 @@
 package com.claro.cpymes.entity;
 
 import java.io.Serializable;
-
-import javax.persistence.*;
-
-import java.sql.Time;
 import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 /** The persistent class for the alarm_pymes database table. */
@@ -17,17 +25,15 @@ import java.util.Date;
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEP", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo=:nodo AND a.estado=:estado AND a.nameCorrelation=:nameCorrelation AND a.date BETWEEN :startDate AND :endDate"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEPByDate", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo=:nodo AND a.estado=:estado AND a.nameCorrelation=:nameCorrelation AND a.date=:date"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEPReconocidas", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo IS NOT NULL AND a.estado=:estado AND a.nameCorrelation IS NOT NULL AND a.datetimeAcknowledge BETWEEN :startDate AND :endDate"),
-   @NamedQuery(name = "AlarmPymesEntity.findByEstado", query = "SELECT a FROM AlarmPymesEntity a WHERE a.estado=:estado ORDER BY a.id DESC "),
-   @NamedQuery(name = "AlarmPymesEntity.findByPriority", query = "SELECT a FROM AlarmPymesEntity a WHERE a.estado=:estado AND a.priority IN :listPriority ORDER BY a.id DESC ") })
+   @NamedQuery(name = "AlarmPymesEntity.findByEstado", query = "SELECT a FROM AlarmPymesEntity a WHERE a.estado=:estado and a.date <:date ORDER BY a.id DESC "),
+   @NamedQuery(name = "AlarmPymesEntity.findByPriority", query = "SELECT a FROM AlarmPymesEntity a WHERE a.estado=:estado AND a.priority IN :listPriority ORDER BY a.id DESC "),
+   @NamedQuery(name = "AlarmPymesEntity.findSendIVR", query = "SELECT a FROM AlarmPymesEntity a WHERE a.estado=:estado and a.sendIVR=:sendIVR and a.date <:date ORDER BY a.id DESC "), })
 public class AlarmPymesEntity implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)
    private long id;
-
-   @Column(name = "code_service")
-   private String codeService;
 
    @Temporal(TemporalType.TIMESTAMP)
    private Date date;
@@ -41,8 +47,6 @@ public class AlarmPymesEntity implements Serializable {
    @Column(name = "event_name")
    private String eventName;
 
-   private String facility;
-
    @Column(name = "interface")
    private String interFace;
 
@@ -50,8 +54,6 @@ public class AlarmPymesEntity implements Serializable {
 
    @Column(name = "ip_user_acknowledge")
    private String ipUserAcknowledge;
-
-   private String level;
 
    @Lob
    private String message;
@@ -67,11 +69,13 @@ public class AlarmPymesEntity implements Serializable {
 
    private String priority;
 
-   private String program;
-
    private String severity;
 
-   private Time time;
+   @Column(name = "type_event")
+   private String typeEvent;
+
+   @Column(name = "send_ivr")
+   private String sendIVR;
 
    @Column(name = "user_acknowledge")
    private String userAcknowledge;
@@ -85,14 +89,6 @@ public class AlarmPymesEntity implements Serializable {
 
    public void setId(long id) {
       this.id = id;
-   }
-
-   public String getCodeService() {
-      return this.codeService;
-   }
-
-   public void setCodeService(String codeService) {
-      this.codeService = codeService;
    }
 
    public Date getDate() {
@@ -127,14 +123,6 @@ public class AlarmPymesEntity implements Serializable {
       this.eventName = eventName;
    }
 
-   public String getFacility() {
-      return this.facility;
-   }
-
-   public void setFacility(String facility) {
-      this.facility = facility;
-   }
-
    public String getInterFace() {
       return interFace;
    }
@@ -157,14 +145,6 @@ public class AlarmPymesEntity implements Serializable {
 
    public void setIpUserAcknowledge(String ipUserAcknowledge) {
       this.ipUserAcknowledge = ipUserAcknowledge;
-   }
-
-   public String getLevel() {
-      return this.level;
-   }
-
-   public void setLevel(String level) {
-      this.level = level;
    }
 
    public String getMessage() {
@@ -215,22 +195,6 @@ public class AlarmPymesEntity implements Serializable {
       this.priority = priority;
    }
 
-   public String getProgram() {
-      return this.program;
-   }
-
-   public void setProgram(String program) {
-      this.program = program;
-   }
-
-   public Time getTime() {
-      return this.time;
-   }
-
-   public void setTime(Time time) {
-      this.time = time;
-   }
-
    public String getUserAcknowledge() {
       return this.userAcknowledge;
    }
@@ -245,6 +209,22 @@ public class AlarmPymesEntity implements Serializable {
 
    public void setSeverity(String severity) {
       this.severity = severity;
+   }
+
+   public String getSendIVR() {
+      return sendIVR;
+   }
+
+   public void setSendIVR(String sendIVR) {
+      this.sendIVR = sendIVR;
+   }
+
+   public String getTypeEvent() {
+      return typeEvent;
+   }
+
+   public void setTypeEvent(String typeEvent) {
+      this.typeEvent = typeEvent;
    }
 
    @Override

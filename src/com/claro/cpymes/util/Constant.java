@@ -131,4 +131,8 @@ public class Constant {
 
    public static final String ALARM_RESTORE_IVR = "alarmRestoreIVR";
 
+   public static final int TIME_SEND_IVR = 10;
+
+   public static final int TIME_SEND_CPYMES = 5;
+
 }

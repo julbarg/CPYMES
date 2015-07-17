@@ -43,4 +43,8 @@ public interface AlarmPymesDAORemote {
 
    public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception;
 
+   public ArrayList<LogDTO> findSendIVR() throws Exception;
+
+   public void updateAlarmSendIVR(ArrayList<LogDTO> listLogSendIVR) throws Exception;
+
 }

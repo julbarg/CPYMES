@@ -33,7 +33,7 @@ public class AlarmaPymeIVREntity implements Serializable {
    @Column(name = "CLASE_EQUIPO")
    private String claseEquipo;
 
-   @Column(name = "CODIGO_AUDIO_IVR")
+   @Column(name = "CODIGO_AUDIO_VIR")
    private BigDecimal codigoAudioIvr;
 
    @Column(name = "DESCRIPCION_ALARMA")
