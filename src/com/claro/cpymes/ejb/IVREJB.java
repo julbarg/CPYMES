@@ -23,6 +23,11 @@ import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
 
 
+/**
+ * IVREJB - Bean que controla acciones de IVR
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class IVREJB implements IVREJBRemote {

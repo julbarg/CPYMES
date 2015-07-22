@@ -14,6 +14,11 @@ import javax.persistence.TypedQuery;
 import com.claro.cpymes.entity.NitOnixEntity;
 
 
+/**
+ * DAO para NitOnixEntity (Table: Codigos de Servicios - NIT) 
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAORemote {

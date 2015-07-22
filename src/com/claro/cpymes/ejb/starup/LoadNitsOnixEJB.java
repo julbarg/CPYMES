@@ -21,6 +21,11 @@ import com.claro.cpymes.dao.ParameterDAORemote;
 import com.claro.cpymes.job.JobNits;
 
 
+/**
+ * Procesa la ejecucion de carga de archivo ONIX NIT
+ * @author jbarragan
+ *
+ */
 @Singleton
 @Startup
 public class LoadNitsOnixEJB {

@@ -13,6 +13,11 @@ import com.claro.cpymes.entity.ParametroEntity;
 import com.claro.cpymes.util.Constant;
 
 
+/**
+ * DAO para ParametroEntity
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class ParameterDAO extends TemplateDAO<ParametroEntity> implements ParameterDAORemote {
@@ -45,6 +50,9 @@ public class ParameterDAO extends TemplateDAO<ParametroEntity> implements Parame
       return parametro;
    }
 
+   /**
+    * Obtine el valor inicial del value, y suma el valor entregado
+    */
    @Override
    public void addCountResgister(String name, int value) {
       try {
@@ -56,6 +64,10 @@ public class ParameterDAO extends TemplateDAO<ParametroEntity> implements Parame
       }
    }
 
+   /**
+    * Obtiene el registro de Datos Historicos de CPYMES
+    * @return Retorna objeto con los datos historicos
+    */
    @Override
    public HistoricalRecordsDTO getHistoricalRecords() throws Exception {
       HistoricalRecordsDTO historicalRecords = new HistoricalRecordsDTO();

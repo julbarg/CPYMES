@@ -119,6 +119,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
+   /**
+    * Carga catalog de alarmas con la informacion encontrada en BD
+    * @throws Exception
+    */
    private void createCatalog() throws Exception {
       KeyCatalogDTO key;
       catalog = new HashMap<KeyCatalogDTO, AlarmCatalogEntity>();
@@ -130,11 +134,11 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
-   private boolean validateInfoNit(String codeService, String nit) {
-      return (codeService != null && nit != null && !codeService.isEmpty());
-
-   }
-
+   /**
+    * Obtiene la llave de OID y criticality por AlarmCatalogEntity
+    * @param alarmCatalog
+    * @return
+    */
    private KeyCatalogDTO getKey(AlarmCatalogEntity alarmCatalog) {
       String OID = alarmCatalog.getOid().trim();
       String nameEvent = alarmCatalog.getTextAlarm().trim();
@@ -173,6 +177,10 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
+   /**
+    * Carga la lista Codigo Servicio - NIT en nitOnixs
+    * @throws Exception
+    */
    private void loadNitOnix() throws Exception {
       ArrayList<NitOnixEntity> listNitOnix = nitOnixDAO.findAll();
       nitOnixs = new HashMap<String, String>();
@@ -185,10 +193,14 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
+   private boolean validateInfoNit(String codeService, String nit) {
+      return (codeService != null && nit != null && !codeService.isEmpty());
+
+   }
+
    /**
     * Obtiene los logs con estado NO PROCESADO de la Base de Datos
-    * KOU
-    * @return ArrayList<LogEntity> Lista de logs obtenidas
+    * KOU Clientes
     */
    private void getListAlarmsEntity() {
       listAlarms = new ArrayList<LogEntity>();
@@ -201,6 +213,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
+   /**
+    * Obtiene los logs con estado NO PROCESADO de la Base de Datos
+    * KOU Equipo
+    */
    private void getListAlarmsEntity2() {
       listAlarms2 = new ArrayList<Log2Entity>();
       try {
@@ -213,12 +229,10 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    /**
-    * Mapea los registros obtenidos en la base de datos KOU,
+    * Mapea los registros obtenidos en la base de datos KOU Clientes,
     * Atravez de string obtiene la informacion para ser mapaeada a
     * objetos java. IP, OID, EventName, NameDevice, Priority, Interface, Nodo
     * Description a el objeto LogDTO
-    * @param listAlarms Lista de logs a procesar
-    * @return ArrayList<LogEntity> Mapeados
     * @throws Exception 
     */
    private void mapearListLogDTO() throws Exception {
@@ -239,6 +253,10 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
+   /**
+    * Mapea los registros obtenidos en la base de datos KOU Equipo a ArrayList<LogDTO>
+    * @throws Exception 
+    */
    private void mapearListLogDTO2() throws Exception {
       int mapeadas = 0;
       String procesados = ProcessEnum.PROCESADO.getValue();
@@ -257,27 +275,22 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    /**
-    * Hace el llamado a la implementacion Drools para las reglas
-    * de filtrado, ejecutando uno a uno
-    * Son analizadas regla por regla y cambiando el estado en el 
-    * campo relevant y messageDrl del objeto LogDTO
-    * @param listLog Lista de logs a ejecutar filtros
-    * @return ArrayList<LogDTO> con la informacion modificada resultado del filtrado
+    * Hace el llamado a la implementacion Drools para las reglas de filtrado
     */
    private void filtrar() {
       listLog = filtrado.filtrar(listLog);
    }
 
+   /**
+    * Se guarda las alarmas filtradas
+    * @throws Exception
+    */
    private void saveAlarmFilter() throws Exception {
       listLog = alarmPymesDAORemote.createList(listLog);
    }
 
    /**
-    * Hace el llamado a la implemtacion Drools para las reglas
-    * de correlacion. Solo se ejecutan las que han sido marcadas 
-    * como correlacionable y relevante en el proceso
-    * de filtrado
-    * @param listLogDTOs Lista de logs a ejecutar
+    * Hace el llamado a la implemtacion Drools para las reglas de correlacion.
     */
    private void correlate() {
       correlacion.insertToEntryPoint(listLog);
@@ -300,10 +313,7 @@ public class ProcessEJB implements ProcessEJBRemote {
    }
 
    /**
-    * Una vez ejecutadas las reglas de filtrado son procesadas las
-    * reglas correlacionadas que tengan mayor o igual de numero de alarmas correlacionadas
-    * configuradas en el sistema
-    * @param listLog
+    * Define si la alarm de Correlacion se guarda o se actualiza o se descarta
     */
    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
    private void saveOrUpdateCEP() {
@@ -395,6 +405,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmPymesDAORemote.create(alarmEntity);
    }
 
+   /**
+    * Envia alarmas al BD IVR
+    * @throws Exception
+    */
    private void sendIVR() throws Exception {
       ArrayList<LogDTO> listLogSendIVR = alarmPymesDAORemote.findSendIVR();
       int numberRegistersIVR = 0;
@@ -415,6 +429,12 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
+   /**
+    * Envia alarma al BD IVR
+    * @param log
+    * @return 
+    * @throws Exception
+    */
    private boolean sendIVR(LogDTO log) throws Exception {
       EquipoCMBD equipo = getEquipo(log);
       if (equipo.getCiudad() == null)
@@ -448,6 +468,36 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
+   /**
+    * Guarda las AlarmaPymesServicioNitIVREntity
+    * @param alarmaIVR
+    * @param equipo
+    * @throws Exception
+    */
+   private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) throws Exception {
+      for (String codigoServicio : equipo.getCodigosServicio()) {
+         AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
+         String nit = getNit(codigoServicio);
+         if (nit != null && alarmaIVR.getIdAlarmaPymes() != 0) {
+            alarmaServicioNitIVR.setNit(nit.toString());
+            alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
+            alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
+
+            alarmaPymesServicioNitIVRDAO.updateAlarm(alarmaServicioNitIVR);
+         }
+
+      }
+   }
+
+   private String getNit(String codigoServicio) {
+      return nitOnixs.get(codigoServicio);
+   }
+
+   /**
+    * Obtiene informacion de la CMBD por Equipo
+    * @param log 
+    * @return EquipoCMBD
+    */
    public EquipoCMBD getEquipo(LogDTO log) {
       EquipoCMBD equipoCMBD = new EquipoCMBD();
       ;
@@ -469,6 +519,13 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    }
 
+   /**
+    * Consulta la CMBD
+    * @param log Contiene criterios de busqueda
+    * @return
+    * @throws RemoteException
+    * @throws ServiceException
+    */
    private ServicesDevicesDTO[] consultCMBD(LogDTO log) throws RemoteException, ServiceException {
       ServicesDevicesDTO[] equipos = null;
       IvrcmdbLocator ivrCmbd = new IvrcmdbLocator();
@@ -485,6 +542,12 @@ public class ProcessEJB implements ProcessEJBRemote {
       return equipos;
    }
 
+   /**
+    * Obtiene Ciudad y Descripcion de la Respuesta Obtenida de la CMBD
+    * @param equipo
+    * @param equipoCMBD
+    * @return
+    */
    private EquipoCMBD getCityDescriptionDivision(ServicesDevicesDTO equipo, EquipoCMBD equipoCMBD) {
       equipoCMBD.setCiudad(equipo.getCity());
       if (equipo.getDescription() != null) {
@@ -497,6 +560,11 @@ public class ProcessEJB implements ProcessEJBRemote {
       return equipoCMBD;
    }
 
+   /**
+    * Obtine los codigos de servicios afectados de la Respuesta de la CMBD
+    * @param equipo
+    * @return
+    */
    private ArrayList<String> getCodesService(ServicesDevicesDTO equipo) {
       ArrayList<String> codesService = new ArrayList<String>();
       if (equipo.getServiceList() != null && equipo.getServiceList().length > 0) {
@@ -520,25 +588,9 @@ public class ProcessEJB implements ProcessEJBRemote {
       return Util.addHoursToDate(today, numberHours);
    }
 
-   private void saveAlarmaPymesServicioNits(AlarmaPymeIVREntity alarmaIVR, EquipoCMBD equipo) throws Exception {
-      for (String codigoServicio : equipo.getCodigosServicio()) {
-         AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR = new AlarmaPymesServicioNitIVREntity();
-         String nit = getNit(codigoServicio);
-         if (nit != null && alarmaIVR.getIdAlarmaPymes() != 0) {
-            alarmaServicioNitIVR.setNit(nit.toString());
-            alarmaServicioNitIVR.setCodigoServicio(codigoServicio);
-            alarmaServicioNitIVR.setAlarmaPyme(alarmaIVR);
-
-            alarmaPymesServicioNitIVRDAO.updateAlarm(alarmaServicioNitIVR);
-         }
-
-      }
-   }
-
-   private String getNit(String codigoServicio) {
-      return nitOnixs.get(codigoServicio);
-   }
-
+   /**
+    * Restaura eventos 
+    */
    private void restoreEvent() {
       try {
          restoreEvent = null;
@@ -555,6 +607,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       clearAlarmIVR(listRestoreAlarmEvent);
    }
 
+   /**
+    * Clarea registros de CPYMES
+    * @param listRestoreCPYMES Lista con objetos que define los criterios de clareo de alarmas
+    */
    private void clearAlarmCPYMES(ArrayList<RestoreEventAlarmDTO> listRestoreCPYMES) {
       try {
          int alarmRestore = alarmPymesDAORemote.clearAlarm(listRestoreCPYMES);
@@ -564,6 +620,10 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
    }
 
+   /**
+    * Clarea registros de CPYMES
+    * @param listRestoreIVR  Lista con objetos que define los criterios de clareo de alarmas
+    */
    private void clearAlarmIVR(ArrayList<RestoreEventAlarmDTO> listRestoreIVR) {
       try {
          int alarmRestore = alarmaPymesIVRDAO.clearAlarm(listRestoreIVR);

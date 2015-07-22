@@ -1,4 +1,4 @@
-package com.claro.cpymes.util;
+package com.claro.cpymes.exceptions;
 
 public class FormatLogException extends Exception {
 

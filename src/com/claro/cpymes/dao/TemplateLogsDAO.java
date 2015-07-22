@@ -10,7 +10,7 @@ import javax.persistence.PersistenceUnit;
 
 /**
  * TemplateDAO - Define los metodos genericos en entidades
- * de la base de datos CPyMES
+ * de la BD KOU Clintes
  * @author jbarragan
  *
  * @param <T>
@@ -26,7 +26,7 @@ public class TemplateLogsDAO<T> {
       this.clase = entity;
    }
 
-   public T findOne(long id) throws Exception{
+   public T findOne(long id) throws Exception {
       T t;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();

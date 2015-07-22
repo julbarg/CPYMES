@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 
 /**
- * PriorityCountDTO . DTO para el conteo de alarmas
- * por prioridades
+ * DTO para el conteo de alarmas por prioridades de la pantalla visula de CPYMES
+ * 
  * @author jbarragan
  *
  */

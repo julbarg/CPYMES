@@ -7,7 +7,11 @@ import java.util.List;
 
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 
-
+/**
+ * Mapeo de AlarmaPymeIVREntity
+ * @author jbarragan
+ *
+ */
 public class AlarmaPymeIVRDTO implements Serializable {
 
    /**

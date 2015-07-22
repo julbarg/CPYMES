@@ -3,7 +3,11 @@ package CMBD;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-
+/**
+ * Mapea la Informacion Obtenidad del CMBD
+ * @author jbarragan
+ *
+ */
 public class EquipoCMBD implements Serializable{
 
    /**

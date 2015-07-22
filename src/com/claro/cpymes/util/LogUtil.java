@@ -12,10 +12,16 @@ import com.claro.cpymes.dto.KeyCatalogDTO;
 import com.claro.cpymes.dto.LogDTO;
 import com.claro.cpymes.entity.LogEntity;
 import com.claro.cpymes.enums.PriorityEnum;
+import com.claro.cpymes.exceptions.FormatLogException;
 import com.github.shyiko.mysql.binlog.event.Event;
 import com.github.shyiko.mysql.binlog.event.EventType;
 
 
+/**
+ * Ayuda a mapear la informacion obtenia de BD KOU Clientes a LogDTO
+ * @author jbarragan
+ *
+ */
 public class LogUtil {
 
    private static Logger LOGGER = LogManager.getLogger(LogUtil.class.getName());

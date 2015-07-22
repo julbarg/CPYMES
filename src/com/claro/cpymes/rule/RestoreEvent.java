@@ -22,7 +22,7 @@ import com.claro.cpymes.util.Constant;
 
 
 /**
- * Clase que ejecuta las reglas de filtrado de Drools
+ * Clase que ejecuta las reglas de restauracion de Drools
  * @author jbarragan
  *
  */
@@ -44,7 +44,7 @@ public class RestoreEvent {
          ksession.insert(log);
       }
       ksession.fireAllRules();
-      
+
       Collection<Object> listEventRestore = ksession.getObjects();
       RestoreEventAlarmDTO restoreEventAlarm;
       ArrayList<RestoreEventAlarmDTO> listRestoreEventsAlarm = new ArrayList<RestoreEventAlarmDTO>();

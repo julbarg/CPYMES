@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 
+/**
+ * DTO que define un evento de restauracion 
+ * @author jbarragan
+ *
+ */
 public class RestoreEventAlarmDTO implements Serializable {
 
    /**

@@ -7,7 +7,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceUnit;
 
-
+/**
+ * TemplateDAO - Define los metodos genericos en entidades
+ * de la base de datos IVR
+ * @author jbarragan
+ *
+ * @param <T>
+ */
 public class TemplateIVRDAO<T> {
 
    private Class<T> clase;

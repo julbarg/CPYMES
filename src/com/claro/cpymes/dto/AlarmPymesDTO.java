@@ -5,8 +5,7 @@ import java.util.Date;
 
 
 /**
- * AlarmPymesDTO - DTO que ayuda a mapear las alarmas
- * de la base de datos CPyMES
+ * Mapeo de AlarmPymesEntity
  * @author jbarragan
  *
  */
@@ -39,7 +38,7 @@ public class AlarmPymesDTO implements Serializable {
    private Date datetimeAcknowledge;
 
    private String nodo;
-   
+
    private String severity;
 
    public AlarmPymesDTO() {

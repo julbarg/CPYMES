@@ -13,7 +13,11 @@ import javax.persistence.TypedQuery;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 
-
+/**
+ * DAO para AlarmaPymesServicioNitIVREntity
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class AlarmaPymesServicioNitIVRDAO extends TemplateIVRDAO<AlarmaPymesServicioNitIVREntity> implements

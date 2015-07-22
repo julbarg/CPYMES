@@ -8,6 +8,11 @@ import com.claro.cpymes.entity.Log2Entity;
 import com.claro.cpymes.enums.PriorityEnum;
 
 
+/**
+ * Ayuda a mapear la informacion obtenia de BD KOU Equipo a LogDTO
+ * @author jbarragan
+ *
+ */
 public class LogUtil2 {
 
    private static LogDTO logDTO;

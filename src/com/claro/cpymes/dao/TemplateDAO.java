@@ -10,7 +10,7 @@ import javax.persistence.PersistenceUnit;
 
 /**
  * TemplateDAO - Define los metodos genericos en entidades
- * de la base de datos KOU
+ * de la base de datos CPYMES
  * @author jbarragan
  *
  * @param <T>

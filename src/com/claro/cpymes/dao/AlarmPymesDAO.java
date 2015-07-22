@@ -27,8 +27,7 @@ import com.claro.cpymes.util.Util;
 
 
 /**
- * AlarmPymesDAO - DAO que controla las transaciones a base 
- * de datos de la entidad AlarmPymesEntity
+ * DAO para AlarmPymesEntity
  * @author jbarragan
  *
  */
@@ -41,11 +40,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
    @EJB
    private ParameterDAORemote parametroDAO;
 
-   /**
-    * Obtiene las entidades AlarmPymesEntity por estado
-    * @param estado Con el que se realiza la consulta
-    * @return ArrayList<AlarmPymesEntity> Lista de entidades encontradas
-    */
    @Override
    public ArrayList<AlarmPymesEntity> findByEstado(String estado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -63,11 +57,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
-   /**
-    * Busqueda de alarmas pot prioridad
-    * @param listPrioritySelect Lista de prioridades a consultar
-    * @return ArrayList<AlarmPymesEntity>  Lista de alarmas encontradas
-    */
    @Override
    public ArrayList<AlarmPymesEntity> findByPriority(ArrayList<String> listPrioritySelect) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -82,10 +71,6 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
-   /**
-    * Persiste la entidad
-    * @param entity Entidad a persistir
-    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public void create(AlarmPymesEntity entity) {
@@ -184,6 +169,11 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return results;
    }
 
+   /**
+    * Persiste los registros entregados en la Lista
+    * @param listLog Lista de regitrosa almacenar
+    * @return Registros almacenados
+    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public ArrayList<LogDTO> createList(ArrayList<LogDTO> listLog) throws Exception {
@@ -229,6 +219,13 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return listLog;
    }
 
+   /**
+    * Valida si existe un registro similar.
+    * Valida nombre del evento, nombre del equipo, estado y un periodo de tiempo
+    * @param alarm Alamra a validad
+    * @param entityManager
+    * @return true si existe registro similar
+    */
    private boolean existSimilar(AlarmPymesEntity alarm, EntityManager entityManager) {
       boolean exist = false;
       Date today = new Date();
@@ -251,6 +248,11 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return exist;
    }
 
+   /**
+    * Mapear de LogDTO a AlarmPymesEntity
+    * @param logDTO
+    * @return
+    */
    private AlarmPymesEntity getAlarmPymesEntity(LogDTO logDTO) {
       AlarmPymesEntity alarmEntity = new AlarmPymesEntity();
       alarmEntity.setIp(logDTO.getIp());
@@ -282,6 +284,11 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return alarmEntity;
    }
 
+   /**
+    * Clarear alarmas en CPYMES segun criterios de los eventos de restauracion
+    * @param listRestore Lista de eventos de restauracion
+    * @return Numeros de registros restaurados
+    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
@@ -302,6 +309,13 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return resultUpdate;
    }
 
+   /**
+    * Ejecuta el SQL de clareo de registros
+    * @param restore
+    * @param entityManager
+    * @return Numero de registros clareados
+    * @throws Exception
+    */
    private int clearAlarm(RestoreEventAlarmDTO restore, EntityManager entityManager) throws Exception {
       int resultUpdate = 0;
 
@@ -332,6 +346,10 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return eventNamesStr;
    }
 
+   /**
+    * Busca alarmas marcadas para envio al IVR. (Que se hallan guardado en un tiempo previo establecido)
+    * @return Alarmas encontradas que cumplan los criterios
+    */
    @Override
    public ArrayList<LogDTO> findSendIVR() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -348,6 +366,11 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       return listLogDTO;
    }
 
+   /**
+    * Mapea de ArrayList<AlarmPymesEntity> a ArrayList<LogDTO> 
+    * @param results
+    * @return Lista mapeada
+    */
    private ArrayList<LogDTO> getListLogsSendIVR(ArrayList<AlarmPymesEntity> results) {
       LogDTO log;
       ArrayList<LogDTO> listLogDTO = new ArrayList<LogDTO>();
@@ -383,6 +406,10 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
 
    }
 
+   /**
+    * Actualiza las alarmas enviadas al IVR
+    * @param listLogSendIVR Lista de alarmas enviadas al IVR
+    */
    @Override
    public void updateAlarmSendIVR(ArrayList<LogDTO> listLogSendIVR) throws Exception {
 

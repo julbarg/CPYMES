@@ -25,6 +25,11 @@ import com.claro.cpymes.exceptions.PercentageDifferenceException;
 import com.claro.cpymes.util.Constant;
 
 
+/**
+ * Carga los datos obtenidos del archivo de ONIX a BD
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class ProcessNitsEJB implements ProcessNitsRemote {
@@ -58,6 +63,11 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    }
 
+   /**
+    * Procesa archivo de ONIX IVR
+    * @throws IOException
+    * @throws FileNitEmptyException
+    */
    private void processFile() throws IOException, FileNitEmptyException {
 
       BufferedReader buffer = new BufferedReader(new FileReader(Constant.PATH_ONIX_IVR));
@@ -73,6 +83,10 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
 
    }
 
+   /**
+    * Mapea registros encontrados a NitOnixEntity
+    * @param register
+    */
    private void converToEntity(String register) {
       NitOnixEntity nitOnix;
       StringTokenizer token = new StringTokenizer(register, Constant.DELIMETER_SNMPTT);
@@ -103,6 +117,11 @@ public class ProcessNitsEJB implements ProcessNitsRemote {
       return Long.parseLong(value.trim());
    }
 
+   /**
+    * Validacion de numero de registro anterior con la cantidad nueva de registros
+    * Debe cumplir con un maximo de porcentaje de cambio establecido
+    * @throws Exception
+    */
    private void validateNumberRegisters() throws Exception {
       int numberRegistersPrevious = nitOnixDAO.findAllCount();
       if (numberRegistersPrevious == 0) {

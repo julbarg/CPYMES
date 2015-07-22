@@ -7,8 +7,7 @@ import com.claro.cpymes.enums.TypeEventEnum;
 
 
 /**
- * LogDTO - DTO que ayuda en el mapeo de los logs obtenidos
- * en el KOU
+ * Mapeo de LogEntity - Con informacion adicional para ejecutar el proceso
  * @author jbarragan
  *
  */

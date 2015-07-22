@@ -13,7 +13,11 @@ import com.claro.cpymes.entity.AlarmCatalogEntity;
 import com.claro.cpymes.util.Constant;
 
 
-
+/**
+ * DAO para AlarmCatalogEntity
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class AlarmCatalogDAO extends TemplateDAO<AlarmCatalogEntity> implements AlarmCatalogDAORemote {

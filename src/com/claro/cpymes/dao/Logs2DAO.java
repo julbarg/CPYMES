@@ -19,8 +19,7 @@ import com.claro.cpymes.util.Constant;
 
 
 /**
- * LogsDAO - DAO que controla las transaciones a base 
- * de datos de la entidad LogEntity
+ * DAO para Log2Entity BD KOU Equipos
  * @author jbarragan
  *
  */
@@ -31,8 +30,7 @@ public class Logs2DAO extends TemplateLogs2DAO<Log2Entity> implements Logs2DAORe
    private static Logger LOGGER = LogManager.getLogger(Logs2DAO.class.getName());
 
    /**
-    * Obtiene las entidades LogEntity por estado
-    * @param procesado Filtro con el que se realiza la consulta
+    * Obtiene las entidades LogEntity que no han sido procesadas
     * @return ArrayList<LogEntity> Lista de entidades encontradas
     */
    @Override
@@ -50,10 +48,6 @@ public class Logs2DAO extends TemplateLogs2DAO<Log2Entity> implements Logs2DAORe
 
    }
 
-   /**
-    * Persiste la entidad
-    * @param entity Entidad a persistir
-    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public Log2Entity update(Log2Entity entity) throws Exception {

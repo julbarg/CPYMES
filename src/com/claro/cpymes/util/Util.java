@@ -18,6 +18,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.claro.cpymes.dto.UserDTO;
+import com.claro.cpymes.exceptions.SessionException;
 import com.claro.cpymes.listener.Connection;
 
 

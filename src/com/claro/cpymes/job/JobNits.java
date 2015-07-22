@@ -13,7 +13,11 @@ import org.quartz.JobExecutionException;
 
 import com.claro.cpymes.ejb.remote.ProcessNitsRemote;
 
-
+/**
+ * Job que define el cargue del archivo ONIX IVR
+ * @author jbarragan
+ *
+ */
 public class JobNits implements Job {
 
    private ProcessNitsRemote processNits;

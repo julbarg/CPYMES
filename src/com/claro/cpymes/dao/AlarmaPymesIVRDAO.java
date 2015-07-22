@@ -21,6 +21,11 @@ import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.enums.StateEnum;
 
 
+/**
+ * DAO de AlarmaPymeIVREntity 
+ * @author jbarragan
+ *
+ */
 @Stateless
 @LocalBean
 public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> implements AlarmaPymesIVRDAORemote {
@@ -73,6 +78,13 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
    }
 
+   /** 
+    * Adiciona criterio de busqueda a la consulta si value no es nulo
+    * @param comandQuery
+    * @param value
+    * @param name
+    * @return Complemento a la consulta 
+    */
    private StringBuffer validateString(StringBuffer comandQuery, String value, String name) {
       if (value != null && !value.isEmpty()) {
          comandQuery.append(name);
@@ -83,6 +95,13 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       return comandQuery;
    }
 
+   /**
+    * Adiciona criterio de busqueda a la consulta si value no es nulo. Para fechas
+    * @param comandQuery
+    * @param value
+    * @param name
+    * @return
+    */
    private StringBuffer validateDate(StringBuffer comandQuery, Date value, String name) {
       if (value != null) {
          comandQuery.append(name);
@@ -93,6 +112,11 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       return comandQuery;
    }
 
+   /**
+    * Clarea las Alarmas que cumplan con los criterios
+    * @param listRestore Lista de eventos de Restauracion a Clarear
+    * @return Numero de registros clareados
+    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
@@ -114,6 +138,13 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
    }
 
+   /**
+    * Ejecuta el SQL para clareo de Alarmas
+    * @param restore
+    * @param entityManager
+    * @return
+    * @throws Exception
+    */
    private int clearAlarm(RestoreEventAlarmDTO restore, EntityManager entityManager) throws Exception {
       String[] eventNames = restore.getEventTrigger();
       Query query;
@@ -148,6 +179,11 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       return query;
    }
 
+   /**
+    * Clarea las Alarmas que cumplan con los criterios
+    * @param restore Evento a Restauracion a Clarear
+    * @return Numero de registros clareados
+    */
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception {
@@ -192,6 +228,12 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       return null;
    }
 
+   /**
+    * Valida si ta existe una alarma similar
+    * @param alarm
+    * @param entityManager
+    * @return true si existe un registro similar
+    */
    private boolean existSimilar(AlarmaPymeIVREntity alarm, EntityManager entityManager) {
       boolean exist = false;
       try {

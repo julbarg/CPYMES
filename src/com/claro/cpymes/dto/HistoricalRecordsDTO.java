@@ -2,7 +2,11 @@ package com.claro.cpymes.dto;
 
 import java.io.Serializable;
 
-
+/**
+ * DTO que define los valores historicos de CPYMES
+ * @author jbarragan
+ *
+ */
 public class HistoricalRecordsDTO implements Serializable {
 
    /**

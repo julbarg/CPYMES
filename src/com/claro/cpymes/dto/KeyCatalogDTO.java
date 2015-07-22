@@ -2,7 +2,11 @@ package com.claro.cpymes.dto;
 
 import java.io.Serializable;
 
-
+/**
+ * DTO que define la llave para busquedas en el Catalogo de Alarmas
+ * @author jbarragan
+ *
+ */
 public class KeyCatalogDTO implements Serializable {
 
    /**

@@ -15,8 +15,8 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
 import com.claro.cpymes.ejb.remote.IVREJBRemote;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
+import com.claro.cpymes.exceptions.SessionException;
 import com.claro.cpymes.util.Constant;
-import com.claro.cpymes.util.SessionException;
 import com.claro.cpymes.util.Util;
 
 
