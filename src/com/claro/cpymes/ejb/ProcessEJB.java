@@ -25,6 +25,7 @@ import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
 import com.claro.cpymes.dao.AlarmaPymesIVRDAORemote;
 import com.claro.cpymes.dao.AlarmaPymesServicioNitIVRDAORemote;
+import com.claro.cpymes.dao.FechaEsperanzaDAORemote;
 import com.claro.cpymes.dao.Logs2DAORemote;
 import com.claro.cpymes.dao.LogsDAORemote;
 import com.claro.cpymes.dao.NitOnixDAORemote;
@@ -88,6 +89,9 @@ public class ProcessEJB implements ProcessEJBRemote {
 
    @EJB
    private ParameterDAORemote parametroDAO;
+
+   @EJB
+   private FechaEsperanzaDAORemote fechaEsperanzaDAO;
 
    private HashMap<KeyCatalogDTO, AlarmCatalogEntity> catalog;
 
@@ -156,7 +160,6 @@ public class ProcessEJB implements ProcessEJBRemote {
     */
    public void procesar() {
       try {
-         LOGGER.info("INICIO PROCESO PRINCIPAL");
          loadNitOnix();
          getListAlarmsEntity();
          getListAlarmsEntity2();
@@ -169,7 +172,6 @@ public class ProcessEJB implements ProcessEJBRemote {
          saveOrUpdateCEP();
          sendIVR();
          restoreEvent();
-         LOGGER.info("FIN");
          LOGGER.info("-----------------------------------------------");
       } catch (Exception e) {
          LOGGER.error("Error Procesando Alarmas", e);
@@ -249,7 +251,6 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
       LOGGER.info("MAPEADAS - Alarmas Mapeadas: " + mapeadas);
       logsDAORemote.updateList(listAlarms);
-      LOGGER.info("UPDATE PROCESADOS - Alarmas Mapeadas");
 
    }
 
@@ -270,7 +271,6 @@ public class ProcessEJB implements ProcessEJBRemote {
       }
       LOGGER.info("MAPEADAS - Alarmas Mapeadas Equipo: " + mapeadas);
       logs2DAORemote.updateList(listAlarms2);
-      LOGGER.info("UPDATE PROCESADOS - Alarmas Mapeadas Equipo");
 
    }
 
@@ -440,6 +440,7 @@ public class ProcessEJB implements ProcessEJBRemote {
       if (equipo.getCiudad() == null)
          return false;
 
+      String typeEvent = log.getTypeEvent().getType();
       AlarmaPymeIVREntity alarmaIVR = new AlarmaPymeIVREntity();
 
       alarmaIVR.setClaseEquipo(log.getNameEvent());
@@ -453,10 +454,12 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmaIVR.setFechaInicio(today);
 
       // TODO
-      alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, today));
+      equipo.setDivisional("Centro");
+
+      alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, typeEvent));
       alarmaIVR.setIp(log.getIp());
 
-      alarmaIVR.setTipoEvento(log.getTypeEvent().getType());
+      alarmaIVR.setTipoEvento(typeEvent);
 
       alarmaIVR = alarmaPymesIVRDAO.updateAlarm(alarmaIVR);
 
@@ -582,9 +585,15 @@ public class ProcessEJB implements ProcessEJBRemote {
       return Constant.CODIGO_AUDIO_IVR;
    }
 
-   // TODO
-   private Date getFechaEsperanza(EquipoCMBD equipo, Date today) {
-      int numberHours = 20;
+   private Date getFechaEsperanza(EquipoCMBD equipo, String typeEvent) {
+      int numberHours = 0;
+      Date today = new Date();
+      try {
+         numberHours = fechaEsperanzaDAO.getHourRecovery(equipo.getDivisional(), typeEvent);
+      } catch (Exception e) {
+         LOGGER.error("Error obteniendo la hora de recuperacion", e);
+      }
+
       return Util.addHoursToDate(today, numberHours);
    }
 

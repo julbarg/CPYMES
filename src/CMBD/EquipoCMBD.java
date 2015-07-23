@@ -3,12 +3,13 @@ package CMBD;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+
 /**
  * Mapea la Informacion Obtenidad del CMBD
  * @author jbarragan
  *
  */
-public class EquipoCMBD implements Serializable{
+public class EquipoCMBD implements Serializable {
 
    /**
     * 
@@ -24,6 +25,8 @@ public class EquipoCMBD implements Serializable{
    private String division;
 
    private ArrayList<String> codigosServicio;
+
+   private String divisional;
 
    public String getClaseEquipo() {
       return claseEquipo;
@@ -63,6 +66,14 @@ public class EquipoCMBD implements Serializable{
 
    public void setCodigosServicio(ArrayList<String> codigosServicio) {
       this.codigosServicio = codigosServicio;
+   }
+
+   public String getDivisional() {
+      return divisional;
+   }
+
+   public void setDivisional(String divisional) {
+      this.divisional = divisional;
    }
 
 }
