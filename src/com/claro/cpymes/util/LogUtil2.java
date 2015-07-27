@@ -39,16 +39,16 @@ public class LogUtil2 {
 
    private static String getName(String msg, String priority) {
       String name = "";
-      int start = msg.indexOf("ALC_PYMES");
+      int start = msg.indexOf(Constant.INDEX_OF_START_MSG_KOU);
       int end = 0;
       if (priority.equals(PriorityEnum.ALERT.getValue())) {
-         end = msg.indexOf("Problemas");
+         end = msg.indexOf(Constant.INDEX_OF_END_MSG_KOU_DOWN);
       } else if (priority.equals(PriorityEnum.NOTICE.getValue())) {
-         end = msg.indexOf("Alcanzabilidad");
+         end = msg.indexOf(Constant.INDEX_OF_END_MSG_KOU_UP);
       }
 
       if (start != -1 && end != -1) {
-         start = start + "ALC_PYMES".length();
+         start = start + Constant.INDEX_OF_START_MSG_KOU.length();
          name = msg.substring(start, end).trim();
       }
 

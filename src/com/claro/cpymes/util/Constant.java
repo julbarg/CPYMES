@@ -135,4 +135,10 @@ public class Constant {
 
    public static final int TIME_SEND_CPYMES = 5;
 
+   public static final String INDEX_OF_START_MSG_KOU = Util.getProperties("index_of_start_msg_kou"); //ALC_PYMES
+
+   public static final String INDEX_OF_END_MSG_KOU_UP = Util.getProperties("index_of_end_msg_kou_up"); //Alcanzabilidad
+
+   public static final String INDEX_OF_END_MSG_KOU_DOWN = Util.getProperties("index_of_end_msg_kou_down"); //Problemas
+
 }

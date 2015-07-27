@@ -2,17 +2,8 @@
 -- Author:  	Julian Barragan Verano
 -- Create date: 13-MAY-2015
 -- Description: ROLLBACK TABLES Project CPyMES - IVR Seguridad
--- Name SQL: 008_CPyMES.sql
+-- Name SQL: 009_CPyMES.sql
 -- =============================================
-
-
-
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='warning' WHERE `id`='73';
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='alert' WHERE `id`='100';
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='notice' WHERE `id`='105';
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='notice' WHERE `id`='107';
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='warning' WHERE `id`='210';
-UPDATE `cpymes`.`alarm_catalog` SET `criticality`='info' WHERE `id`='234';
 
 
 CREATE TABLE cpymes.nit_onix (

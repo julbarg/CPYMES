@@ -1,3 +1,12 @@
+-- =============================================
+-- Author:  	Julian Barragan Verano
+-- Create date: 27-JUL-2015
+-- Description: INSERT ALARM'S CATALOG - PYMES
+-- Name SQL: 010_CPyMES.sql
+-- =============================================
+
+DELETE FROM `cpymes`.`alarm_catalog`;
+
 INSERT INTO `cpymes`.`alarm_catalog` (`id`, `system`, `filter`, `manager`, `oid`, `text_alarm`, `severity`, `criticality`, `correlate`) VALUES ('1', 'MPLS', 'PYMES', 'ALCATEL', '.1.3.6.1.6.3.1.1.5.1', 'coldStart', 'AS', 'critic', 'Intermitencia o reinicio de equipos');
 INSERT INTO `cpymes`.`alarm_catalog` (`id`, `system`, `filter`, `manager`, `oid`, `text_alarm`, `severity`, `criticality`, `correlate`) VALUES ('2', 'MPLS', 'PYMES', 'ALCATEL', '.1.3.6.1.6.3.1.1.5.2', 'warmStart', 'AS', 'critic', 'Intermitencia o reinicio de equipos');
 INSERT INTO `cpymes`.`alarm_catalog` (`id`, `system`, `filter`, `manager`, `oid`, `text_alarm`, `severity`, `criticality`, `correlate`) VALUES ('3', 'MPLS', 'PYMES', 'ALCATEL', '.1.3.6.1.6.3.1.1.5.3', 'linkDown', 'AS', 'alert', 'Afectacion de servicio (puerto caido  puerdo danado  no aprende MAC)');
