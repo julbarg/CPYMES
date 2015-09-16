@@ -5,7 +5,7 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package claro.com.co;
+package CMBD;
 
 public class ServicesDevicesDTO  implements java.io.Serializable {
     private java.lang.String city;
@@ -15,6 +15,8 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
     private java.lang.String device;
 
     private java.lang.String deviceType;
+
+    private java.lang.String divisional;
 
     private java.lang.String ip;
 
@@ -34,6 +36,7 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
            java.lang.String description,
            java.lang.String device,
            java.lang.String deviceType,
+           java.lang.String divisional,
            java.lang.String ip,
            java.lang.String port,
            java.lang.String sds,
@@ -43,6 +46,7 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
            this.description = description;
            this.device = device;
            this.deviceType = deviceType;
+           this.divisional = divisional;
            this.ip = ip;
            this.port = port;
            this.sds = sds;
@@ -128,6 +132,26 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
      */
     public void setDeviceType(java.lang.String deviceType) {
         this.deviceType = deviceType;
+    }
+
+
+    /**
+     * Gets the divisional value for this ServicesDevicesDTO.
+     * 
+     * @return divisional
+     */
+    public java.lang.String getDivisional() {
+        return divisional;
+    }
+
+
+    /**
+     * Sets the divisional value for this ServicesDevicesDTO.
+     * 
+     * @param divisional
+     */
+    public void setDivisional(java.lang.String divisional) {
+        this.divisional = divisional;
     }
 
 
@@ -262,6 +286,9 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
             ((this.deviceType==null && other.getDeviceType()==null) || 
              (this.deviceType!=null &&
               this.deviceType.equals(other.getDeviceType()))) &&
+            ((this.divisional==null && other.getDivisional()==null) || 
+             (this.divisional!=null &&
+              this.divisional.equals(other.getDivisional()))) &&
             ((this.ip==null && other.getIp()==null) || 
              (this.ip!=null &&
               this.ip.equals(other.getIp()))) &&
@@ -299,6 +326,9 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
         }
         if (getDeviceType() != null) {
             _hashCode += getDeviceType().hashCode();
+        }
+        if (getDivisional() != null) {
+            _hashCode += getDivisional().hashCode();
         }
         if (getIp() != null) {
             _hashCode += getIp().hashCode();
@@ -357,6 +387,13 @@ public class ServicesDevicesDTO  implements java.io.Serializable {
         elemField = new org.apache.axis.description.ElementDesc();
         elemField.setFieldName("deviceType");
         elemField.setXmlName(new javax.xml.namespace.QName("", "deviceType"));
+        elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
+        elemField.setMinOccurs(0);
+        elemField.setNillable(false);
+        typeDesc.addFieldDesc(elemField);
+        elemField = new org.apache.axis.description.ElementDesc();
+        elemField.setFieldName("divisional");
+        elemField.setXmlName(new javax.xml.namespace.QName("", "divisional"));
         elemField.setXmlType(new javax.xml.namespace.QName("http://www.w3.org/2001/XMLSchema", "string"));
         elemField.setMinOccurs(0);
         elemField.setNillable(false);

@@ -76,13 +76,13 @@ public class LoadNitsOnixEJB {
    }
 
    private CronTrigger getTriggerBuilder() {
+      //TODO
       return TriggerBuilder.newTrigger().withIdentity(TRIGGER_NAME, GROUP_NAME).startNow()
          .withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(1, 00)).build();
    }
 
    private void schedulerJob() throws SchedulerException {
       scheduler.scheduleJob(job, trigger);
-
    }
 
 }

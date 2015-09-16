@@ -2,8 +2,11 @@ package com.claro.cpymes.enums;
 
 public enum TypeEventEnum {
 
-   TRONCAL("T", "Troncal", "Fibra"), CLIENTE("C", "Cliente", "Fibra"), FASTETHERNET("E", "FastEthernet", "Fibra"), EQUIPO(
-      "Q", "Equipo", "Nodo"), MULTIPLE("M", "Multiple", "Fibra");
+   TRONCAL("T", "Troncal", "Fibra"), 
+   CLIENTE("C", "Cliente", "Fibra"), 
+   FASTETHERNET("E", "FastEthernet", "Fibra"), 
+   EQUIPO("Q", "Equipo", "Nodo"), 
+   MULTIPLE("M", "Multiple", "Fibra");
 
    private String value;
 

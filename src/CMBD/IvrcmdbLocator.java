@@ -5,9 +5,9 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package claro.com.co;
+package CMBD;
 
-public class IvrcmdbLocator extends org.apache.axis.client.Service implements claro.com.co.Ivrcmdb {
+public class IvrcmdbLocator extends org.apache.axis.client.Service implements CMBD.Ivrcmdb {
 
     public IvrcmdbLocator() {
     }
@@ -39,7 +39,7 @@ public class IvrcmdbLocator extends org.apache.axis.client.Service implements cl
         IvrcmdbWsImplPortWSDDServiceName = name;
     }
 
-    public claro.com.co.ExtractServices getIvrcmdbWsImplPort() throws javax.xml.rpc.ServiceException {
+    public CMBD.ExtractServices getIvrcmdbWsImplPort() throws javax.xml.rpc.ServiceException {
        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(IvrcmdbWsImplPort_address);
@@ -50,9 +50,9 @@ public class IvrcmdbLocator extends org.apache.axis.client.Service implements cl
         return getIvrcmdbWsImplPort(endpoint);
     }
 
-    public claro.com.co.ExtractServices getIvrcmdbWsImplPort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
+    public CMBD.ExtractServices getIvrcmdbWsImplPort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
-            claro.com.co.IvrcmdbSoapBindingStub _stub = new claro.com.co.IvrcmdbSoapBindingStub(portAddress, this);
+            CMBD.IvrcmdbSoapBindingStub _stub = new CMBD.IvrcmdbSoapBindingStub(portAddress, this);
             _stub.setPortName(getIvrcmdbWsImplPortWSDDServiceName());
             return _stub;
         }
@@ -72,8 +72,8 @@ public class IvrcmdbLocator extends org.apache.axis.client.Service implements cl
      */
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
-            if (claro.com.co.ExtractServices.class.isAssignableFrom(serviceEndpointInterface)) {
-                claro.com.co.IvrcmdbSoapBindingStub _stub = new claro.com.co.IvrcmdbSoapBindingStub(new java.net.URL(IvrcmdbWsImplPort_address), this);
+            if (CMBD.ExtractServices.class.isAssignableFrom(serviceEndpointInterface)) {
+                CMBD.IvrcmdbSoapBindingStub _stub = new CMBD.IvrcmdbSoapBindingStub(new java.net.URL(IvrcmdbWsImplPort_address), this);
                 _stub.setPortName(getIvrcmdbWsImplPortWSDDServiceName());
                 return _stub;
             }

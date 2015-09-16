@@ -1,7 +1,10 @@
 package com.claro.cpymes.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -16,6 +19,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
+import com.claro.cpymes.dto.DataDTO;
+import com.claro.cpymes.dto.InfoTypeAlarmDTO;
+import com.claro.cpymes.dto.ReportDTO;
 import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.enums.StateEnum;
@@ -250,5 +256,291 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       }
 
       return exist;
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public ArrayList<DataDTO> findDataByFilter(ReportDTO report) throws Exception {
+      ArrayList<DataDTO> results = new ArrayList<DataDTO>();
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      StringBuffer sql = getSQLFindByFilter(report);
+      Query query = entityManager.createNativeQuery(sql.toString());
+      query = getParameterFindByFilter(query, report);
+      List<Object[]> listResults = query.getResultList();
+      for (Object[] object : listResults) {
+         DataDTO dataDTO = createData(object);
+         results.add(dataDTO);
+      }
+      LOGGER.info("RESULT FIND DATA: " + results.size());
+      return results;
+
+   }
+
+   private StringBuffer getSQLFindByFilter(ReportDTO report) {
+      StringBuffer sql = new StringBuffer();
+
+      sql.append("SELECT ");
+      sql.append("A.ID_ALARMA_PYMES,  ");
+      sql.append("A.TICKET_ONIX, ");
+      sql.append("A.IP, ");
+      sql.append("A.CLASE_EQUIPO, ");
+
+      sql.append("A.DESCRIPCION_ALARMA, ");
+
+      sql.append("A.TIPO_EVENTO, ");
+      sql.append("A.CIUDAD, ");
+      sql.append("A.DIVISION, ");
+      sql.append("TO_CHAR(A.FECHA_INICIO, 'DD-MON-YYYY HH24:MI:SS'), ");
+      sql.append("TO_CHAR(A.FECHA_ESPERANZA, 'DD-MON-YYYY HH24:MI:SS'), ");
+      sql.append("TO_CHAR(A.FECHA_FIN, 'DD-MON-YYYY HH24:MI:SS'), ");
+      sql.append("A.TIEMPO_TOTAL_FALLA, ");
+      sql.append("TO_CHAR(A.FECHA_MODIFICACION, 'DD-MON-YYYY HH24:MI:SS'), ");
+      sql.append("A.USUARIO_MODIFICACION, ");
+      sql.append("A.ESTADO_ALARMA, ");
+      sql.append("N.CODIGO_SERVICIO, ");
+      sql.append("N.NIT ");
+      sql.append("FROM ALARMA_PYMES A  ");
+      sql.append("INNER JOIN ALARMA_PYMES_SERVICIO_NIT N ON (A.ID_ALARMA_PYMES = N.ID_ALARMA_PYMES) ");
+      sql.append("WHERE 1 = 1 ");
+
+      sql = getFiltersFindByFilters(sql, report);
+
+      LOGGER.info("SQL: " + sql.toString());
+
+      return sql;
+
+   }
+
+   private StringBuffer getFiltersFindByFilters(StringBuffer sql, ReportDTO report) {
+      String ciudad = report.getCiudad();
+      if (ciudad != null && ciudad.length() > 0) {
+         sql.append("AND A.CIUDAD LIKE '%" + ciudad + "%' ");
+      }
+
+      String claseEquipo = report.getClaseEquipo();
+      if (claseEquipo != null && claseEquipo.length() > 0) {
+         sql.append("AND A.CLASE_EQUIPO LIKE '%" + claseEquipo + "%' ");
+      }
+
+      String codigoServicio = report.getCodigoServicio();
+      if (codigoServicio != null && codigoServicio.length() > 0) {
+         sql.append("AND N.CODIGO_SERVICIO = '" + codigoServicio + "' ");
+      }
+
+      String region = report.getRegion();
+      if (region != null && region.length() > 0) {
+         sql.append("AND A.DIVISION LIKE '%" + report.getRegion() + "%' ");
+      }
+
+      String division = report.getDivision();
+      if (division != null && division.length() > 0) {
+         sql.append("AND A.DIVISION LIKE '%" + division + "%' ");
+      }
+
+      String estadoAlarma = report.getEstadoAlarma();
+      if (estadoAlarma != null && estadoAlarma.length() > 0) {
+         sql.append("AND A.ESTADO_ALARMA = '" + estadoAlarma + "' ");
+      }
+
+      String ip = report.getIp();
+      if (ip != null && ip.length() > 0) {
+         sql.append("AND A.IP = '" + ip + "' ");
+      }
+
+      String nit = report.getNit();
+      if (nit != null && nit.length() > 0) {
+         sql.append("AND N.NIT = '" + nit + "' ");
+      }
+
+      String ticketOnix = report.getTicketOnix();
+      if (ticketOnix != null && ticketOnix.length() > 0) {
+         sql.append("AND A.TICKET_ONIX = '" + ticketOnix + "' ");
+      }
+
+      BigDecimal tiempoTotalFalla = report.getTiempoTotalFalla();
+      if (tiempoTotalFalla != null && tiempoTotalFalla.intValueExact() > 0) {
+         sql.append("AND A.TIEMPO_TOTAL_FALLA =" + tiempoTotalFalla.intValueExact() + " ");
+      }
+
+      String tipoEvento = report.getTipoEvento();
+      if (tipoEvento != null && tipoEvento.length() > 0) {
+         sql.append("AND A.TIPO_EVENTO = '" + tipoEvento + "' ");
+      }
+
+      String usuarioModificacion = report.getUsuarioModificacion();
+      if (usuarioModificacion != null && usuarioModificacion.length() > 0) {
+         sql.append("AND A.USUARIO_MODIFICACION = '" + usuarioModificacion + "' ");
+      }
+
+      Date fechaEsperanzaDesde = report.getFechaEsperanzaDesde();
+      if (fechaEsperanzaDesde != null) {
+         sql.append("AND A.FECHA_ESPERANZA >= :fechaEsperanzaDesde AND A.FECHA_ESPERANZA < :fechaEsperanzaHasta ");
+      }
+
+      Date fechaFinDesde = report.getFechaFinDesde();
+      if (fechaFinDesde != null) {
+         sql.append("AND A.FECHA_FIN >= :fechaFinDesde AND A.FECHA_FIN < :fechaFinHasta ");
+      }
+
+      Date fechaInicioDesde = report.getFechaInicioDesde();
+      if (fechaInicioDesde != null) {
+         sql.append("AND A.FECHA_INICIO >= :fechaInicioDesde AND A.FECHA_INICIO < :fechaInicioHasta ");
+      }
+
+      Date fechaModificacionDesde = report.getFechaModificacionDesde();
+      if (fechaModificacionDesde != null) {
+         sql.append("AND A.FECHA_MODIFICACION >= :fechaModificacionDesde AND A.FECHA_MODIFICACION < :fechaModificacionHasta ");
+      }
+
+      return sql;
+   }
+
+   private Query getParameterFindByFilter(Query query, ReportDTO report) {
+      Date fechaEsperanzaDesde = report.getFechaEsperanzaDesde();
+      Date fechaEsperanzaHasta = report.getFechaEsperanzaHasta();
+      if (fechaEsperanzaDesde != null) {
+         query.setParameter("fechaEsperanzaDesde", fechaEsperanzaDesde);
+         query.setParameter("fechaEsperanzaHasta", fechaEsperanzaHasta);
+      }
+
+      Date fechaFinDesde = report.getFechaFinDesde();
+      Date fechaFinHasta = report.getFechaFinHasta();
+      if (fechaFinDesde != null) {
+         query.setParameter("fechaFinDesde", fechaFinDesde);
+         query.setParameter("fechaFinHasta", fechaFinHasta);
+      }
+
+      Date fechaInicioDesde = report.getFechaInicioDesde();
+      Date fechaInicioHasta = report.getFechaInicioHasta();
+      if (fechaInicioDesde != null) {
+         query.setParameter("fechaInicioDesde", fechaInicioDesde);
+         query.setParameter("fechaInicioHasta", fechaInicioHasta);
+      }
+
+      Date fechaModificacionDesde = report.getFechaModificacionDesde();
+      Date fechaModificacionHasta = report.getFechaModificacionHasta();
+      if (fechaModificacionDesde != null) {
+         query.setParameter("fechaModificacionDesde", fechaModificacionDesde);
+         query.setParameter("fechaModificacionHasta", fechaModificacionHasta);
+
+      }
+      return query;
+   }
+
+   private DataDTO createData(Object[] object) {
+      int numCol = 0;
+      DataDTO dataDTO = new DataDTO();
+      dataDTO.setIdAlarmaPymes(setValue(object[numCol]));
+      dataDTO.setTicketOnix(setValue(object[++numCol]));
+      dataDTO.setIp(setValue(object[++numCol]));
+      dataDTO.setClaseEquipo(setValue(object[++numCol]));
+
+      dataDTO.setDescripcionAlarma(setValue(object[++numCol]));
+
+      dataDTO.setTipoEvento(setValue(object[++numCol]));
+      dataDTO.setCiudad(setValue(object[++numCol]));
+      dataDTO.setDivision(setValue(object[++numCol]));
+
+      dataDTO.setFechaInicio(setValue(object[++numCol]));
+      dataDTO.setFechaEsperanza(setValue(object[++numCol]));
+      dataDTO.setFechaFin(setValue(object[++numCol]));
+
+      dataDTO.setTiempoTotalFalla(setValue(object[++numCol]));
+      dataDTO.setFechaModificacion(setValue(object[++numCol]));
+      dataDTO.setUsuarioModificacion(setValue(object[++numCol]));
+      dataDTO.setEstadoAlarma(setValue(object[++numCol]));
+      dataDTO.setCodigoServicio(setValue(object[++numCol]));
+      dataDTO.setNit(setValue(object[++numCol]));
+
+      dataDTO = getDivisionAndRegion(dataDTO);
+
+      return dataDTO;
+   }
+
+   private DataDTO getDivisionAndRegion(DataDTO dataDTO) {
+      try {
+         String divisionRegion = dataDTO.getDivision();
+         if (divisionRegion.length() > 0) {
+            StringTokenizer token = new StringTokenizer(divisionRegion, "|");
+            if (token.hasMoreTokens()) {
+               String region = token.nextToken();
+               dataDTO.setRegion(region.trim());
+            }
+
+            if (token.hasMoreTokens()) {
+               String division = token.nextToken();
+               dataDTO.setDivision(division.trim());
+            }
+         }
+
+      } catch (Exception e) {
+
+      }
+      return dataDTO;
+   }
+
+   private String setValue(Object value) {
+      return value != null ? value.toString() : "";
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public ArrayList<InfoTypeAlarmDTO> findReportByRegion(String nameRegion) throws Exception {
+      ArrayList<InfoTypeAlarmDTO> results = new ArrayList<InfoTypeAlarmDTO>();
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      StringBuffer sql = new StringBuffer();
+      sql.append("SELECT A.TIPO_EVENTO, COUNT(*) ");
+      sql.append("FROM ALARMA_PYMES A WHERE A.ESTADO_ALARMA = 'A' ");
+      sql.append("AND A.DIVISION LIKE '%" + nameRegion + "%' ");
+      sql.append("GROUP BY A.TIPO_EVENTO ");
+
+      Query query = entityManager.createNativeQuery(sql.toString());
+      List<Object[]> listResults = query.getResultList();
+      for (Object[] object : listResults) {
+         InfoTypeAlarmDTO infoTypeAlarmDTO = createInfoTypeAlarm(object);
+         results.add(infoTypeAlarmDTO);
+      }
+
+      StringBuffer sqlNit = new StringBuffer();
+      sqlNit.append("SELECT A.TIPO_EVENTO, COUNT(DISTINCT(N.NIT)) AS NO_NITS, ");
+      sqlNit.append("COUNT(DISTINCT(N.CODIGO_SERVICIO)) AS NO_ENLACES ");
+      sqlNit.append("FROM ALARMA_PYMES_SERVICIO_NIT N ");
+      sqlNit.append("INNER JOIN ALARMA_PYMES A ON (N.ID_ALARMA_PYMES = A.ID_ALARMA_PYMES) ");
+      sqlNit.append("WHERE A.ESTADO_ALARMA = 'I' AND A.DIVISION LIKE '%" + nameRegion + "%'");
+      sqlNit.append("GROUP BY A.TIPO_EVENTO ");
+
+      Query queryNit = entityManager.createNativeQuery(sqlNit.toString());
+      List<Object[]> listResultsNit = queryNit.getResultList();
+      for (Object[] object : listResultsNit) {
+         results = addInformationReport(object, results);
+      }
+
+      return results;
+
+   }
+
+   private InfoTypeAlarmDTO createInfoTypeAlarm(Object[] object) {
+      int numCol = 0;
+      InfoTypeAlarmDTO infoTypeAlarmDTO = new InfoTypeAlarmDTO();
+
+      infoTypeAlarmDTO.setNameTypeAlarm(setValue(object[numCol]));
+      infoTypeAlarmDTO.setNoAlarms(setValueInt(object[++numCol]));
+
+      return infoTypeAlarmDTO;
+   }
+
+   private int setValueInt(Object value) {
+      String valueStr = value != null ? value.toString() : "0";
+      return Integer.parseInt(valueStr);
+   }
+
+   private ArrayList<InfoTypeAlarmDTO> addInformationReport(Object[] object, ArrayList<InfoTypeAlarmDTO> results) {
+      for (InfoTypeAlarmDTO infoTypeAlarmDTO : results) {
+         if (infoTypeAlarmDTO.getNameTypeAlarm().equals(object[0])) {
+            infoTypeAlarmDTO.setNoNitsAffected(setValueInt(object[1]));
+            infoTypeAlarmDTO.setNoCodesAffected(setValueInt(object[2]));
+         }
+      }
+      return results;
    }
 }

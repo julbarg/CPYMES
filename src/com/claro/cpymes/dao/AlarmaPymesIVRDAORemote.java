@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import javax.ejb.Remote;
 
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
+import com.claro.cpymes.dto.DataDTO;
+import com.claro.cpymes.dto.InfoTypeAlarmDTO;
+import com.claro.cpymes.dto.ReportDTO;
 import com.claro.cpymes.dto.RestoreEventAlarmDTO;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 
@@ -27,5 +30,9 @@ public interface AlarmaPymesIVRDAORemote {
    public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception;
 
    public AlarmaPymeIVREntity updateAlarm(AlarmaPymeIVREntity alarmaIVR) throws Exception;
+
+   public ArrayList<DataDTO> findDataByFilter(ReportDTO reportDTO) throws Exception;
+
+   public ArrayList<InfoTypeAlarmDTO> findReportByRegion(String nameRegion) throws Exception;
 
 }

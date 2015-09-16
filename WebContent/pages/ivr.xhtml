@@ -48,7 +48,7 @@
 		</p:panel>
 		<p:panel styleClass="panel_transparent">
 			<p:progressBar widgetVar="pbClient" />
-			<h:panelGrid columns="4" styleClass="panel_button">
+			<h:panelGrid columns="6" styleClass="panel_button">
 				<p:clock pattern="HH:mm:ss" />
 				<p:commandButton value="Buscar" icon="ui-icon-search" onclick="PF('findIVR').show();"
 					ajax="true" update="form" immediate="true" style="margin-left: 5px;" />
@@ -57,6 +57,8 @@
 				<p:commandButton value="Pausar" icon="ui-icon-pause" actionListener="#{ivr.pause}"
 					onclick="cancel()" ajax="true" update="form" rendered="#{ivr.viewPause}" />
 				<p:commandButton action="#{ivr.goCpymes}" value="CPYMES" icon="ui-icon-arrowrefresh-1-w" />
+				<p:commandButton action="#{ivr.goControl}" value="Control" icon="ui-icon-clipboard" />
+				<p:commandButton action="#{ivr.goReport}" value="Reportes" icon="ui-icon-clipboard" />
 			</h:panelGrid>
 		</p:panel>
 
@@ -72,10 +74,10 @@
 				<p:column id="column_ip" headerText="IP">
 					<h:outputText id="text_ip" value="#{alarmIVR.ip}" styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_clase_equipo" headerText="Clase de Equipo">
+				<p:column id="column_clase_equipo" headerText="Evento" width="180">
 					<h:outputText id="text_clase_equipo" value="#{alarmIVR.claseEquipo}" styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_descripcion" headerText="Descripcion">
+				<p:column id="column_descripcion" headerText="Nombre del Dispositivo" width="140">
 					<h:outputText id="text_descripcion" value="#{alarmIVR.descripcionAlarma}"
 						styleClass="td-table-list" />
 				</p:column>
@@ -85,13 +87,13 @@
 				<p:column id="column_ciudad" headerText="Ciudad">
 					<h:outputText id="text_ciudad" value="#{alarmIVR.ciudad}" styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_division" headerText="Division">
+				<p:column id="column_division" headerText="Division" width="130">
 					<h:outputText id="text_division" value="#{alarmIVR.division}" styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_fechaInicio" headerText="Fecha Inicio">
 					<h:outputText id="text_fecha_inicio" value="#{alarmIVR.fechaInicio}" styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_fechaFin" headerText="Fecha Fin">
+				<p:column id="column_fechaFin" headerText="Fecha Fin" rendered="false">
 					<h:outputText id="text_fecha_fin" value="#{alarmIVR.fechaFin}" styleClass="td-table-list" />
 				</p:column>
 				<p:column id="column_fechaEsperanza" headerText="Fecha Esperanza">
@@ -110,7 +112,7 @@
 					<h:outputText id="text_usuarioModificacion" value="#{alarmIVR.usuarioModificacion}"
 						styleClass="td-table-list" />
 				</p:column>
-				<p:column id="column_codigoAudioIvr" headerText="Codigo Audio IVR">
+				<p:column id="column_codigoAudioIvr" headerText="Codigo Audio IVR" rendered="false">
 					<h:outputText id="text_codigoAudioIvr" value="#{alarmIVR.codigoAudioIvr}"
 						styleClass="td-table-list" />
 				</p:column>

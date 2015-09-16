@@ -150,6 +150,14 @@ public class IVRView {
       return true;
    }
 
+   public boolean goControl() {
+      return true;
+   }
+
+   public boolean goReport() {
+      return true;
+   }
+
    public boolean validateSesion() {
       try {
          Util.getUserName();

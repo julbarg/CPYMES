@@ -18,8 +18,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import CMBD.EquipoCMBD;
-import claro.com.co.IvrcmdbLocator;
-import claro.com.co.ServicesDevicesDTO;
+import CMBD.IvrcmdbLocator;
+import CMBD.ServicesDevicesDTO;
 
 import com.claro.cpymes.dao.AlarmCatalogDAORemote;
 import com.claro.cpymes.dao.AlarmPymesDAORemote;
@@ -446,15 +446,13 @@ public class ProcessEJB implements ProcessEJBRemote {
       alarmaIVR.setClaseEquipo(log.getNameEvent());
       alarmaIVR.setDescripcionAlarma(equipo.getDescripcion());
       alarmaIVR.setCiudad(equipo.getCiudad());
-      alarmaIVR.setDivision(equipo.getDivision());
+      // TODO
+      alarmaIVR.setDivision(equipo.getDivisional() + " | " + equipo.getDivision());
       alarmaIVR.setEstadoAlarma(StateEnum.ACTIVO.getValue());
       alarmaIVR.setCodigoAudioIvr(getCodigoAudioIvr());
 
       Date today = new Date();
       alarmaIVR.setFechaInicio(today);
-
-      // TODO
-      equipo.setDivisional("Centro");
 
       alarmaIVR.setFechaEsperanza(getFechaEsperanza(equipo, typeEvent));
       alarmaIVR.setIp(log.getIp());
@@ -535,8 +533,13 @@ public class ProcessEJB implements ProcessEJBRemote {
       String IP = log.getIp();
       String interFace = log.getInterFace();
       String name = log.getName();
+      boolean trunk = log.isTrunk();
       if (log.isCorrelation() && isVerificable(log)) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesIp(IP);
+      } else if (trunk) {
+         equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPortTrunk(IP, interFace, name);
+         LOGGER.info("TRUNK: " + log.getNameEvent());
+         LOGGER.info("EQUIPOS: " + equipos.length);
       } else if (interFace != null && interFace.length() > 0 && IP != null && IP.length() > 0) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP, interFace, name);
       } else if (IP != null && IP.length() > 0) {
@@ -559,6 +562,7 @@ public class ProcessEJB implements ProcessEJBRemote {
          equipoCMBD.setDescripcion(equipo.getDevice());
       }
       equipoCMBD.setDivision(equipo.getSds());
+      equipoCMBD.setDivisional(equipo.getDivisional());
 
       return equipoCMBD;
    }
@@ -589,7 +593,9 @@ public class ProcessEJB implements ProcessEJBRemote {
       int numberHours = 0;
       Date today = new Date();
       try {
-         numberHours = fechaEsperanzaDAO.getHourRecovery(equipo.getDivisional(), typeEvent);
+         // TODO Quitar
+         String divisional = equipo.getDivisional() != null ? equipo.getDivisional() : "Centro";
+         numberHours = fechaEsperanzaDAO.getHourRecovery(divisional, typeEvent);
       } catch (Exception e) {
          LOGGER.error("Error obteniendo la hora de recuperacion", e);
       }

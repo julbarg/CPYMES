@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<title>IVR - REPORTES</title>
+	<h:outputStylesheet library="css" name="style.css" />
+	<h:outputScript library="primefaces" name="jquery/jquery.js" />
+</h:head>
+<h:body id="body">
+	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
+		resizable="false" showHeader="false">
+		<p:graphicImage library="image" name="loading.gif" />
+	</p:dialog>
+	<h:form id="form">
+		<p:growl id="growl_ivr" />
+		<p:panel styleClass="panel_session">
+			<p:commandButton action="#{loginView.closeSession}"
+				value="#{loginView.user.userName}&#160;&#160;&#160;(X)" icon="ui-icon-person"
+				title="Cerrar Sesión" />
+		</p:panel>
+		<p:panel styleClass="panel_transparent">
+			<p:commandButton action="#{report.goIVR}" value="IVR" icon="ui-icon-arrowrefresh-1-w" />
+		</p:panel>
+
+		<p:panel styleClass="panel_transparent panel_report div_report">
+			<h:panelGrid cellpadding="5" cellspacing="8" styleClass="panel_grid_report" columns="4">
+				<f:facet name="header">
+					<p:row>
+						<h1 class="title_report">Generación de Reportes</h1>
+					</p:row>
+
+				</f:facet>
+				<p:outputLabel styleClass="output_report" value="Nit" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.nit}" />
+				<p:outputLabel styleClass="output_report" value="Código de Servicio" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.codigoServicio}" />
+				<p:outputLabel styleClass="output_report" value="IP" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.ip}" />
+				<p:outputLabel styleClass="output_report" value="Ticket Onix" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.ticketOnix}" />
+				<p:outputLabel styleClass="output_report" value="Nombre del Evento" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.claseEquipo}" />
+				<p:outputLabel styleClass="output_report" value="Tipo de Evento" />
+				<p:selectOneMenu styleClass="input_report" value="#{report.reportDTO.tipoEvento}">
+					<f:selectItem itemLabel="Seleccione..." />
+					<f:selectItems value="#{report.listTypeEvent}" var="typeEvent" itemLabel="#{typeEvent.type}"
+						itemValue="#{typeEvent.type}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel styleClass="output_report" value="Ciudad" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.ciudad}" />
+				<p:outputLabel styleClass="output_report" value="Regional" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.region}" />
+				<p:outputLabel styleClass="output_report" value="Divisional" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.division}" />
+
+				<p:outputLabel styleClass="output_report" value="Usuario de Modificación" />
+				<p:inputText styleClass="input_report" value="#{report.reportDTO.usuarioModificacion}" />
+
+				<p:outputLabel styleClass="output_report" value="Estado de Alarma" />
+				<p:selectOneMenu styleClass="input_report" value="#{report.reportDTO.estadoAlarma}">
+					<f:selectItem itemLabel="Seleccione..." />
+					<f:selectItems value="#{report.listState}" var="state" itemValue="#{state.value}"
+						itemLabel="#{state.name}" />
+				</p:selectOneMenu>
+				<p:outputLabel />
+				<p:outputLabel />
+
+				<p:outputLabel styleClass="output_report" value="Fecha Inicio Desde" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaInicioDesde}" />
+				<p:outputLabel styleClass="output_report" value="Fecha Inicio  Hasta" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaInicioHasta}" />
+
+				<p:outputLabel styleClass="output_report" value="Fecha Fin Desde" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaFinDesde}" />
+				<p:outputLabel styleClass="output_report" value="Fecha Fin  Hasta" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaFinHasta}" />
+
+				<p:outputLabel styleClass="output_report" value="Fecha Esperanza Desde" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaEsperanzaDesde}" />
+				<p:outputLabel styleClass="output_report" value="Fecha Esperanza  Hasta" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaEsperanzaHasta}" />
+
+				<p:outputLabel styleClass="output_report" value="Fecha Modificación Desde" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaModificacionDesde}" />
+				<p:outputLabel styleClass="output_report" value="Fecha Modificación  Hasta" />
+				<p:calendar styleClass="input_calendar" pattern="dd/MM/yyyy HH:mm a" showOn="button"
+					value="#{report.reportDTO.fechaModificacionHasta}" />
+				<hr style="height: 30px; visibility: hidden;" />
+				<f:facet name="footer">
+					<p:row>
+						<p:commandButton value="Generar" action="#{report.generate}"
+							style="width: 500px; height: 40px; margin: auto; display: block;" update="form" />
+					</p:row>
+					<p:row>
+						<p:commandButton rendered="#{report.showReportButton}" value="Descargar Reporte" ajax="false"
+							style="width: 500px; height: 40px; margin: auto; display: block; margin-top: 10px;">
+							<p:fileDownload value="#{report.downloadFile()}" />
+						</p:commandButton>
+					</p:row>
+
+				</f:facet>
+
+			</h:panelGrid>
+			<br />
+
+
+
+
+			<p:dataTable id="data_control" var="data" value="#{report.listData}" filterEvent="enter"
+				rows="50" paginator="true"
+				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+				<p:column headerText="Id Alarma">
+					<h:outputLabel value="#{data.idAlarmaPymes}" />
+				</p:column>
+				<p:column headerText="NIT" sortBy="#{data.nit}" filterBy="#{data.nit}"
+					filterMatchMode="contains" filterStyle="width:150px;">
+					<h:outputLabel value="#{data.nit}" />
+				</p:column>
+				<p:column headerText="Código de Enlace" sortBy="#{data.codigoServicio}"
+					filterBy="#{data.codigoServicio}" filterMatchMode="contains" filterStyle="width:150px;">
+					<h:outputLabel value="#{data.codigoServicio}" />
+				</p:column>
+				<p:column headerText="Tipo de Evento">
+					<h:outputLabel value="#{data.tipoEvento}" />
+				</p:column>
+				<p:column headerText="Región">
+					<h:outputLabel value="#{data.region}" />
+				</p:column>
+				<p:column headerText="Fecha de Esperanza">
+					<h:outputLabel value="#{data.fechaEsperanza}" />
+				</p:column>
+				<p:column headerText="Estado">
+					<h:outputLabel value="#{report.getNameState(data.estadoAlarma)}" />
+				</p:column>
+			</p:dataTable>
+			<br />
+		</p:panel>
+	</h:form>
+</h:body>
+</html>

@@ -438,4 +438,5 @@ public class AlarmPymesDAO extends TemplateDAO<AlarmPymesEntity> implements Alar
       String query = "UPDATE AlarmPymesEntity l SET l.sendIVR=:sendIVR WHERE l.id IN :ids";
       return query;
    }
+
 }

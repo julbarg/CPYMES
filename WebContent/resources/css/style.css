@@ -421,6 +421,14 @@ body {
 	color: white;
 }
 
+.output_report {
+	color: white;
+	width: 150px !important;
+	display: block;
+	font-size: 16px !important;
+	padding: 10px;
+}
+
 #dialog_view {
 	background-color: rgba(0, 0, 0, 0.5) !important;
 	border: none !important;
@@ -468,4 +476,43 @@ body {
 	padding-top: 0px !important;
 	padding-bottom: 0px !important;
 	float: right;
+}
+
+.panel_report {
+	color: white !important;
+}
+
+.panel_grid_report {
+	width: 360px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 25px;
+	background-color: rgba(0, 0, 0, 0.5);
+	padding-left: 40px;
+	padding-right: 40px;
+	margin-top: 20px;
+}
+
+.input_report {
+	width: 220px;
+	height: 28px;
+}
+
+.input_calendar {
+	height: 28px;
+}
+
+.div_report .hasDatepicker {
+	height: 28px;
+	width: 180px;
+}
+
+.div_report .ui-datepicker-trigger {
+	height: 36px;
+}
+
+.title_report {
+	color: white;
+	padding: 11px;
+	margin-top: -20px
 }

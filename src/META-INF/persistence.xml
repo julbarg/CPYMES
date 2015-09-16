@@ -10,6 +10,7 @@
 		<class>com.claro.cpymes.entity.AlarmCatalogEntity</class>
 		<class>com.claro.cpymes.entity.NitOnixEntity</class>
 		<class>com.claro.cpymes.entity.ParametroEntity</class>
+		<class>com.claro.cpymes.entity.FechaEsperanzaEntity</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 		</properties>

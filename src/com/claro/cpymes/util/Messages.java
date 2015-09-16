@@ -13,4 +13,6 @@ public class Messages {
 
    public static final String AUTHENTICATION_NO = "El Usuario y/o Contraseña son erroneas";
 
+   public static final String DOWNLOAD_FILE_ERROR = "Ha ocurrido un error al Descargar el reporte";
+
 }

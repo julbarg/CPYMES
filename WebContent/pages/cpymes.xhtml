@@ -49,7 +49,8 @@
 					actionListener="#{cpymes.load}" ajax="true" update="form" immediate="true"
 					oncomplete="PF('dataAlarm').clearFilters()" />
 				<p:commandButton value="Buscar" icon="ui-icon-search" actionListener="#{cpymes.search}"
-					ajax="true" update="form" immediate="true" oncomplete="PF('dataAlarm').clearFilters()" />
+					rendered="false" ajax="true" update="form" immediate="true"
+					oncomplete="PF('dataAlarm').clearFilters()" />
 				<p:commandButton value="Reconocer" icon="ui-icon-check" actionListener="#{cpymes.reconocer}"
 					ajax="true" update="form" oncomplete="PF('dataAlarm').clearFilters()" />
 				<p:commandButton value="Reanudar" icon="ui-icon-play" actionListener="#{cpymes.play}"
@@ -59,8 +60,8 @@
 				<p:commandButton value="Limpiar" icon="ui-icon-trash" actionListener="#{cpymes.clean}"
 					ajax="true" update="form" oncomplete="PF('dataAlarm').clearFilters()" />
 				<p:commandButton action="#{cpymes.goIvr}" value="IVR" icon="ui-icon-volume-on"
-					onclick="this.form.target='_blank'" ajax="false"/>
-				<p:commandButton value="Historico" icon="ui-icon-clipboard" 
+					onclick="this.form.target='_blank'" ajax="false" />
+				<p:commandButton value="Historico" icon="ui-icon-clipboard"
 					onclick="PF('historicalDial').show();" ajax="true" update="form" immediate="true" />
 			</h:panelGrid>
 		</p:panel>

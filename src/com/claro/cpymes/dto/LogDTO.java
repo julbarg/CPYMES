@@ -72,6 +72,8 @@ public class LogDTO implements Serializable {
 
    private TypeEventEnum typeEvent;
 
+   private boolean trunk;
+
    public LogDTO() {
 
    }
@@ -308,6 +310,14 @@ public class LogDTO implements Serializable {
 
    public void setTypeEvent(TypeEventEnum typeEvent) {
       this.typeEvent = typeEvent;
+   }
+
+   public boolean isTrunk() {
+      return trunk;
+   }
+
+   public void setTrunk(boolean trunk) {
+      this.trunk = trunk;
    }
 
 }

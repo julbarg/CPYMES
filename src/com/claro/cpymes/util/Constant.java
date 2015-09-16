@@ -141,4 +141,6 @@ public class Constant {
 
    public static final String INDEX_OF_END_MSG_KOU_DOWN = Util.getProperties("index_of_end_msg_kou_down"); //Problemas
 
+   public static final String URL_REPORT = "/usr/share/tomee/logs/Report.xlsx";
+
 }
