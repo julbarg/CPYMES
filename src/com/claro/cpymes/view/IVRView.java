@@ -1,6 +1,5 @@
 package com.claro.cpymes.view;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -15,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.claro.cpymes.dto.AlarmaPymeIVRDTO;
 import com.claro.cpymes.ejb.remote.IVREJBRemote;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
+import com.claro.cpymes.enums.TypeEventEnum;
 import com.claro.cpymes.exceptions.SessionException;
 import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
@@ -31,15 +31,9 @@ public class IVRView {
 
    private static Logger LOGGER = LogManager.getLogger(IVRView.class.getName());
 
-   private static final int INTERVAL = 30;
-
-   private static final String URL_LOGIN = "login.xhtml";
-
    private boolean viewPause;
 
    private boolean viewPlay;
-
-   private int interval;
 
    @EJB
    private IVREJBRemote IVREJB;
@@ -52,21 +46,28 @@ public class IVRView {
 
    private AlarmaPymeIVRDTO alarmEdit;
 
+   private ArrayList<TypeEventEnum> listTypeEvent;
+
+   private int interval;
+
    @PostConstruct
    public void initial() {
+      interval = 30;
+      alarmFilter = new AlarmaPymeIVRDTO();
+      listTypeEvent = new ArrayList<TypeEventEnum>();
+      listTypeEvent.add(TypeEventEnum.NODO);
+      listTypeEvent.add(TypeEventEnum.FIBRA);
       load();
       play();
+      Util.validateLogIn();
+
    }
 
    public void load() {
       try {
          validateDateLoadNits();
          initializeAttributes();
-         if (!validateSesion()) {
-            goLogIn();
-            return;
-         }
-         listAlarmaPymesIVR = IVREJB.findAllAlarmIVR();
+         listAlarmaPymesIVR = IVREJB.findByFilter(alarmFilter);
       } catch (Exception e) {
          LOGGER.error("Ha ocurrido un error al cargar alarmas del IVR", e);
       }
@@ -88,28 +89,20 @@ public class IVRView {
    }
 
    public void initializeAttributes() {
-      alarmFilter = new AlarmaPymeIVRDTO();
       listCodigosServicio = new ArrayList<AlarmaPymesServicioNitIVREntity>();
       listAlarmaPymesIVR = new ArrayList<AlarmaPymeIVRDTO>();
    }
 
    public void view() {
-      if (!validateSesion()) {
-         goLogIn();
-         return;
-      }
       try {
          listCodigosServicio = IVREJB.findCodigosServicio(alarmEdit);
+
       } catch (Exception e) {
          LOGGER.error("Ha ocurrido un error al cargar codigos de servicios del IVR", e);
       }
    }
 
    public void edit() {
-      if (!validateSesion()) {
-         goLogIn();
-         return;
-      }
       try {
          alarmEdit.setFechaModificacion(new Date());
          alarmEdit.setUsuarioModificacion(Util.getUserName());
@@ -117,7 +110,6 @@ public class IVRView {
 
          Util.addMessageInfo("Alarma modificada exitosamente");
       } catch (SessionException e1) {
-         goLogIn();
          LOGGER.error("Ha ocurrido un error al modificar alarmas del IVR", e1);
          Util.addMessageFatal("No se ha iniciado Sesion");
       } catch (Exception e) {
@@ -127,10 +119,6 @@ public class IVRView {
    }
 
    public void find() {
-      if (!validateSesion()) {
-         goLogIn();
-         return;
-      }
       LOGGER.info("find View");
       try {
          listAlarmaPymesIVR = IVREJB.findByFilter(alarmFilter);
@@ -139,33 +127,13 @@ public class IVRView {
       }
    }
 
-   public void goLogIn() {
+   public void clean() {
+
       try {
-         Util.redirect(URL_LOGIN);
-      } catch (IOException e) {
-      }
-   }
-
-   public boolean goCpymes() {
-      return true;
-   }
-
-   public boolean goControl() {
-      return true;
-   }
-
-   public boolean goReport() {
-      return true;
-   }
-
-   public boolean validateSesion() {
-      try {
-         Util.getUserName();
-         return true;
+         alarmFilter = new AlarmaPymeIVRDTO();
+         listAlarmaPymesIVR = IVREJB.findAllAlarmIVR();
       } catch (Exception e) {
-         LOGGER.info("Error. No existe una sesion activa");
-         return false;
-
+         LOGGER.error("Ha ocurrido un error al cargar alarmas del IVR", e);
       }
    }
 
@@ -173,18 +141,28 @@ public class IVRView {
     * Pausa la ejecucion periodica de refresh
     */
    public void pause() {
-      setViewPlay(true);
-      setViewPause(false);
-      setInterval(INTERVAL * 1000);
+      viewPlay = true;
+      viewPause = false;
    }
 
    /**
     * Reanuda la ejecucion periodica de refresh
     */
    public void play() {
-      setViewPlay(false);
-      setViewPause(true);
-      setInterval(INTERVAL);
+      viewPlay = false;
+      viewPause = true;
+   }
+
+   public void goCpymes() {
+      Util.redirectURL(Constant.URL_CPYMES);
+   }
+
+   public void goControl() {
+      Util.redirectURL(Constant.URL_CONTROL);
+   }
+
+   public void goReport() {
+      Util.redirectURL(Constant.URL_REPORT_PAGE);
    }
 
    public ArrayList<AlarmaPymeIVRDTO> getListAlarmaPymesIVR() {
@@ -233,6 +211,14 @@ public class IVRView {
 
    public void setViewPlay(boolean viewPlay) {
       this.viewPlay = viewPlay;
+   }
+
+   public ArrayList<TypeEventEnum> getListTypeEvent() {
+      return listTypeEvent;
+   }
+
+   public void setListTypeEvent(ArrayList<TypeEventEnum> listTypeEvent) {
+      this.listTypeEvent = listTypeEvent;
    }
 
    public int getInterval() {

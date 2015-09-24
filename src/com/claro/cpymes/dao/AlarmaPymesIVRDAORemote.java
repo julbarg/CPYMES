@@ -35,4 +35,6 @@ public interface AlarmaPymesIVRDAORemote {
 
    public ArrayList<InfoTypeAlarmDTO> findReportByRegion(String nameRegion) throws Exception;
 
+   public int validateSizeData(ReportDTO reportDTO) throws Exception;
+
 }

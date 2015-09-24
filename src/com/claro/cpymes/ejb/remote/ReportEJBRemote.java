@@ -15,4 +15,6 @@ public interface ReportEJBRemote {
 
    void generateReport(ArrayList<DataDTO> listData) throws Exception;
 
+   int validateSizeData(ReportDTO reportDTO) throws Exception;
+
 }

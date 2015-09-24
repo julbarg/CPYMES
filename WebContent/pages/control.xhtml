@@ -29,8 +29,9 @@
 	<h:outputScript library="primefaces" name="jquery/jquery.js" />
 </h:head>
 <h:body id="body">
-	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
-	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
+	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"
+		rendered="false" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" rendered="false"
 		resizable="false" showHeader="false">
 		<p:graphicImage library="image" name="loading.gif" />
 	</p:dialog>
@@ -48,9 +49,11 @@
 			<h:panelGrid columns="4" styleClass="panel_button">
 				<p:clock pattern="HH:mm:ss" />
 				<p:commandButton value="Reanudar" icon="ui-icon-play" actionListener="#{control.play}"
-					onclick="start()" ajax="true" update="form" rendered="#{control.viewPlay}" />
+					onclick="start()" ajax="true" update="form" rendered="#{control.viewPlay}"
+					style="margin-left: 5px;" />
 				<p:commandButton value="Pausar" icon="ui-icon-pause" actionListener="#{control.pause}"
-					onclick="cancel()" ajax="true" update="form" rendered="#{control.viewPause}" />
+					onclick="cancel()" ajax="true" update="form" rendered="#{control.viewPause}"
+					style="margin-left: 5px;" />
 				<p:commandButton action="#{control.goIVR}" value="IVR" icon="ui-icon-arrowrefresh-1-w" />
 			</h:panelGrid>
 		</p:panel>

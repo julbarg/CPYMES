@@ -19,6 +19,7 @@ import org.primefaces.model.StreamedContent;
 import com.claro.cpymes.dto.DataDTO;
 import com.claro.cpymes.dto.ReportDTO;
 import com.claro.cpymes.ejb.remote.ReportEJBRemote;
+import com.claro.cpymes.enums.RegionEnum;
 import com.claro.cpymes.enums.StateEnum;
 import com.claro.cpymes.enums.TypeEventEnum;
 import com.claro.cpymes.util.Constant;
@@ -42,6 +43,8 @@ public class ReportView {
 
    private ArrayList<TypeEventEnum> listTypeEvent;
 
+   private ArrayList<RegionEnum> listRegion;
+
    private ArrayList<DataDTO> listData;
 
    private boolean showReportButton;
@@ -52,8 +55,13 @@ public class ReportView {
       listData = new ArrayList<DataDTO>();
       loadListState();
       loadListTypeEvent();
+      loadListRegion();
       showReportButton = false;
 
+   }
+
+   public boolean validateLogIn() {
+      return Util.validateLogIn();
    }
 
    private void loadListState() {
@@ -70,13 +78,25 @@ public class ReportView {
 
    }
 
+   private void loadListRegion() {
+      listRegion = new ArrayList<RegionEnum>();
+      listRegion.add(RegionEnum.CENTRO);
+      listRegion.add(RegionEnum.NORTE);
+      listRegion.add(RegionEnum.OCCIDENTE);
+   }
+
    public void generate() {
       showReportButton = false;
-      if (errorDates()) {
-         return;
+      listData = new ArrayList<DataDTO>();
+      if (validateLogIn()) {
+         if (errorDates()) {
+            return;
+         }
+         if (findData()) {
+            generateReport();
+            validateSplitData();
+         }
       }
-      findData();
-      generateReport();
 
    }
 
@@ -87,8 +107,7 @@ public class ReportView {
          || (reportDTO.getFechaFinDesde() == null && reportDTO.getFechaFinHasta() != null);
       boolean errorFechaEsperanza = (reportDTO.getFechaEsperanzaDesde() != null && reportDTO.getFechaEsperanzaHasta() == null)
          || (reportDTO.getFechaEsperanzaDesde() == null && reportDTO.getFechaEsperanzaHasta() != null);
-      boolean errorFechaModificacion = (reportDTO.getFechaModificacionDesde() != null && reportDTO
-         .getFechaModificacionHasta() == null)
+      boolean errorFechaModificacion = (reportDTO.getFechaModificacionDesde() != null && reportDTO.getFechaModificacionHasta() == null)
          || (reportDTO.getFechaModificacionDesde() == null && reportDTO.getFechaModificacionHasta() != null);
 
       if (errorFechaInicio) {
@@ -108,14 +127,45 @@ public class ReportView {
 
    }
 
-   private void findData() {
+   private boolean findData() {
       try {
+         if (!validateSizeData()) {
+            Util.addMessageFatal(Messages.VALIDATE_SIZE_DATA);
+            return false;
+         }
          listData = reportEJB.findDataByFilter(reportDTO);
          showReportButton = listData.size() > 0;
+         if (!showReportButton) {
+            Util.addMessageInfo("No se han encontrado registros con los Filtros aplicados");
+         }
          LOGGER.info("DATA: " + listData.size());
+         return showReportButton;
       } catch (Exception e) {
          Util.addMessageFatal(Message.FIND_DATA_ERROR);
          LOGGER.error(Message.FIND_DATA_ERROR, e);
+         return false;
+      }
+
+   }
+
+   private void getListDataDB() {
+      try {
+         listData = reportEJB.findDataByFilter(reportDTO);
+      } catch (Exception e) {
+         LOGGER.error(Message.FIND_DATA_ERROR, e);
+      }
+   }
+
+   private boolean validateSizeData() {
+      try {
+         int dataSize = reportEJB.validateSizeData(reportDTO);
+         if (dataSize > Constant.MAX_REGISTERS_REPORT) {
+            return false;
+         }
+         return true;
+      } catch (Exception e) {
+         LOGGER.error(Messages.VALIDATE_SIZE_DATA_ERROR, e);
+         return false;
       }
 
    }
@@ -124,6 +174,7 @@ public class ReportView {
       try {
          reportEJB.generateReport(listData);
       } catch (Exception e) {
+         Util.addMessageFatal(Message.GENERATE_REPORT_ERROR);
          LOGGER.error(Message.GENERATE_REPORT_ERROR, e);
       }
    }
@@ -140,8 +191,19 @@ public class ReportView {
       return null;
    }
 
-   public boolean goIVR() {
-      return true;
+   private void validateSplitData() {
+      int sizeData = listData.size();
+      if (sizeData > 100) {
+         Util.addMessageInfo("Se estan mostrando 100/" + sizeData + " registros.");
+         listData = new ArrayList<DataDTO>(listData.subList(0, 100));
+      } else {
+         getListDataDB();
+         Util.addMessageInfo("Se estan mostrando " + sizeData + "/" + sizeData + " registros.");
+      }
+   }
+
+   public void goIVR() {
+      Util.redirectURL(Constant.URL_IVR);
    }
 
    public String getNameState(String state) {
@@ -186,6 +248,14 @@ public class ReportView {
 
    public void setShowReportButton(boolean showReportButton) {
       this.showReportButton = showReportButton;
+   }
+
+   public ArrayList<RegionEnum> getListRegion() {
+      return listRegion;
+   }
+
+   public void setListRegion(ArrayList<RegionEnum> listRegion) {
+      this.listRegion = listRegion;
    }
 
 }

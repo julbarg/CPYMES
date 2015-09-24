@@ -139,7 +139,7 @@ public class Util {
          HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
          userName = session.getAttribute(Constant.USER_NAME).toString();
       } catch (Exception e) {
-         throw new SessionException("getUserName");
+         LOGGER.error("No se ha iniciado sesion");
       }
 
       return userName;
@@ -155,10 +155,6 @@ public class Util {
          return false;
 
       }
-   }
-
-   public static void redirect(String url) throws IOException {
-      FacesContext.getCurrentInstance().getExternalContext().redirect(url);
    }
 
    public static void logout() {
@@ -187,5 +183,25 @@ public class Util {
    public static Date addHoursToDate(Date today, int numberHours) {
       return DateUtils.addHours(today, numberHours);
 
+   }
+
+   public static boolean validateLogIn() {
+      try {
+         if (getUserName() == null) {
+            redirectURL(Constant.URL_LOGIN);
+            return false;
+         }
+      } catch (SessionException e) {
+         redirectURL(Constant.URL_LOGIN);
+      }
+      return true;
+   }
+
+   public static void redirectURL(String URL) {
+      try {
+         FacesContext.getCurrentInstance().getExternalContext().redirect(URL);
+      } catch (IOException e) {
+
+      }
    }
 }

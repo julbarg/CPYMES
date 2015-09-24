@@ -116,6 +116,9 @@
 					filterBy="#{alarm.name}" sortBy="#{alarm.name}" width="150">
 					<h:outputText id="text_name" value="#{alarm.name}" styleClass="td-table-list" />
 				</p:column>
+				<p:column id="column_ip" headerText="IP" width="80">
+					<h:outputLabel id="text_ip" value="#{alarm.ip}" styleClass="td-table-list" />
+				</p:column>
 				<p:column id="column_name_event" headerText="Name Event" filterBy="#{alarm.nameEvent}"
 					filterEvent="enter" sortBy="#{alarm.nameEvent}" width="200">
 					<h:outputText id="text_name_event" value="#{alarm.nameEvent}" styleClass="td-table-list" />

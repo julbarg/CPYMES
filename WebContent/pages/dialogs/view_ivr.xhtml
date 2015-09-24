@@ -6,7 +6,7 @@
 		closable="false" header="Servicios IVR" closeOnEscape="true">
 		<h:form id="form_view">
 			<p:panel styleClass="div_view">
-				<p:dataTable id="data_alarm" var="service" value="#{ivr.listCodigosServicio}"
+				<p:dataTable id="data_view_alarm" var="service" value="#{ivr.listCodigosServicio}"
 					widgetVar="dataAlarmIVR" paginatorPosition="bottom" rows="5" paginator="true"
 					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
 					<p:column id="column_code" headerText="Codigo de Servicio">
@@ -18,7 +18,7 @@
 				</p:dataTable>
 				<div class="center">
 					<p:commandButton value="Cerrar" oncomplete="PF('viewIVR').hide();"
-						style="width: 350px; height: 40px;" />
+						style="width: 350px; height: 40px;" onsuccess="PF('poll').start();" update=":form" />
 				</div>
 			</p:panel>
 

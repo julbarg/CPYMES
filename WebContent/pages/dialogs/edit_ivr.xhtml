@@ -3,7 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 	<p:dialog id="dialog_edit" widgetVar="editIVR" modal="true" draggable="false" resizable="false"
-		closable="false" header="Modificar IVR" closeOnEscape="true">
+		closable="false" header="Modificar IVR" closeOnEscape="false">
 		<h:form id="form_edit">
 			<p:panel styleClass="div_edit">
 				<h:panelGrid cellspacing="5" styleClass="panel_grid_find" columns="2">
@@ -14,8 +14,16 @@
 						pattern="dd/MM/yyyy HH:mm a" styleClass="input_find" showOn="button" />
 					<hr style="height: 30px; visibility: hidden;" />
 					<f:facet name="footer">
-						<p:commandButton value="Modificar" update=":form" action="#{ivr.edit}"
-							oncomplete="PF('editIVR').hide();" style="width: 350px; height: 40px;" />
+						<p:row>
+							<p:commandButton value="Modificar" update=":form" action="#{ivr.edit}"
+								oncomplete="PF('editIVR').hide();" style="width: 350px; height: 40px;"
+								onsuccess="PF('poll').start();" />
+						</p:row>
+						<p:row>
+							<p:commandButton value="Cerrar" oncomplete="PF('editIVR').hide();"
+								style="width: 350px; height: 40px; margin-top: 10px;" onsuccess="PF('poll').start();"
+								update=":form" />
+						</p:row>
 					</f:facet>
 				</h:panelGrid>
 			</p:panel>

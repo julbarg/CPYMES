@@ -2,7 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
-
+<h:head>
+	<title>CPYMES - IVR</title>
+	<h:outputStylesheet library="css" name="style.css" />
+	<h:outputScript library="primefaces" name="jquery/jquery.js" />
+</h:head>
 <script type="text/javascript">
 	function start() {
 		window['progress'] = setInterval(function() {
@@ -16,55 +20,78 @@
 	}
 
 	window.onload = start;
-
 	function cancel() {
 		clearInterval(window['progress']);
 		PF('pbClient').setValue(0);
 		document.getElementById("icon_clock").className = "pause";
 	}
 </script>
-<h:head>
-	<title>CPYMES - IVR</title>
-	<h:outputStylesheet library="css" name="style.css" />
-	<h:outputScript library="primefaces" name="jquery/jquery.js" />
-</h:head>
+
 <h:body id="body">
 	<ui:include src="dialogs/search_ivr.xhtml" />
 	<ui:include src="dialogs/edit_ivr.xhtml" />
 	<ui:include src="dialogs/view_ivr.xhtml" />
-	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"
+		rendered="false" />
 	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
-		resizable="false" showHeader="false">
+		resizable="false" showHeader="false" rendered="false">
 		<p:graphicImage library="image" name="loading.gif" />
 	</p:dialog>
 	<div id="icon_clock" class="play" />
+	<h:form id="form_poll">
+		<p:poll listener="#{ivr.load}" interval="#{ivr.interval}" update=":form, :form_poll"
+			widgetVar="poll" />
+	</h:form>
 	<h:form id="form">
-		<p:poll listener="#{ivr.load}" interval="#{ivr.interval}" update="form" />
 		<p:growl id="growl_ivr" />
 		<p:panel styleClass="panel_session">
 			<p:commandButton action="#{loginView.closeSession}"
 				value="#{loginView.user.userName}&#160;&#160;&#160;(X)" icon="ui-icon-person"
 				title="Cerrar Sesión" />
+			<h:inputHidden value="#{loginView.user.userName}" id="userName" />
 		</p:panel>
 		<p:panel styleClass="panel_transparent">
 			<p:progressBar widgetVar="pbClient" />
 			<h:panelGrid columns="6" styleClass="panel_button">
 				<p:clock pattern="HH:mm:ss" />
-				<p:commandButton value="Buscar" icon="ui-icon-search" onclick="PF('findIVR').show();"
-					ajax="true" update="form" immediate="true" style="margin-left: 5px;" />
 				<p:commandButton value="Reanudar" icon="ui-icon-play" actionListener="#{ivr.play}"
-					onclick="start()" ajax="true" update="form" rendered="#{ivr.viewPlay}" />
+					onclick="start();" ajax="true" update=":form" rendered="false" style="margin-left: 5px;" />
 				<p:commandButton value="Pausar" icon="ui-icon-pause" actionListener="#{ivr.pause}"
-					onclick="cancel()" ajax="true" update="form" rendered="#{ivr.viewPause}" />
-				<p:commandButton action="#{ivr.goCpymes}" value="CPYMES" icon="ui-icon-arrowrefresh-1-w" />
-				<p:commandButton action="#{ivr.goControl}" value="Control" icon="ui-icon-clipboard" />
-				<p:commandButton action="#{ivr.goReport}" value="Reportes" icon="ui-icon-clipboard" />
+					onclick="cancel();" ajax="true" update=":form" rendered="false" style="margin-left: 5px;" />
+				<p:commandButton action="#{ivr.goCpymes}" value="CPYMES" icon="ui-icon-arrowrefresh-1-w"
+					style="margin-left: 5px;" />
+				<p:commandButton action="#{ivr.goControl}" value="Control" icon="ui-icon-clipboard"
+					onclick="this.form.target='_blank'" ajax="false" />
+				<p:commandButton action="#{ivr.goReport}" value="Reportes" icon="ui-icon-clipboard"
+					onclick="this.form.target='_blank'" ajax="false" />
 			</h:panelGrid>
 		</p:panel>
-
 		<p:panel styleClass="panel_transparent">
 			<p:messages />
-			<p:outputLabel value="#{ivr.listAlarmaPymesIVR.size()}" />
+			<h:panelGrid columns="12" style="margin-top: 5px; margin-bottom: 10px;" id="panel_search">
+				<p:inputText id="ticket" value="#{ivr.alarmFilter.ticketOnix}" styleClass="input_find_out"
+					title="Ticket Onix" />
+				<p:watermark value="Ticket Onix" for="ticket" />
+				<p:tooltip for="ticket" showEvent="focus" hideEvent="blur" />
+
+				<p:inputText id="ip" value="#{ivr.alarmFilter.ip}" styleClass="input_find_out" title="IP" />
+				<p:watermark value="IP" for="ip" />
+				<p:tooltip for="ip" showEvent="focus" hideEvent="blur" />
+
+				<p:inputText id="nameEvent" value="#{ivr.alarmFilter.claseEquipo}" styleClass="input_find_out"
+					title="Nombre del Evento" />
+				<p:watermark value="Nombre del Evento" for="nameEvent" />
+				<p:tooltip for="nameEvent" showEvent="focus" hideEvent="blur" />
+
+				<p:selectOneMenu value="#{ivr.alarmFilter.tipoEvento}" style="margin-left: 2px;">
+					<f:selectItem itemValue="" itemLabel="Tipo de Evento" />
+					<f:selectItems value="#{ivr.listTypeEvent}" var="typeEvent" itemLabel="#{typeEvent.name}"
+						itemValue="#{typeEvent.name}" />
+				</p:selectOneMenu>
+				<p:commandButton value="Consultar" action="#{ivr.find}" update=":form" style="margin-left:10px;" />
+				<p:commandButton value="Limpiar" action="#{ivr.clean}" update=":form" style="margin-left:5px;" />
+			</h:panelGrid>
+
 			<p:dataTable id="data_alarm" var="alarmIVR" value="#{ivr.listAlarmaPymesIVR}"
 				widgetVar="dataAlarmIVR" paginatorPosition="bottom" rows="50" paginator="true"
 				paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
@@ -122,11 +149,12 @@
 				</p:column>
 				<p:column width="70" exportable="false">
 					<p:commandButton update=":form_edit" oncomplete="PF('editIVR').show()" icon="ui-icon-pencil"
-						title="Editar">
+						title="Editar" onsuccess="PF('poll').stop();">
 						<f:setPropertyActionListener value="#{alarmIVR}" target="#{ivr.alarmEdit}" />
 					</p:commandButton>
 					<p:commandButton update=":form_view" oncomplete="PF('viewIVR').show();"
-						icon="ui-icon-triangle-1-e" title="Ver Codigos de Servicio" action="#{ivr.view}">
+						icon="ui-icon-triangle-1-e" title="Ver Codigos de Servicio" action="#{ivr.view}"
+						onsuccess="PF('poll').stop();">
 						<f:setPropertyActionListener value="#{alarmIVR}" target="#{ivr.alarmEdit}" />
 					</p:commandButton>
 				</p:column>

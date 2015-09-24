@@ -41,19 +41,23 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    @Override
    public ArrayList<AlarmaPymeIVREntity> findByEstado(String estado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado",
-         AlarmaPymeIVREntity.class);
-      query.setParameter("estado", estado);
-      ArrayList<AlarmaPymeIVREntity> results = (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
-
-      entityManager.close();
+      ArrayList<AlarmaPymeIVREntity> results = new ArrayList<AlarmaPymeIVREntity>();
+      try {
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado",
+            AlarmaPymeIVREntity.class);
+         query.setParameter("estado", estado);
+         results = (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return results;
    }
 
    @Override
    public AlarmaPymeIVREntity findById(long id) throws Exception {
-
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       AlarmaPymeIVREntity alarmaPymeIVR = entityManager.find(AlarmaPymeIVREntity.class, id);
       entityManager.close();
@@ -63,24 +67,33 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
    @Override
    public ArrayList<AlarmaPymeIVREntity> findByFilter(AlarmaPymeIVRDTO filterAlarm) throws Exception {
+      ArrayList<AlarmaPymeIVREntity> result = new ArrayList<AlarmaPymeIVREntity>();
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      StringBuffer comandQuery = new StringBuffer();
-      comandQuery.append("SELECT a FROM AlarmaPymeIVREntity a WHERE ");
-      comandQuery = validateString(comandQuery, filterAlarm.getTicketOnix(), "a.ticketOnix LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getIp(), "a.ip LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getClaseEquipo(), "a.claseEquipo LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getDescripcionAlarma(), "a.descripcionAlarma LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getTipoEvento(), "a.tipoEvento LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getCiudad(), "a.ciudad LIKE '%");
-      comandQuery = validateString(comandQuery, filterAlarm.getDivision(), "a.division LIKE '%");
-      comandQuery = validateDate(comandQuery, filterAlarm.getFechaInicio(), "a.fechaInicio = ");
+      try {
+         StringBuffer comandQuery = new StringBuffer();
+         comandQuery.append("SELECT a FROM AlarmaPymeIVREntity a WHERE ");
+         comandQuery = validateString(comandQuery, filterAlarm.getTicketOnix(), "a.ticketOnix LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getIp(), "a.ip LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getClaseEquipo(), "a.claseEquipo LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getDescripcionAlarma(), "a.descripcionAlarma LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getTipoEvento(), "a.tipoEvento LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getCiudad(), "a.ciudad LIKE '%");
+         comandQuery = validateString(comandQuery, filterAlarm.getDivision(), "a.division LIKE '%");
+         comandQuery = validateDate(comandQuery, filterAlarm.getFechaInicio(), "a.fechaInicio = ");
 
-      comandQuery.append(" 1 = 1");
+         comandQuery.append(" a.estadoAlarma = 'A' ");
 
-      TypedQuery<AlarmaPymeIVREntity> query = entityManager.createQuery(comandQuery.toString(),
-         AlarmaPymeIVREntity.class);
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createQuery(comandQuery.toString(),
+            AlarmaPymeIVREntity.class);
 
-      return (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
+         result = (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
+
+      return result;
 
    }
 
@@ -128,18 +141,22 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    public int clearAlarm(ArrayList<RestoreEventAlarmDTO> listRestore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
+      try {
+         EntityTransaction entityTransaction = entityManager.getTransaction();
+         entityTransaction.begin();
 
-      for (RestoreEventAlarmDTO restore : listRestore) {
-         resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+         for (RestoreEventAlarmDTO restore : listRestore) {
+            resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+         }
+
+         LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas: " + resultUpdate);
+
+         entityTransaction.commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
       }
-
-      entityTransaction.commit();
-      entityManager.close();
-
-      LOGGER.info("RESTORE EVENT IVR- Alarmas Restauradas: " + resultUpdate);
-
       return resultUpdate;
 
    }
@@ -195,13 +212,18 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    public int clearAlarm(RestoreEventAlarmDTO restore) throws Exception {
       int resultUpdate = 0;
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
+      try {
+         EntityTransaction entityTransaction = entityManager.getTransaction();
+         entityTransaction.begin();
 
-      resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
+         resultUpdate = resultUpdate + clearAlarm(restore, entityManager);
 
-      entityTransaction.commit();
-      entityManager.close();
+         entityTransaction.commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return resultUpdate;
 
@@ -221,16 +243,22 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public AlarmaPymeIVREntity updateAlarm(AlarmaPymeIVREntity alarmaIVR) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
-      if (!(existSimilar(alarmaIVR, entityManager))) {
-         alarmaIVR = entityManager.merge(alarmaIVR);
+      try {
+         EntityTransaction entityTransaction = entityManager.getTransaction();
+         entityTransaction.begin();
+         if (!(existSimilar(alarmaIVR, entityManager))) {
+            alarmaIVR = entityManager.merge(alarmaIVR);
+            entityTransaction.commit();
+            entityManager.close();
+            return alarmaIVR;
+         }
          entityTransaction.commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
          entityManager.close();
-         return alarmaIVR;
       }
-      entityTransaction.commit();
-      entityManager.close();
+
       return null;
    }
 
@@ -263,15 +291,23 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    public ArrayList<DataDTO> findDataByFilter(ReportDTO report) throws Exception {
       ArrayList<DataDTO> results = new ArrayList<DataDTO>();
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      StringBuffer sql = getSQLFindByFilter(report);
-      Query query = entityManager.createNativeQuery(sql.toString());
-      query = getParameterFindByFilter(query, report);
-      List<Object[]> listResults = query.getResultList();
-      for (Object[] object : listResults) {
-         DataDTO dataDTO = createData(object);
-         results.add(dataDTO);
+      try {
+         StringBuffer sql = getSQLFindByFilter(report);
+         Query query = entityManager.createNativeQuery(sql.toString());
+         query = getParameterFindByFilter(query, report);
+         List<Object[]> listResults = query.getResultList();
+         for (Object[] object : listResults) {
+            DataDTO dataDTO = createData(object);
+            results.add(dataDTO);
+         }
+         LOGGER.info("RESULT FIND DATA: " + results.size());
+
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
       }
-      LOGGER.info("RESULT FIND DATA: " + results.size());
+
       return results;
 
    }
@@ -300,7 +336,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       sql.append("N.CODIGO_SERVICIO, ");
       sql.append("N.NIT ");
       sql.append("FROM ALARMA_PYMES A  ");
-      sql.append("INNER JOIN ALARMA_PYMES_SERVICIO_NIT N ON (A.ID_ALARMA_PYMES = N.ID_ALARMA_PYMES) ");
+      sql.append("LEFT JOIN ALARMA_PYMES_SERVICIO_NIT N ON (A.ID_ALARMA_PYMES = N.ID_ALARMA_PYMES) ");
       sql.append("WHERE 1 = 1 ");
 
       sql = getFiltersFindByFilters(sql, report);
@@ -312,29 +348,9 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    }
 
    private StringBuffer getFiltersFindByFilters(StringBuffer sql, ReportDTO report) {
-      String ciudad = report.getCiudad();
-      if (ciudad != null && ciudad.length() > 0) {
-         sql.append("AND A.CIUDAD LIKE '%" + ciudad + "%' ");
-      }
-
-      String claseEquipo = report.getClaseEquipo();
-      if (claseEquipo != null && claseEquipo.length() > 0) {
-         sql.append("AND A.CLASE_EQUIPO LIKE '%" + claseEquipo + "%' ");
-      }
-
       String codigoServicio = report.getCodigoServicio();
       if (codigoServicio != null && codigoServicio.length() > 0) {
          sql.append("AND N.CODIGO_SERVICIO = '" + codigoServicio + "' ");
-      }
-
-      String region = report.getRegion();
-      if (region != null && region.length() > 0) {
-         sql.append("AND A.DIVISION LIKE '%" + report.getRegion() + "%' ");
-      }
-
-      String division = report.getDivision();
-      if (division != null && division.length() > 0) {
-         sql.append("AND A.DIVISION LIKE '%" + division + "%' ");
       }
 
       String estadoAlarma = report.getEstadoAlarma();
@@ -350,6 +366,26 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       String nit = report.getNit();
       if (nit != null && nit.length() > 0) {
          sql.append("AND N.NIT = '" + nit + "' ");
+      }
+
+      String ciudad = report.getCiudad();
+      if (ciudad != null && ciudad.length() > 0) {
+         sql.append("AND A.CIUDAD LIKE '%" + ciudad + "%' ");
+      }
+
+      String claseEquipo = report.getClaseEquipo();
+      if (claseEquipo != null && claseEquipo.length() > 0) {
+         sql.append("AND A.CLASE_EQUIPO LIKE '%" + claseEquipo + "%' ");
+      }
+
+      String region = report.getRegion();
+      if (region != null && region.length() > 0) {
+         sql.append("AND A.DIVISION LIKE '" + report.getRegion() + "%' ");
+      }
+
+      String division = report.getDivision();
+      if (division != null && division.length() > 0) {
+         sql.append("AND A.DIVISION LIKE '%" + division + "%' ");
       }
 
       String ticketOnix = report.getTicketOnix();
@@ -488,31 +524,37 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    public ArrayList<InfoTypeAlarmDTO> findReportByRegion(String nameRegion) throws Exception {
       ArrayList<InfoTypeAlarmDTO> results = new ArrayList<InfoTypeAlarmDTO>();
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      StringBuffer sql = new StringBuffer();
-      sql.append("SELECT A.TIPO_EVENTO, COUNT(*) ");
-      sql.append("FROM ALARMA_PYMES A WHERE A.ESTADO_ALARMA = 'A' ");
-      sql.append("AND A.DIVISION LIKE '%" + nameRegion + "%' ");
-      sql.append("GROUP BY A.TIPO_EVENTO ");
+      try {
+         StringBuffer sql = new StringBuffer();
+         sql.append("SELECT A.TIPO_EVENTO, COUNT(*) ");
+         sql.append("FROM ALARMA_PYMES A WHERE A.ESTADO_ALARMA = 'A' ");
+         sql.append("AND A.DIVISION LIKE '%" + nameRegion + "%' ");
+         sql.append("GROUP BY A.TIPO_EVENTO ");
 
-      Query query = entityManager.createNativeQuery(sql.toString());
-      List<Object[]> listResults = query.getResultList();
-      for (Object[] object : listResults) {
-         InfoTypeAlarmDTO infoTypeAlarmDTO = createInfoTypeAlarm(object);
-         results.add(infoTypeAlarmDTO);
-      }
+         Query query = entityManager.createNativeQuery(sql.toString());
+         List<Object[]> listResults = query.getResultList();
+         for (Object[] object : listResults) {
+            InfoTypeAlarmDTO infoTypeAlarmDTO = createInfoTypeAlarm(object);
+            results.add(infoTypeAlarmDTO);
+         }
 
-      StringBuffer sqlNit = new StringBuffer();
-      sqlNit.append("SELECT A.TIPO_EVENTO, COUNT(DISTINCT(N.NIT)) AS NO_NITS, ");
-      sqlNit.append("COUNT(DISTINCT(N.CODIGO_SERVICIO)) AS NO_ENLACES ");
-      sqlNit.append("FROM ALARMA_PYMES_SERVICIO_NIT N ");
-      sqlNit.append("INNER JOIN ALARMA_PYMES A ON (N.ID_ALARMA_PYMES = A.ID_ALARMA_PYMES) ");
-      sqlNit.append("WHERE A.ESTADO_ALARMA = 'I' AND A.DIVISION LIKE '%" + nameRegion + "%'");
-      sqlNit.append("GROUP BY A.TIPO_EVENTO ");
+         StringBuffer sqlNit = new StringBuffer();
+         sqlNit.append("SELECT A.TIPO_EVENTO, COUNT(DISTINCT(N.NIT)) AS NO_NITS, ");
+         sqlNit.append("COUNT(DISTINCT(N.CODIGO_SERVICIO)) AS NO_ENLACES ");
+         sqlNit.append("FROM ALARMA_PYMES_SERVICIO_NIT N ");
+         sqlNit.append("INNER JOIN ALARMA_PYMES A ON (N.ID_ALARMA_PYMES = A.ID_ALARMA_PYMES) ");
+         sqlNit.append("WHERE A.ESTADO_ALARMA = 'I' AND A.DIVISION LIKE '%" + nameRegion + "%'");
+         sqlNit.append("GROUP BY A.TIPO_EVENTO ");
 
-      Query queryNit = entityManager.createNativeQuery(sqlNit.toString());
-      List<Object[]> listResultsNit = queryNit.getResultList();
-      for (Object[] object : listResultsNit) {
-         results = addInformationReport(object, results);
+         Query queryNit = entityManager.createNativeQuery(sqlNit.toString());
+         List<Object[]> listResultsNit = queryNit.getResultList();
+         for (Object[] object : listResultsNit) {
+            results = addInformationReport(object, results);
+         }
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
       }
 
       return results;
@@ -542,5 +584,42 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
          }
       }
       return results;
+   }
+
+   @Override
+   public int validateSizeData(ReportDTO report) throws Exception {
+      int result = 0;
+      EntityManager entityManager = entityManagerFactory.createEntityManager();
+      try {
+         StringBuffer sql = getSQLValidateSizeData(report);
+         Query query = entityManager.createNativeQuery(sql.toString());
+         query = getParameterFindByFilter(query, report);
+         BigDecimal sizeData = (BigDecimal) query.getSingleResult();
+         LOGGER.info("SIZE DATA: " + sizeData);
+         result = Integer.parseInt(sizeData.toString());
+
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
+      return result;
+   }
+
+   private StringBuffer getSQLValidateSizeData(ReportDTO report) {
+      StringBuffer sql = new StringBuffer();
+
+      sql.append("SELECT ");
+      sql.append("COUNT(*) AS SIZE_DATA ");
+      sql.append("FROM ALARMA_PYMES A  ");
+      sql.append("LEFT JOIN ALARMA_PYMES_SERVICIO_NIT N ON (A.ID_ALARMA_PYMES = N.ID_ALARMA_PYMES) ");
+      sql.append("WHERE 1 = 1 ");
+
+      sql = getFiltersFindByFilters(sql, report);
+
+      LOGGER.info("SQL: " + sql.toString());
+
+      return sql;
+
    }
 }

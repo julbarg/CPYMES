@@ -159,4 +159,9 @@ public class ReportEJB implements ReportEJBRemote {
 
       return sheet;
    }
+
+   @Override
+   public int validateSizeData(ReportDTO reportDTO) throws Exception {
+      return alarmPymesDAO.validateSizeData(reportDTO);
+   }
 }

@@ -32,17 +32,18 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
    @Override
    public ArrayList<LogEntity> findByEstado(String procesado) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-      TypedQuery<LogEntity> query = entityManager.createNamedQuery("LogEntity.findByProcesado", LogEntity.class);
-      query.setParameter("procesados", procesado);
-      ;
-      ArrayList<LogEntity> results = (ArrayList<LogEntity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS)
-         .getResultList();
-
-      entityManager.close();
+      ArrayList<LogEntity> results = new ArrayList<LogEntity>();
+      try {
+         TypedQuery<LogEntity> query = entityManager.createNamedQuery("LogEntity.findByProcesado", LogEntity.class);
+         query.setParameter("procesados", procesado);
+         results = (ArrayList<LogEntity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS).getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return results;
-
    }
 
    @Override
@@ -69,16 +70,19 @@ public class LogsDAO extends TemplateLogsDAO<LogEntity> implements LogsDAORemote
          seqs.add(log.getSeq());
       }
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
+      try {
+         entityManager.getTransaction().begin();
+         Query query = entityManager.createQuery(getQuery());
+         query.setParameter("estado", ProcessEnum.PROCESADO.getValue());
+         query.setParameter("seqs", seqs);
+         query.executeUpdate();
+         entityManager.getTransaction().commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
-      Query query = entityManager.createQuery(getQuery());
-      query.setParameter("estado", ProcessEnum.PROCESADO.getValue());
-      query.setParameter("seqs", seqs);
-
-      query.executeUpdate();
-
-      entityManager.getTransaction().commit();
-      entityManager.close();
    }
 
    private String getQuery() {

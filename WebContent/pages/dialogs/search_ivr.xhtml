@@ -3,7 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 	<p:dialog id="dialog_search" widgetVar="findIVR" modal="true" draggable="false" resizable="false"
-		closable="false" header="Consultar IVR" closeOnEscape="true">
+		closable="false" header="Consultar IVR" closeOnEscape="false">
 		<h:form id="form_search">
 			<p:panel styleClass="div_search">
 				<h:panelGrid cellspacing="3" styleClass="panel_grid_find">
@@ -12,10 +12,10 @@
 					<p:inputText id="ip" value="#{ivr.alarmFilter.ip}" styleClass="input_find" />
 					<p:watermark value="IP" for="ip" />
 					<p:inputText id="claseEquipo" value="#{ivr.alarmFilter.claseEquipo}" styleClass="input_find" />
-					<p:watermark value="ClaseEquipo" for="claseEquipo" />
+					<p:watermark value="Nombre del Evento" for="claseEquipo" />
 					<p:inputText id="descripcion" value="#{ivr.alarmFilter.descripcionAlarma}"
-						styleClass="input_find" />
-					<p:watermark value="Descripcion Alarma" for="descripcion" />
+						styleClass="input_find" rendered="false" />
+					<p:watermark value="Nombre del Dispositivo" for="descripcion" rendered="false" />
 					<p:inputText id="tipoEvento" value="#{ivr.alarmFilter.tipoEvento}" styleClass="input_find" />
 					<p:watermark value="Tipo de Evento" for="tipoEvento" />
 					<p:inputText id="ciudad" value="#{ivr.alarmFilter.ciudad}" styleClass="input_find" />
@@ -26,8 +26,15 @@
 					<p:watermark value="Fecha Inicio" for="fechaInicio" />
 					<hr style="height: 20px; visibility: hidden;" />
 					<f:facet name="footer">
-						<p:commandButton value="Consultar" action="#{ivr.find}" oncomplete="PF('findIVR').hide();"
-							style="width: 350px; height: 40px;" update=":form" />
+						<p:row>
+							<p:commandButton value="Consultar" action="#{ivr.find}" oncomplete="PF('findIVR').hide();"
+								onsuccess="PF('poll').start();" style="width: 350px; height: 40px;" update=":form" />
+						</p:row>
+						<p:row>
+							<p:commandButton value="Cerrar" oncomplete="PF('findIVR').hide();"
+								style="width: 350px; height: 40px; margin-top: 10px;" onsuccess="PF('poll').start();"
+								update=":form" />
+						</p:row>
 					</f:facet>
 				</h:panelGrid>
 			</p:panel>

@@ -15,15 +15,12 @@ public class FechaEsperanzaDAO extends TemplateDAO<FechaEsperanzaEntity> impleme
    @Override
    public int getHourRecovery(String divisional, String causa) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
-
       Query query = entityManager.createNamedQuery("FechaEsperanzaEntity.findByDivisionalAndCausa");
       query.setParameter("divisional", divisional);
       query.setParameter("causa", causa);
 
       int numeroHoras = (int) query.getSingleResult();
 
-      entityManager.getTransaction().commit();
       entityManager.close();
 
       return numeroHoras;

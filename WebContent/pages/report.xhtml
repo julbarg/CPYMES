@@ -43,6 +43,7 @@
 				<p:inputText styleClass="input_report" value="#{report.reportDTO.ticketOnix}" />
 				<p:outputLabel styleClass="output_report" value="Nombre del Evento" />
 				<p:inputText styleClass="input_report" value="#{report.reportDTO.claseEquipo}" />
+
 				<p:outputLabel styleClass="output_report" value="Tipo de Evento" />
 				<p:selectOneMenu styleClass="input_report" value="#{report.reportDTO.tipoEvento}">
 					<f:selectItem itemLabel="Seleccione..." />
@@ -52,8 +53,14 @@
 
 				<p:outputLabel styleClass="output_report" value="Ciudad" />
 				<p:inputText styleClass="input_report" value="#{report.reportDTO.ciudad}" />
+
 				<p:outputLabel styleClass="output_report" value="Regional" />
-				<p:inputText styleClass="input_report" value="#{report.reportDTO.region}" />
+				<p:selectOneMenu styleClass="input_report" value="#{report.reportDTO.region}">
+					<f:selectItem itemLabel="Seleccione..." />
+					<f:selectItems value="#{report.listRegion}" var="region" itemLabel="#{region.value}"
+						itemValue="#{region.value}" />
+				</p:selectOneMenu>
+
 				<p:outputLabel styleClass="output_report" value="Divisional" />
 				<p:inputText styleClass="input_report" value="#{report.reportDTO.division}" />
 
@@ -113,9 +120,7 @@
 
 			</h:panelGrid>
 			<br />
-
-
-
+			<p:messages id="messages_report" />
 
 			<p:dataTable id="data_control" var="data" value="#{report.listData}" filterEvent="enter"
 				rows="50" paginator="true"

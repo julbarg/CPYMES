@@ -36,13 +36,17 @@ public class Logs2DAO extends TemplateLogs2DAO<Log2Entity> implements Logs2DAORe
    @Override
    public ArrayList<Log2Entity> findNoProcess() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
+      ArrayList<Log2Entity> results = new ArrayList<Log2Entity>();
+      try {
 
-      TypedQuery<Log2Entity> query = entityManager.createNamedQuery("Log2Entity.findNoProcess", Log2Entity.class);
+         TypedQuery<Log2Entity> query = entityManager.createNamedQuery("Log2Entity.findNoProcess", Log2Entity.class);
 
-      ArrayList<Log2Entity> results = (ArrayList<Log2Entity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS)
-         .getResultList();
-
-      entityManager.close();
+         results = (ArrayList<Log2Entity>) query.setMaxResults(Constant.MAXIME_RESULT_LOGS).getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return results;
 

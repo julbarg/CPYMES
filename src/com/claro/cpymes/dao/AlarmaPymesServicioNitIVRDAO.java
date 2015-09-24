@@ -13,6 +13,7 @@ import javax.persistence.TypedQuery;
 import com.claro.cpymes.entity.AlarmaPymeIVREntity;
 import com.claro.cpymes.entity.AlarmaPymesServicioNitIVREntity;
 
+
 /**
  * DAO para AlarmaPymesServicioNitIVREntity
  * @author jbarragan
@@ -27,13 +28,17 @@ public class AlarmaPymesServicioNitIVRDAO extends TemplateIVRDAO<AlarmaPymesServ
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public ArrayList<AlarmaPymesServicioNitIVREntity> findByAlarm(AlarmaPymeIVREntity alarm) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      TypedQuery<AlarmaPymesServicioNitIVREntity> query = entityManager.createNamedQuery(
-         "AlarmaPymesServicioNitIVREntity.findByAlarm", AlarmaPymesServicioNitIVREntity.class);
-      query.setParameter("alarm", alarm);
-      ArrayList<AlarmaPymesServicioNitIVREntity> results = (ArrayList<AlarmaPymesServicioNitIVREntity>) query
-         .getResultList();
-
-      entityManager.close();
+      ArrayList<AlarmaPymesServicioNitIVREntity> results = new ArrayList<AlarmaPymesServicioNitIVREntity>();
+      try {
+         TypedQuery<AlarmaPymesServicioNitIVREntity> query = entityManager.createNamedQuery(
+            "AlarmaPymesServicioNitIVREntity.findByAlarm", AlarmaPymesServicioNitIVREntity.class);
+         query.setParameter("alarm", alarm);
+         results = (ArrayList<AlarmaPymesServicioNitIVREntity>) query.getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return results;
    }
@@ -43,11 +48,16 @@ public class AlarmaPymesServicioNitIVRDAO extends TemplateIVRDAO<AlarmaPymesServ
    public AlarmaPymesServicioNitIVREntity updateAlarm(AlarmaPymesServicioNitIVREntity alarmaServicioNitIVR)
       throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
-      alarmaServicioNitIVR = entityManager.merge(alarmaServicioNitIVR);
-      entityTransaction.commit();
-      entityManager.close();
+      try {
+         EntityTransaction entityTransaction = entityManager.getTransaction();
+         entityTransaction.begin();
+         alarmaServicioNitIVR = entityManager.merge(alarmaServicioNitIVR);
+         entityTransaction.commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
 
       return alarmaServicioNitIVR;
    }

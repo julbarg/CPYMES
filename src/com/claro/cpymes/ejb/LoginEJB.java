@@ -23,11 +23,6 @@ public class LoginEJB implements LoginEJBRemote {
 
    @Override
    public boolean authenticate(UserDTO user) throws Exception {
-      // Test
-      if (true) {
-         return true;
-      }
-
       boolean logIn;
       LDAPAuthenticationServicesServiceLocator ldapL = new LDAPAuthenticationServicesServiceLocator();
       LDAPAuthenticationServices query;

@@ -191,13 +191,8 @@ public class CPYMESView {
 
    }
 
-   public String goIvr() {
-      if (validateSesion()) {
-         return "ivr";
-      } else {
-         return "logIn";
-      }
-
+   public void goIvr() {
+      Util.redirectURL(Constant.URL_IVR);
    }
 
    /**
@@ -284,8 +279,7 @@ public class CPYMESView {
          Util.getUserName();
          return true;
       } catch (Exception e) {
-         LOGGER.error("Error de Sesion", e);
-         Util.addMessageFatal("No ha iniciado sesion");
+         LOGGER.error("No se ha iniciado una Sesion de Usuario");
          return false;
 
       }

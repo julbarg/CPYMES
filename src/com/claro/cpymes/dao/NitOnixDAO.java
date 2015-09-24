@@ -26,9 +26,16 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
    @Override
    public ArrayList<NitOnixEntity> findAll() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      TypedQuery<NitOnixEntity> query = entityManager.createNamedQuery("NitOnixEntity.findAll", NitOnixEntity.class);
-      ArrayList<NitOnixEntity> results = (ArrayList<NitOnixEntity>) query.getResultList();
-      entityManager.close();
+      ArrayList<NitOnixEntity> results = new ArrayList<NitOnixEntity>();
+      try {
+         TypedQuery<NitOnixEntity> query = entityManager.createNamedQuery("NitOnixEntity.findAll", NitOnixEntity.class);
+         results = (ArrayList<NitOnixEntity>) query.getResultList();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
+
       return results;
 
    }
@@ -37,32 +44,47 @@ public class NitOnixDAO extends TemplateDAO<NitOnixEntity> implements NitOnixDAO
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public void removeAll() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      entityManager.getTransaction().begin();
-      Query query = entityManager.createQuery("DELETE FROM NitOnixEntity");
-      query.executeUpdate();
-      entityManager.getTransaction().commit();
-      entityManager.close();
-
+      try {
+         entityManager.getTransaction().begin();
+         Query query = entityManager.createQuery("DELETE FROM NitOnixEntity");
+         query.executeUpdate();
+         entityManager.getTransaction().commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
    }
 
    @Override
    @TransactionAttribute(TransactionAttributeType.REQUIRED)
    public void createList(ArrayList<NitOnixEntity> listNitOnix) throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      EntityTransaction entityTransaction = entityManager.getTransaction();
-      entityTransaction.begin();
-      for (NitOnixEntity nitOnix : listNitOnix) {
-         entityManager.persist(nitOnix);
+      try {
+         EntityTransaction entityTransaction = entityManager.getTransaction();
+         entityTransaction.begin();
+         for (NitOnixEntity nitOnix : listNitOnix) {
+            entityManager.persist(nitOnix);
+         }
+         entityTransaction.commit();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
       }
-      entityTransaction.commit();
-      entityManager.close();
 
    }
 
    public int findAllCount() throws Exception {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
-      int count = ((Number) entityManager.createNamedQuery("NitOnixEntity.findAllCount").getSingleResult()).intValue();
-      entityManager.close();
+      int count = 0;
+      try {
+         count = ((Number) entityManager.createNamedQuery("NitOnixEntity.findAllCount").getSingleResult()).intValue();
+      } catch (Exception e) {
+         throw e;
+      } finally {
+         entityManager.close();
+      }
       return count;
    }
 

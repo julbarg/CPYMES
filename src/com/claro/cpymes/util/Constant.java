@@ -135,12 +135,28 @@ public class Constant {
 
    public static final int TIME_SEND_CPYMES = 5;
 
-   public static final String INDEX_OF_START_MSG_KOU = Util.getProperties("index_of_start_msg_kou"); //ALC_PYMES
+   public static final String INDEX_OF_START_MSG_KOU = Util.getProperties("index_of_start_msg_kou"); // ALC_PYMES
 
-   public static final String INDEX_OF_END_MSG_KOU_UP = Util.getProperties("index_of_end_msg_kou_up"); //Alcanzabilidad
+   public static final String INDEX_OF_END_MSG_KOU_UP = Util.getProperties("index_of_end_msg_kou_up"); // Alcanzabilidad
 
-   public static final String INDEX_OF_END_MSG_KOU_DOWN = Util.getProperties("index_of_end_msg_kou_down"); //Problemas
+   public static final String INDEX_OF_END_MSG_KOU_DOWN = Util.getProperties("index_of_end_msg_kou_down"); // Problemas
 
    public static final String URL_REPORT = "/usr/share/tomee/logs/Report.xlsx";
+
+   public static final String DELIMETER_INTERFACE = ",";
+
+   public static final int MAX_REGISTERS_REPORT = 100000;
+
+   public static final String NAME_APLICATION = "CPYMES";
+
+   public static final String URL_LOGIN = "/" + Constant.NAME_APLICATION + "/faces/pages/login.xhtml";
+
+   public static final String URL_IVR = "/" + Constant.NAME_APLICATION + "/faces/pages/ivr.xhtml";
+
+   public static final String URL_CPYMES = "/" + Constant.NAME_APLICATION;
+
+   public static final String URL_CONTROL = "/" + Constant.NAME_APLICATION + "/faces/pages/control.xhtml";
+
+   public static final String URL_REPORT_PAGE = "/" + Constant.NAME_APLICATION + "/faces/pages/report.xhtml";
 
 }

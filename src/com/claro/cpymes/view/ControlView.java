@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.claro.cpymes.dto.ControlReportDTO;
 import com.claro.cpymes.ejb.remote.ControlEJBRemote;
+import com.claro.cpymes.util.Constant;
 import com.claro.cpymes.util.Util;
 
 
@@ -40,17 +41,23 @@ public class ControlView {
 
    }
 
+   public boolean validateLogIn() {
+      return Util.validateLogIn();
+   }
+
    public void load() {
       try {
-         controlReport = controlEJB.loadControl();
+         if (validateLogIn()) {
+            controlReport = controlEJB.loadControl();
+         }
       } catch (Exception e) {
          Util.addMessageFatal("Ha ocurrido un error al cargar informacion de Control");
          LOGGER.error("Ha ocurrido un error al cargar informacion de Control", e);
       }
    }
 
-   public boolean goIVR() {
-      return true;
+   public void goIVR() {
+      Util.redirectURL(Constant.URL_IVR);
    }
 
    /**
