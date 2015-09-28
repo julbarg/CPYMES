@@ -41,6 +41,8 @@ public class AlarmPymesDTO implements Serializable {
 
    private String severity;
 
+   private String interFace;
+
    public AlarmPymesDTO() {
 
    }
@@ -155,6 +157,14 @@ public class AlarmPymesDTO implements Serializable {
 
    public void setSeverity(String severity) {
       this.severity = severity;
+   }
+
+   public String getInterFace() {
+      return interFace;
+   }
+
+   public void setInterFace(String interFace) {
+      this.interFace = interFace;
    }
 
 }

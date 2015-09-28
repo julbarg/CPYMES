@@ -43,8 +43,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       ArrayList<AlarmaPymeIVREntity> results = new ArrayList<AlarmaPymeIVREntity>();
       try {
-         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado",
-            AlarmaPymeIVREntity.class);
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findByEstado", AlarmaPymeIVREntity.class);
          query.setParameter("estado", estado);
          results = (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
       } catch (Exception e) {
@@ -83,8 +82,7 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
          comandQuery.append(" a.estadoAlarma = 'A' ");
 
-         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createQuery(comandQuery.toString(),
-            AlarmaPymeIVREntity.class);
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createQuery(comandQuery.toString(), AlarmaPymeIVREntity.class);
 
          result = (ArrayList<AlarmaPymeIVREntity>) query.getResultList();
       } catch (Exception e) {
@@ -197,8 +195,8 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
 
    private String getQuery(String[] eventNames) {
       String query = "UPDATE AlarmaPymeIVREntity a SET a.estadoAlarma=:estado, a.fechaFin=:dateEnd, "
-         + "a.tiempoTotalFalla = EXTRACT(HOUR FROM :dateEnd - a.fechaInicio) " + " WHERE a.ip=:ip and ("
-         + getEventNamesStr(eventNames) + ")" + " and a.estadoAlarma != 'I'";
+         + "a.tiempoTotalFalla = EXTRACT(HOUR FROM :dateEnd - a.fechaInicio) " + " WHERE a.ip=:ip and (" + getEventNamesStr(eventNames) + ")"
+         + " and a.estadoAlarma != 'I'";
       return query;
    }
 
@@ -249,7 +247,6 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
          if (!(existSimilar(alarmaIVR, entityManager))) {
             alarmaIVR = entityManager.merge(alarmaIVR);
             entityTransaction.commit();
-            entityManager.close();
             return alarmaIVR;
          }
          entityTransaction.commit();
@@ -271,12 +268,11 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
    private boolean existSimilar(AlarmaPymeIVREntity alarm, EntityManager entityManager) {
       boolean exist = false;
       try {
-         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findSimiliar",
-            AlarmaPymeIVREntity.class);
+         TypedQuery<AlarmaPymeIVREntity> query = entityManager.createNamedQuery("AlarmaPymeIVREntity.findSimiliar", AlarmaPymeIVREntity.class);
          query.setParameter("estado", StateEnum.ACTIVO.getValue());
          query.setParameter("eventName", alarm.getClaseEquipo());
          query.setParameter("ip", alarm.getIp());
-         exist = query.setFirstResult(1).setMaxResults(1).getResultList().size() > 0;
+         exist = query.getResultList().size() > 0;
 
       } catch (Exception e) {
          LOGGER.error("Error buscando registros similares en IVR", e);
@@ -300,8 +296,6 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
             DataDTO dataDTO = createData(object);
             results.add(dataDTO);
          }
-         LOGGER.info("RESULT FIND DATA: " + results.size());
-
       } catch (Exception e) {
          throw e;
       } finally {
@@ -340,8 +334,6 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       sql.append("WHERE 1 = 1 ");
 
       sql = getFiltersFindByFilters(sql, report);
-
-      LOGGER.info("SQL: " + sql.toString());
 
       return sql;
 
@@ -531,6 +523,8 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
          sql.append("AND A.DIVISION LIKE '%" + nameRegion + "%' ");
          sql.append("GROUP BY A.TIPO_EVENTO ");
 
+         LOGGER.info("SQL FIND REPORT BY REGION: " + sql.toString());
+
          Query query = entityManager.createNativeQuery(sql.toString());
          List<Object[]> listResults = query.getResultList();
          for (Object[] object : listResults) {
@@ -545,6 +539,8 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
          sqlNit.append("INNER JOIN ALARMA_PYMES A ON (N.ID_ALARMA_PYMES = A.ID_ALARMA_PYMES) ");
          sqlNit.append("WHERE A.ESTADO_ALARMA = 'I' AND A.DIVISION LIKE '%" + nameRegion + "%'");
          sqlNit.append("GROUP BY A.TIPO_EVENTO ");
+
+         LOGGER.info("SQL FIND NITS REPORT BY REGION: " + sql.toString());
 
          Query queryNit = entityManager.createNativeQuery(sqlNit.toString());
          List<Object[]> listResultsNit = queryNit.getResultList();
@@ -595,7 +591,6 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
          Query query = entityManager.createNativeQuery(sql.toString());
          query = getParameterFindByFilter(query, report);
          BigDecimal sizeData = (BigDecimal) query.getSingleResult();
-         LOGGER.info("SIZE DATA: " + sizeData);
          result = Integer.parseInt(sizeData.toString());
 
       } catch (Exception e) {
@@ -616,8 +611,6 @@ public class AlarmaPymesIVRDAO extends TemplateIVRDAO<AlarmaPymeIVREntity> imple
       sql.append("WHERE 1 = 1 ");
 
       sql = getFiltersFindByFilters(sql, report);
-
-      LOGGER.info("SQL: " + sql.toString());
 
       return sql;
 

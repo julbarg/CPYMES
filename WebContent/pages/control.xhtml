@@ -7,7 +7,7 @@
 	function start() {
 		window['progress'] = setInterval(function() {
 			var pbClient = PF('pbClient');
-			pbClient.setValue(pbClient.getValue() + (100 / 900));
+			pbClient.setValue(pbClient.getValue() + (100 / 60));
 			if (pbClient.getValue() > 100) {
 				pbClient.setValue(0);
 			}

@@ -3,6 +3,7 @@ package com.claro.cpymes.view;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +31,12 @@ import com.claro.cpymes.util.Util;
 
 @ManagedBean(name = "report")
 @SessionScoped
-public class ReportView {
+public class ReportView implements Serializable {
+
+   /**
+    * 
+    */
+   private static final long serialVersionUID = -7976943598745413692L;
 
    private static Logger LOGGER = LogManager.getLogger(ReportView.class.getName());
 
@@ -60,10 +66,6 @@ public class ReportView {
 
    }
 
-   public boolean validateLogIn() {
-      return Util.validateLogIn();
-   }
-
    private void loadListState() {
       listState = new ArrayList<StateEnum>();
       listState.add(StateEnum.ACTIVO);
@@ -88,14 +90,12 @@ public class ReportView {
    public void generate() {
       showReportButton = false;
       listData = new ArrayList<DataDTO>();
-      if (validateLogIn()) {
-         if (errorDates()) {
-            return;
-         }
-         if (findData()) {
-            generateReport();
-            validateSplitData();
-         }
+      if (errorDates()) {
+         return;
+      }
+      if (findData()) {
+         generateReport();
+         validateSplitData();
       }
 
    }

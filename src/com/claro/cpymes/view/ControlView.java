@@ -41,15 +41,9 @@ public class ControlView {
 
    }
 
-   public boolean validateLogIn() {
-      return Util.validateLogIn();
-   }
-
    public void load() {
       try {
-         if (validateLogIn()) {
-            controlReport = controlEJB.loadControl();
-         }
+         controlReport = controlEJB.loadControl();
       } catch (Exception e) {
          Util.addMessageFatal("Ha ocurrido un error al cargar informacion de Control");
          LOGGER.error("Ha ocurrido un error al cargar informacion de Control", e);
@@ -75,7 +69,7 @@ public class ControlView {
    public void play() {
       setViewPlay(false);
       setViewPause(true);
-      interval = INTERVAL;
+      interval = 60;
    }
 
    public ControlReportDTO getControlReport() {

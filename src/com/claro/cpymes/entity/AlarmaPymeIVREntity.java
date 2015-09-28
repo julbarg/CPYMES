@@ -217,16 +217,14 @@ public class AlarmaPymeIVREntity implements Serializable {
       this.alarmaPymesServicioNits = alarmaPymesServicioNits;
    }
 
-   public AlarmaPymesServicioNitIVREntity addAlarmaPymesServicioNit(
-      AlarmaPymesServicioNitIVREntity alarmaPymesServicioNit) {
+   public AlarmaPymesServicioNitIVREntity addAlarmaPymesServicioNit(AlarmaPymesServicioNitIVREntity alarmaPymesServicioNit) {
       getAlarmaPymesServicioNits().add(alarmaPymesServicioNit);
       alarmaPymesServicioNit.setAlarmaPyme(this);
 
       return alarmaPymesServicioNit;
    }
 
-   public AlarmaPymesServicioNitIVREntity removeAlarmaPymesServicioNit(
-      AlarmaPymesServicioNitIVREntity alarmaPymesServicioNit) {
+   public AlarmaPymesServicioNitIVREntity removeAlarmaPymesServicioNit(AlarmaPymesServicioNitIVREntity alarmaPymesServicioNit) {
       getAlarmaPymesServicioNits().remove(alarmaPymesServicioNit);
       alarmaPymesServicioNit.setAlarmaPyme(null);
 

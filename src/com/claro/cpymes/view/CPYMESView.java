@@ -1,5 +1,6 @@
 package com.claro.cpymes.view;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -33,7 +34,12 @@ import com.claro.cpymes.util.Util;
  */
 @ManagedBean(name = "cpymes")
 @SessionScoped
-public class CPYMESView {
+public class CPYMESView implements Serializable {
+
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 2893678931161731844L;
 
    private static final int INTERVAL = 30;
 
@@ -192,7 +198,9 @@ public class CPYMESView {
    }
 
    public void goIvr() {
-      Util.redirectURL(Constant.URL_IVR);
+      if (Util.validateLogIn()) {
+         Util.redirectURL(Constant.URL_IVR);
+      }
    }
 
    /**

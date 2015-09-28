@@ -22,6 +22,7 @@ import javax.persistence.TemporalType;
 @NamedQueries({
    @NamedQuery(name = "AlarmPymesEntity.findAll", query = "SELECT a FROM AlarmPymesEntity a"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliar", query = "SELECT a.id FROM AlarmPymesEntity a WHERE a.eventName=:eventName AND a.name=:name AND a.date BETWEEN :startDate AND :endDate AND a.estado=:estado and a.interFace=:interFace"),
+   @NamedQuery(name = "AlarmPymesEntity.findSimiliarAfectacion", query = "SELECT a.id FROM AlarmPymesEntity a WHERE a.eventName=:eventName AND a.ip=:ip AND a.estado=:estado"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEP", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo=:nodo AND a.estado=:estado AND a.nameCorrelation=:nameCorrelation AND a.date BETWEEN :startDate AND :endDate"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEPByDate", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo=:nodo AND a.estado=:estado AND a.nameCorrelation=:nameCorrelation AND a.date=:date"),
    @NamedQuery(name = "AlarmPymesEntity.findSimiliarCEPReconocidas", query = "SELECT a FROM AlarmPymesEntity a WHERE a.nodo IS NOT NULL AND a.estado=:estado AND a.nameCorrelation IS NOT NULL AND a.datetimeAcknowledge BETWEEN :startDate AND :endDate"),

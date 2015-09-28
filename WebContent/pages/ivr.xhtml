@@ -34,7 +34,7 @@
 	<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"
 		rendered="false" />
 	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false"
-		resizable="false" showHeader="false" rendered="false">
+		resizable="false" showHeader="false">
 		<p:graphicImage library="image" name="loading.gif" />
 	</p:dialog>
 	<div id="icon_clock" class="play" />
@@ -45,9 +45,9 @@
 	<h:form id="form">
 		<p:growl id="growl_ivr" />
 		<p:panel styleClass="panel_session">
-			<p:commandButton action="#{loginView.closeSession}"
-				value="#{loginView.user.userName}&#160;&#160;&#160;(X)" icon="ui-icon-person"
-				title="Cerrar Sesión" />
+			<p:commandButton action="#{loginView.closeSession}" onstart="PF('statusDialog').show();"
+				oncomplete="PF('statusDialog').hide();" value="#{loginView.user.userName}&#160;&#160;&#160;(X)"
+				icon="ui-icon-person" title="Cerrar Sesión" />
 			<h:inputHidden value="#{loginView.user.userName}" id="userName" />
 		</p:panel>
 		<p:panel styleClass="panel_transparent">

@@ -1,5 +1,7 @@
 package com.claro.cpymes.view;
 
+import java.io.Serializable;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -23,7 +25,12 @@ import com.claro.cpymes.util.Util;
  */
 @ManagedBean(name = "loginView")
 @SessionScoped
-public class LoginView {
+public class LoginView implements Serializable {
+
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 2411831744005864773L;
 
    private static Logger LOGGER = LogManager.getLogger(LoginView.class.getName());
 

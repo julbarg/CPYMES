@@ -460,7 +460,7 @@ public class ProcessEJB implements ProcessEJBRemote {
     */
    private boolean sendIVR(LogDTO log) throws Exception {
       EquipoCMBD equipo = getEquipo(log);
-      if (equipo.getCiudad() == null)
+      if (equipo == null || equipo.getCiudad() == null)
          return false;
 
       String typeEvent = log.getTypeEvent().getType();
@@ -527,6 +527,8 @@ public class ProcessEJB implements ProcessEJBRemote {
       ServicesDevicesDTO equipo;
       try {
          ServicesDevicesDTO[] equipos = consultCMBD(log);
+         if (equipos == null || equipos.length == 0)
+            return null;
          equipo = equipos[0];
          String ip = log.getIp();
          if (log.isCorrelation()) {
@@ -534,7 +536,6 @@ public class ProcessEJB implements ProcessEJBRemote {
             equipoCMBD.setCodigosServicio(new ArrayList<String>());
             for (ServicesDevicesDTO item : equipos) {
                for (String code : getCodesService(item)) {
-                  LOGGER.info("CODE: " + code);
                   equipoCMBD.getCodigosServicio().add(code);
                }
             }
@@ -570,33 +571,40 @@ public class ProcessEJB implements ProcessEJBRemote {
     * @throws ServiceException
     */
    private ServicesDevicesDTO[] consultCMBD(LogDTO log) throws RemoteException, ServiceException {
-      ServicesDevicesDTO[] equipos = new ServicesDevicesDTO[0];
+      ServicesDevicesDTO[] equipos = null;
       IvrcmdbLocator ivrCmbd = new IvrcmdbLocator();
       String IP = log.getIp();
       String interFace = log.getInterFace();
       String name = log.getName();
       boolean trunk = log.isTrunk();
       if (log.isCorrelation()) {
-         LOGGER.info("INTERFACE AFECTACION MASIVA: " + interFace);
+         LOGGER.info("AFECTACION MASIVA INTERFACES: " + log.getInterFace());
          ArrayList<String> interFaces = getInterfaces(interFace);
          ArrayList<ServicesDevicesDTO> resultFinalEquipos = new ArrayList<ServicesDevicesDTO>();
          for (String interFaceSplit : interFaces) {
-            ServicesDevicesDTO[] serviceDevicesSplit = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP, interFaceSplit, "");
-            for (ServicesDevicesDTO servicesDevices : serviceDevicesSplit) {
-               resultFinalEquipos.add(servicesDevices);
+            ServicesDevicesDTO[] serviceDevicesSplit = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP.trim(), interFaceSplit.trim(),
+               name.trim());
+            if (serviceDevicesSplit != null && serviceDevicesSplit.length > 0) {
+               for (ServicesDevicesDTO servicesDevices : serviceDevicesSplit) {
+                  resultFinalEquipos.add(servicesDevices);
+               }
             }
          }
          equipos = getEquiposAfectacion(equipos, resultFinalEquipos, IP);
-
       } else if (trunk) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPortTrunk(IP, interFace, name);
          LOGGER.info("TRUNK: " + log.getNameEvent());
-         LOGGER.info("EQUIPOS: " + equipos.length);
+         if (equipos != null) {
+            LOGGER.info("EQUIPOS: " + equipos.length);
+         }
       } else if (interFace != null && interFace.length() > 0 && IP != null && IP.length() > 0) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesPort(IP, interFace, name);
       } else if (IP != null && IP.length() > 0) {
          equipos = ivrCmbd.getIvrcmdbWsImplPort().extractServicesIp(IP);
       }
+
+      if (equipos == null || equipos.length == 0)
+         return null;
       return equipos;
    }
 
@@ -608,6 +616,7 @@ public class ProcessEJB implements ProcessEJBRemote {
             equipos[i] = servicesDevices;
             i++;
          }
+
       }
       return equipos;
    }
@@ -615,10 +624,14 @@ public class ProcessEJB implements ProcessEJBRemote {
    private ArrayList<String> getInterfaces(String interFace) {
       ArrayList<String> listInterfaces = new ArrayList<String>();
       StringTokenizer tokenInterface = new StringTokenizer(interFace, Constant.DELIMETER_INTERFACE);
+      HashMap<String, String> hashMapInterface = new HashMap<String, String>();
       while (tokenInterface.hasMoreElements()) {
-         String interFaceUnique = tokenInterface.nextElement().toString();
-         listInterfaces.add(interFaceUnique.trim());
-         LOGGER.info("INTERFACE: " + interFaceUnique);
+         String interFaceUnique = tokenInterface.nextElement().toString().trim();
+         if (!hashMapInterface.containsKey(interFaceUnique)) {
+            hashMapInterface.put(interFaceUnique, interFaceUnique);
+            listInterfaces.add(interFaceUnique);
+            LOGGER.info("INTERFACE: " + interFaceUnique);
+         }
       }
 
       return listInterfaces;
@@ -632,10 +645,10 @@ public class ProcessEJB implements ProcessEJBRemote {
     */
    private EquipoCMBD getCityDescriptionDivision(ServicesDevicesDTO equipo, EquipoCMBD equipoCMBD) {
       equipoCMBD.setCiudad(equipo.getCity());
-      if (equipo.getDescription() != null) {
-         equipoCMBD.setDescripcion(equipo.getDescription());
-      } else if (equipo.getDevice() != null) {
+      if (equipo.getDevice() != null) {
          equipoCMBD.setDescripcion(equipo.getDevice());
+      } else if (equipo.getDescription() != null) {
+         equipoCMBD.setDescripcion(equipo.getDescription());
       }
       equipoCMBD.setDivision(equipo.getSds());
       equipoCMBD.setDivisional(equipo.getDivisional());
@@ -650,12 +663,12 @@ public class ProcessEJB implements ProcessEJBRemote {
     */
    private ArrayList<String> getCodesService(ServicesDevicesDTO equipo) {
       ArrayList<String> codesService = new ArrayList<String>();
-      if (equipo.getServiceList() != null && equipo.getServiceList().length > 0) {
+      if (equipo != null && equipo.getServiceList() != null && equipo.getServiceList().length > 0) {
          for (String code : equipo.getServiceList()) {
             codesService.add(code);
          }
       }
-      if (equipo.getService() != null && equipo.getService().length() > 0) {
+      if (equipo != null && equipo.getService() != null && equipo.getService().length() > 0) {
          codesService.add(equipo.getService());
       }
       return codesService;

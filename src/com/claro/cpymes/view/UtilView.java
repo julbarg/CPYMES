@@ -1,5 +1,7 @@
 package com.claro.cpymes.view;
 
+import java.io.Serializable;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -9,7 +11,12 @@ import com.claro.cpymes.util.Util;
 
 @ManagedBean(name = "util")
 @SessionScoped
-public class UtilView {
+public class UtilView implements Serializable {
+
+   /**
+    * 
+    */
+   private static final long serialVersionUID = -6204047620266248561L;
 
    private String userName = "";
 
@@ -27,10 +34,6 @@ public class UtilView {
       } catch (SessionException e) {
          return "NO USER";
       }
-   }
-
-   public boolean validateLogIn() {
-      return Util.validateLogIn();
    }
 
    public String getUserName() {

@@ -158,8 +158,8 @@ public class Util {
    }
 
    public static void logout() {
-      HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
-      session.invalidate();
+      Util.getSession().setAttribute(Constant.USER_NAME, null);
+      redirectURL(Constant.URL_LOGIN + "?faces-redirect=true");
    }
 
    public static Date getDateStringToDate(String dateString) {
@@ -188,11 +188,11 @@ public class Util {
    public static boolean validateLogIn() {
       try {
          if (getUserName() == null) {
-            redirectURL(Constant.URL_LOGIN);
+            redirectURL(Constant.URL_LOGIN + "?faces-redirect=true");
             return false;
          }
       } catch (SessionException e) {
-         redirectURL(Constant.URL_LOGIN);
+         redirectURL(Constant.URL_LOGIN + "?faces-redirect=true");
       }
       return true;
    }

@@ -1,5 +1,6 @@
 package com.claro.cpymes.view;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,7 +28,12 @@ import com.claro.cpymes.util.Util;
  */
 @ManagedBean(name = "ivr")
 @SessionScoped
-public class IVRView {
+public class IVRView implements Serializable {
+
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 4280299934664307887L;
 
    private static Logger LOGGER = LogManager.getLogger(IVRView.class.getName());
 
@@ -59,11 +65,12 @@ public class IVRView {
       listTypeEvent.add(TypeEventEnum.FIBRA);
       load();
       play();
-      Util.validateLogIn();
-
    }
 
    public void load() {
+      if (!Util.validateLogIn()) {
+         return;
+      }
       try {
          validateDateLoadNits();
          initializeAttributes();
@@ -80,8 +87,7 @@ public class IVRView {
       if (dateLoadNits != null) {
          hours = Util.getHoursBetweenTwoDates(dateLoadNits, today);
          if (hours > Constant.TIMER_LOAD_NITS) {
-            Util.addMessageFatal("Se esta presentando un error al realizar el cargue de Codigos de Servicio vs Nits. "
-               + hours);
+            Util.addMessageFatal("Se esta presentando un error al realizar el cargue de Codigos de Servicio vs Nits. " + hours);
             LOGGER.info("Se esta presentando un error al realizar el cargue de Codigos de Servicio vs Nits.");
          }
       }
@@ -158,11 +164,15 @@ public class IVRView {
    }
 
    public void goControl() {
-      Util.redirectURL(Constant.URL_CONTROL);
+      if (Util.validateLogIn()) {
+         Util.redirectURL(Constant.URL_CONTROL);
+      }
    }
 
    public void goReport() {
-      Util.redirectURL(Constant.URL_REPORT_PAGE);
+      if (Util.validateLogIn()) {
+         Util.redirectURL(Constant.URL_REPORT_PAGE);
+      }
    }
 
    public ArrayList<AlarmaPymeIVRDTO> getListAlarmaPymesIVR() {

@@ -60,6 +60,7 @@ public class CPYMESEJB implements CPYMESEJBRemote {
          alarmDTO.setNodo(alarmEntity.getNodo());
          alarmDTO.setSeverity(alarmEntity.getSeverity());
          alarmDTO.setName(alarmEntity.getName());
+         alarmDTO.setInterFace(alarmEntity.getInterFace());
 
          listAlarmPymesDTO.add(alarmDTO);
       }
@@ -87,6 +88,7 @@ public class CPYMESEJB implements CPYMESEJBRemote {
       alarmEntity.setEstado(alarmDTO.getEstado());
       alarmEntity.setDate(alarmDTO.getDate());
       alarmEntity.setDatetimeAcknowledge(alarmDTO.getDatetimeAcknowledge());
+      alarmEntity.setInterFace(alarmDTO.getInterFace());
 
       alarmPymesDAO.update(alarmEntity);
 
